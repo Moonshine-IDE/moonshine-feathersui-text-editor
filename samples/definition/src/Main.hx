@@ -44,7 +44,7 @@ class Main extends Application {
 				new LocationLink('file:///path/to/${word}.hx', new Range(new Position(0, 0), new Position(0, 5)),
 					new Range(new Position(0, 0), new Position(0, 5)))
 			];
-			event.callback(definitions);
+			event.callback(cast definitions);
 		});
 		textEditor.addEventListener(LspTextEditorLanguageActionEvent.OPEN_LINK, event -> {
 			Alert.show(event.data[0].targetUri, "Link Clicked", ["OK"]);
