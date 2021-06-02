@@ -1,0 +1,90 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test-neko-legacy:
+    strategy:
+      matrix:
+        haxe-version: [4.0.5, 4.1.5]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: ${{ matrix.haxe-version }}
+      - name: Set up Haxelib dependencies
+        run: |
+          haxelib install utest --quiet
+          haxelib install lime 7.8.0 --quiet
+          haxelib install openfl 8.9.7 --quiet
+          haxelib install actuate --quiet
+          haxelib install markdown-openfl-textfield --quiet
+          haxelib git feathersui https://github.com/BowlerHatLLC/feathersui-openfl.git --quiet
+          haxelib git moonshine-openfl-language-client https://github.com/Moonshine-IDE/moonshine-openfl-language-client.git --quiet
+          haxelib dev moonshine-feathersui-text-editor $GITHUB_WORKSPACE
+      - name: Run Tests
+        working-directory: test
+        run: haxelib run openfl test neko
+
+  test-neko:
+    strategy:
+      matrix:
+        haxe-version: [4.2.1]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: ${{ matrix.haxe-version }}
+      - name: Set up Haxelib dependencies
+        run: |
+          haxelib install utest --quiet
+          haxelib install lime 7.8.0 --quiet
+          haxelib install openfl 8.9.7 --quiet
+          haxelib install actuate --quiet
+          haxelib install markdown-openfl-textfield --quiet
+          haxelib git feathersui https://github.com/BowlerHatLLC/feathersui-openfl.git --quiet
+          haxelib git moonshine-openfl-language-client https://github.com/Moonshine-IDE/moonshine-openfl-language-client.git --quiet
+          haxelib dev moonshine-feathersui-text-editor $GITHUB_WORKSPACE
+      - name: Run Tests
+        working-directory: test
+        run: haxelib run openfl test neko
+
+  test-air:
+    strategy:
+      matrix:
+        haxe-version: [4.2.1]
+
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: joshtynjala/setup-adobe-air-action@v1
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: ${{ matrix.haxe-version }}
+      - name: Set up Haxelib dependencies
+        run: |
+          haxelib install utest --quiet
+          haxelib install lime 7.8.0 --quiet
+          haxelib install openfl 8.9.7 --quiet
+          haxelib install actuate --quiet
+          haxelib install markdown-openfl-textfield --quiet
+          haxelib git feathersui https://github.com/BowlerHatLLC/feathersui-openfl.git --quiet
+          haxelib git moonshine-openfl-language-client https://github.com/Moonshine-IDE/moonshine-openfl-language-client.git --quiet
+          haxelib dev moonshine-feathersui-text-editor $GITHUB_WORKSPACE
+          haxelib run lime config AIR_SDK ${{ env.AIR_HOME }}
+      - name: Run Tests
+        working-directory: test
+        run: haxelib run openfl test air

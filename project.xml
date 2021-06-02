@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	
+	<meta title="MoonshineTextEditorCore" package="Moonshine" version="1.0.0" company="Prominic.NET" />
+	<app file="MoonshineTextEditorCore" />
+
+	<window allow-high-dpi="true"/>
+	<window fps="60"/>
+	
+	<source path="src" />
+	
+	<haxelib name="openfl" />
+	<haxelib name="actuate" />
+	<haxelib name="feathersui" />
+	<haxelib name="markdown-openfl-textfield" />
+	<haxelib name="moonshine-openfl-language-client" />
+
+	<template path="templates" if="flash"/>
+
+	<haxeflag name="--macro" value="include('moonshine.editor')"/>
+</project>

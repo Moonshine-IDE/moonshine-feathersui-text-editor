@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	<meta title="LspTextEditor Signature Help Sample" package="com.example.signaturehelp" version="1.0.0" company="Prominic.NET" />
+	<app main="Main" file="Signature Help Sample" />
+
+	<window allow-high-dpi="true"/>
+	<window fps="60"/>
+	
+	<source path="../../src" />
+	<source path="src" />
+	
+	<haxelib name="openfl" />
+	<haxelib name="actuate" />
+	<haxelib name="feathersui" />
+	<haxelib name="markdown-openfl-textfield" />
+</project>

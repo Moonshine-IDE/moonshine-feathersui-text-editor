@@ -1,0 +1,17 @@
+{
+  "name": "moonshine-feathersui-text-editor",
+  "url": "https://github.com/Moonshine-IDE/moonshine-feathersui-text-editor",
+  "license": "MIT",
+  "tags": ["openfl", "moonshine", "feathersui", "text-editor"],
+  "description": "A text editor built with Feathers UI and OpenFL",
+  "version": "1.0.0-alpha.1",
+  "releasenote": "Initial release.",
+  "contributors": ["bowlerhat"],
+  "classPath": "src",
+  "dependencies": {
+    "openfl": "",
+    "actuate": "",
+    "feathersui": "",
+    "moonshine-openfl-language-client": ""
+  }
+}

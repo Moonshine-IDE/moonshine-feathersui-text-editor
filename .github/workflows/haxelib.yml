@@ -1,0 +1,25 @@
+name: Haxelib
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/upload-artifact@v2
+        with:
+          name: moonshine-feathersui-text-editor-haxelib
+          path: |
+            src/
+            haxelib.json
+            README.md
+            LICENSE
+          if-no-files-found: error

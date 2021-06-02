@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	<meta title="MoonshineTestEditorCoreTests" package="net.prominic.moonshine.texteditor.tests" />
+	<app main="TestMain" />
+
+	<source path="src" />
+	<source path="../src" />
+	
+	<haxelib name="openfl" />
+	<haxelib name="utest" />
+	<haxelib name="actuate" />
+	<haxelib name="feathersui" />
+	<haxelib name="markdown-openfl-textfield" />
+	<haxelib name="moonshine-openfl-language-client" />
+
+	<!--
+		a custom HTML template is required when using utest with OpenFL
+	 -->
+	<template path="templates" if="html5"/>
+</project>

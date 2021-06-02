@@ -1,0 +1,39 @@
+name: Flash
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: 4.0.5
+      - name: Set up Haxelib dependencies
+        run: |
+          haxelib install lime 7.8.0 --quiet
+          haxelib install openfl 8.9.7 --quiet
+          haxelib install actuate --quiet
+          haxelib install markdown-openfl-textfield --quiet
+          haxelib git feathersui https://github.com/BowlerHatLLC/feathersui-openfl.git --quiet
+          haxelib git moonshine-openfl-language-client https://github.com/Moonshine-IDE/moonshine-openfl-language-client.git --quiet
+          haxelib dev moonshine-feathersui-text-editor $GITHUB_WORKSPACE
+      - name: Build Flash .swc library
+        run: haxelib run openfl build flash -debug
+      - uses: actions/upload-artifact@v2
+        with:
+          name: moonshine-openfl-text-editor-flash
+          path: |
+            bin/flash/bin/*.swc
+            src/
+            README.md
+            LICENSE
+          if-no-files-found: error
