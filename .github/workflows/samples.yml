@@ -32,3 +32,35 @@ jobs:
         working-directory: samples/simple-text-editor
         run: |
           haxelib run openfl build air
+      - name: Build samples/breakpoints
+        working-directory: samples/breakpoints
+        run: |
+          haxelib run openfl build air
+      - name: Build samples/code-actions
+        working-directory: samples/code-actions
+        run: |
+          haxelib run openfl build air
+      - name: Build samples/completion
+        working-directory: samples/completion
+        run: |
+          haxelib run openfl build air
+      - name: Build samples/resolve-completion
+        working-directory: samples/resolve-completion
+        run: |
+          haxelib run openfl build air
+      - name: Build samples/definition
+        working-directory: samples/definition
+        run: |
+          haxelib run openfl build air
+      - name: Build samples/diagnostics
+        working-directory: samples/diagnostics
+        run: |
+          haxelib run openfl build air
+      - name: Build samples/hover
+        working-directory: samples/hover
+        run: |
+          haxelib run openfl build air
+      - name: Build samples/signature-help
+        working-directory: samples/signature-help
+        run: |
+          haxelib run openfl build air
