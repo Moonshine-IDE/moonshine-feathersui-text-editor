@@ -11,7 +11,6 @@ on:
 jobs:
   build-air:
     runs-on: windows-latest
-
     steps:
       - uses: actions/checkout@v2
       - uses: joshtynjala/setup-adobe-air-action@v1
@@ -26,8 +25,7 @@ jobs:
           haxelib install markdown-openfl-textfield --quiet
           haxelib git feathersui https://github.com/BowlerHatLLC/feathersui-openfl.git --quiet
           haxelib git moonshine-openfl-language-client https://github.com/Moonshine-IDE/moonshine-openfl-language-client.git --quiet
-          echo $GITHUB_WORKSPACE
-          haxelib dev moonshine-feathersui-text-editor $GITHUB_WORKSPACE
+          haxelib dev moonshine-feathersui-text-editor ${{ env.GITHUB_WORKSPACE }}
           haxelib run lime config AIR_SDK ${{ env.AIR_HOME }}
       - name: Build samples/simple-text-editor
         working-directory: samples/simple-text-editor
