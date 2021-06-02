@@ -30,7 +30,7 @@ jobs:
         run: haxelib run openfl build flash -debug
       - uses: actions/upload-artifact@v2
         with:
-          name: moonshine-openfl-text-editor-flash
+          name: moonshine-feathersui-text-editor-flash
           path: |
             bin/flash/bin/*.swc
             src/

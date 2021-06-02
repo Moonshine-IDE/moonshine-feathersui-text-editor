@@ -11,5 +11,5 @@
 	<haxelib name="openfl" />
 	<haxelib name="actuate" />
 	<haxelib name="feathersui" />
-	<haxelib name="moonshine-openfl-text-editor" />
+	<haxelib name="moonshine-feathersui-text-editor" />
 </project>
