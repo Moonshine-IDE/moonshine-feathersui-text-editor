@@ -84,7 +84,7 @@ class HoverManager {
 
 		var markdown = null;
 		if (result != null && result.contents != null) {
-			if (Std.isOfType(result.contents, Array)) {
+			if ((result.contents is Array)) {
 				var contents = (result.contents : Array<Any>);
 				markdown = "";
 				for (i in 0...contents.length) {
@@ -199,10 +199,10 @@ class HoverManager {
 		if (original == null) {
 			return null;
 		}
-		if (Std.isOfType(original, String)) {
+		if ((original is String)) {
 			return (original : String);
 		}
-		if (Std.isOfType(original, MarkupContent)) {
+		if ((original is MarkupContent)) {
 			var markupContent = (original : MarkupContent);
 			return markupContent.value;
 		}

@@ -94,7 +94,7 @@ class FindReplaceManager {
 		// Get string once (it's built dynamically)
 		var str = _textEditor.text;
 
-		var searchRegExp = Std.isOfType(search, EReg) ? cast(search, EReg) : null;
+		var searchRegExp = (search is EReg) ? (search : EReg) : null;
 		if (searchRegExp == null) {
 			var searchStr = Std.string(search);
 			if (searchStr.length > 0) {

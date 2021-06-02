@@ -690,7 +690,7 @@ class TextLineRenderer extends FeathersControl {
 			return;
 		}
 		if (oldSkin != null) {
-			if (Std.isOfType(oldSkin, IProgrammaticSkin)) {
+			if ((oldSkin is IProgrammaticSkin)) {
 				cast(oldSkin, IProgrammaticSkin).uiContext = null;
 			}
 			removeChild(oldSkin);
@@ -699,7 +699,7 @@ class TextLineRenderer extends FeathersControl {
 			return;
 		}
 		addChildAt(_currentBackgroundSkin, 0);
-		if (Std.isOfType(_currentBackgroundSkin, IProgrammaticSkin)) {
+		if ((_currentBackgroundSkin is IProgrammaticSkin)) {
 			cast(_currentBackgroundSkin, IProgrammaticSkin).uiContext = this;
 		}
 	}
@@ -717,7 +717,7 @@ class TextLineRenderer extends FeathersControl {
 	private function refreshGutterWidth():Void {
 		_gutterWidth = 0.0;
 		if (_allowToggleBreakpoints && _currentBreakpointSkin != null) {
-			if (Std.isOfType(_currentBreakpointSkin, IValidating)) {
+			if ((_currentBreakpointSkin is IValidating)) {
 				cast(_currentBreakpointSkin, IValidating).validateNow();
 			}
 			_gutterWidth += _currentBreakpointSkin.width;
@@ -738,7 +738,7 @@ class TextLineRenderer extends FeathersControl {
 			return;
 		}
 		if (oldSkin != null) {
-			if (Std.isOfType(oldSkin, IProgrammaticSkin)) {
+			if ((oldSkin is IProgrammaticSkin)) {
 				cast(oldSkin, IProgrammaticSkin).uiContext = null;
 			}
 			removeChild(oldSkin);
@@ -747,7 +747,7 @@ class TextLineRenderer extends FeathersControl {
 			return;
 		}
 		addChildAt(_currentGutterBackgroundSkin, getChildIndex(_lineNumberTextField));
-		if (Std.isOfType(_currentGutterBackgroundSkin, IProgrammaticSkin)) {
+		if ((_currentGutterBackgroundSkin is IProgrammaticSkin)) {
 			cast(_currentGutterBackgroundSkin, IProgrammaticSkin).uiContext = this;
 		}
 	}
@@ -782,7 +782,7 @@ class TextLineRenderer extends FeathersControl {
 			return;
 		}
 		if (oldSkin != null) {
-			if (Std.isOfType(oldSkin, IProgrammaticSkin)) {
+			if ((oldSkin is IProgrammaticSkin)) {
 				cast(oldSkin, IProgrammaticSkin).uiContext = null;
 			}
 			removeChild(oldSkin);
@@ -791,7 +791,7 @@ class TextLineRenderer extends FeathersControl {
 			return;
 		}
 		addChild(_currentBreakpointSkin);
-		if (Std.isOfType(_currentBreakpointSkin, IProgrammaticSkin)) {
+		if ((_currentBreakpointSkin is IProgrammaticSkin)) {
 			cast(_currentBreakpointSkin, IProgrammaticSkin).uiContext = this;
 		}
 	}
@@ -834,7 +834,7 @@ class TextLineRenderer extends FeathersControl {
 			return;
 		}
 		if (oldSkin != null) {
-			if (Std.isOfType(oldSkin, IProgrammaticSkin)) {
+			if ((oldSkin is IProgrammaticSkin)) {
 				cast(oldSkin, IProgrammaticSkin).uiContext = null;
 			}
 			removeChild(oldSkin);
@@ -845,7 +845,7 @@ class TextLineRenderer extends FeathersControl {
 		// display directly below the text field
 		var index = getChildIndex(_mainTextField);
 		addChildAt(_currentSelectedTextBackgroundSkin, index);
-		if (Std.isOfType(_currentSelectedTextBackgroundSkin, IProgrammaticSkin)) {
+		if ((_currentSelectedTextBackgroundSkin is IProgrammaticSkin)) {
 			cast(_currentSelectedTextBackgroundSkin, IProgrammaticSkin).uiContext = this;
 		}
 	}
@@ -946,7 +946,7 @@ class TextLineRenderer extends FeathersControl {
 
 		if (_currentBreakpointSkin != null) {
 			_currentBreakpointSkin.visible = _allowToggleBreakpoints && _breakpoint;
-			if (Std.isOfType(_currentBreakpointSkin, IValidating)) {
+			if ((_currentBreakpointSkin is IValidating)) {
 				cast(_currentBreakpointSkin, IValidating).validateNow();
 			}
 			_currentBreakpointSkin.x = _currentGutterBackgroundSkin.x + gutterPaddingLeft;

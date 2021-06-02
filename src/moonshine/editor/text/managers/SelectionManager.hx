@@ -462,7 +462,7 @@ class SelectionManager {
 		var rdr:TextLineRenderer = null;
 		var current = cast(event.target, DisplayObject);
 		while (current != null) {
-			if (Std.isOfType(current, TextLineRenderer)) {
+			if ((current is TextLineRenderer)) {
 				rdr = cast(current, TextLineRenderer);
 				break;
 			}
