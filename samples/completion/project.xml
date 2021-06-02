@@ -6,11 +6,10 @@
 	<window allow-high-dpi="true"/>
 	<window fps="60"/>
 	
-	<source path="../../src" />
 	<source path="src" />
 	
 	<haxelib name="openfl" />
 	<haxelib name="actuate" />
 	<haxelib name="feathersui" />
-	<haxelib name="markdown-openfl-textfield" />
+	<haxelib name="moonshine-openfl-text-editor" />
 </project>
