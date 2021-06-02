@@ -17,7 +17,7 @@ jobs:
       - uses: joshtynjala/setup-adobe-air-action@v1
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.0.5
+          haxe-version: 4.1.5
       - name: Set up Haxelib dependencies
         run: |
           haxelib install lime 7.8.0 --quiet
