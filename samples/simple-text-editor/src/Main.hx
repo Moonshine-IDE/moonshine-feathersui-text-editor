@@ -271,7 +271,7 @@ class Main extends Application {
 			stream.open(_openedFile, FileMode.WRITE);
 			stream.writeUTFBytes(_textEditor.text);
 			stream.close();
-		} catch (error) {
+		} catch (e:Any) {
 			Alert.show("File could not be saved: " + _openedFile.name, "Error", ["OK"]);
 			stream.close();
 			return;

@@ -138,7 +138,7 @@ class HoverManager {
 		var htmlText = null;
 		try {
 			htmlText = TextFieldMarkdown.markdownToHtml(StringTools.trim(markdown));
-		} catch (e) {
+		} catch (e:Any) {
 			return;
 		}
 		if (htmlText == null || htmlText.length == 0) {
