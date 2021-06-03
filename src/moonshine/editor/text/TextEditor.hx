@@ -997,16 +997,13 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		if (_lines.length == 0) {
 			// don't want to divide by zero
 			_lineHeight = 0.0;
-			_maxLineScrollY = 0;
-		} else if (_listView.maxScrollY == 0.0) {
-			_lineHeight = firstLine.height;
+			_visibleLines = 1;
 			_maxLineScrollY = 0;
 		} else {
-			var totalHeight = _viewPortVisibleBounds.height + _listView.maxScrollY;
-			_lineHeight = totalHeight / _lines.length;
-			_maxLineScrollY = _lines.length - Std.int(_viewPortVisibleBounds.height / _lineHeight);
+			_lineHeight = firstLine.height;
+			_visibleLines = Std.int(_viewPortVisibleBounds.height / _lineHeight);
+			_maxLineScrollY = Std.int(Math.max(_visibleLines, _lines.length)) - _visibleLines;
 		}
-		_visibleLines = _lines.length - _maxLineScrollY;
 	}
 
 	private function textEditor_focusInHandler(event:FocusEvent):Void {
