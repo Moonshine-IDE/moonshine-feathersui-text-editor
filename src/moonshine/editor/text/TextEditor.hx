@@ -253,6 +253,16 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 
 	private var _gutterWidth:Float = 0.0;
 
+	/**
+		The width of the gutter to the left of the lines.
+	**/
+	@:flash.property
+	public var gutterWidth(get, never):Float;
+
+	private function get_gutterWidth():Float {
+		return _gutterWidth;
+	}
+
 	@:style
 	public var lineNumberWidth:Null<Float> = null;
 

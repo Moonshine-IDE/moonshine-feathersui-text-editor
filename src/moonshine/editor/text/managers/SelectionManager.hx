@@ -114,7 +114,7 @@ class SelectionManager {
 				endLine = textEditorPosition.line;
 				endChar = _textEditor.lines.get(endLine).text.length;
 			}
-		} else if (localPoint.x < _textEditor.lineNumberWidth) {
+		} else if (localPoint.x < _textEditor.gutterWidth) {
 			endLine = textEditorPosition.line + (startLine > textEditorPosition.line
 				|| startLine == textEditorPosition.line
 				&& startChar > 0 ? 0 : 1);
@@ -478,7 +478,7 @@ class SelectionManager {
 		}
 
 		var newCaretPosition = rdr.getSelectionCharIndexAtPoint(rdr.mouseX, rdr.mouseY);
-		var safeBreakpointHitAreaSize = _textEditor.lineNumberWidth - 4.0;
+		var safeBreakpointHitAreaSize = _textEditor.gutterWidth - 4.0;
 		if (newCaretPosition != -1) {
 			if (_clickCount == 1) {
 				startLine = event.shiftKey ? _textEditor.hasSelection ? _textEditor.selectionStartLineIndex : _textEditor.caretLineIndex : rdr.lineIndex;
