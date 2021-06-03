@@ -74,7 +74,119 @@ class TextEditorTextInputTestCase extends Test {
 		Assert.equals(-1, _textEditor.selectionEndCharIndex);
 	}
 
-	#if !html5
+	#if (!html5 && (!flash || air))
+	public function testCopyEvent():Void {
+		final INVALID = "INVALID CLIPBOARD DATA";
+		final VALID = "ell";
+		_textEditor.text = "hello";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 1, 0, 4);
+		Clipboard.generalClipboard.setData(ClipboardFormats.TEXT_FORMAT, INVALID);
+		Assert.equals(INVALID, Clipboard.generalClipboard.getData(ClipboardFormats.TEXT_FORMAT));
+		_textEditor.dispatchEvent(new Event(Event.COPY));
+		Assert.equals(VALID, Clipboard.generalClipboard.getData(ClipboardFormats.TEXT_FORMAT));
+		Assert.equals("hello", _textEditor.text);
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(4, _textEditor.caretCharIndex);
+		Assert.equals(0, _textEditor.selectionStartLineIndex);
+		Assert.equals(1, _textEditor.selectionStartCharIndex);
+		Assert.equals(0, _textEditor.selectionEndLineIndex);
+		Assert.equals(4, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testCopyEventMultiline():Void {
+		final INVALID = "INVALID CLIPBOARD DATA";
+		final VALID = "llo\nwor";
+		_textEditor.text = "hello\nworld";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 2, 1, 3);
+		Clipboard.generalClipboard.setData(ClipboardFormats.TEXT_FORMAT, INVALID);
+		Assert.equals(INVALID, Clipboard.generalClipboard.getData(ClipboardFormats.TEXT_FORMAT));
+		_textEditor.dispatchEvent(new Event(Event.COPY));
+		Assert.equals(VALID, Clipboard.generalClipboard.getData(ClipboardFormats.TEXT_FORMAT));
+		Assert.equals("hello\nworld", _textEditor.text);
+		Assert.equals(1, _textEditor.caretLineIndex);
+		Assert.equals(3, _textEditor.caretCharIndex);
+		Assert.equals(0, _textEditor.selectionStartLineIndex);
+		Assert.equals(2, _textEditor.selectionStartCharIndex);
+		Assert.equals(1, _textEditor.selectionEndLineIndex);
+		Assert.equals(3, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testCopyEventNoSelection():Void {
+		final INVALID = "INVALID CLIPBOARD DATA";
+		_textEditor.text = "hello";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 1, 0, 1);
+		Clipboard.generalClipboard.setData(ClipboardFormats.TEXT_FORMAT, INVALID);
+		Assert.equals(INVALID, Clipboard.generalClipboard.getData(ClipboardFormats.TEXT_FORMAT));
+		_textEditor.dispatchEvent(new Event(Event.COPY));
+		Assert.equals(INVALID, Clipboard.generalClipboard.getData(ClipboardFormats.TEXT_FORMAT));
+		Assert.equals("hello", _textEditor.text);
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(1, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testCutEvent():Void {
+		final INVALID = "INVALID CLIPBOARD DATA";
+		final VALID = "ell";
+		_textEditor.text = "hello";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 1, 0, 4);
+		Clipboard.generalClipboard.setData(ClipboardFormats.TEXT_FORMAT, INVALID);
+		Assert.equals(INVALID, Clipboard.generalClipboard.getData(ClipboardFormats.TEXT_FORMAT));
+		_textEditor.dispatchEvent(new Event(Event.CUT));
+		Assert.equals(VALID, Clipboard.generalClipboard.getData(ClipboardFormats.TEXT_FORMAT));
+		Assert.equals("ho", _textEditor.text);
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(1, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testCutEventMultiline():Void {
+		final INVALID = "INVALID CLIPBOARD DATA";
+		final VALID = "llo\nwor";
+		_textEditor.text = "hello\nworld";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 2, 1, 3);
+		Clipboard.generalClipboard.setData(ClipboardFormats.TEXT_FORMAT, INVALID);
+		Assert.equals(INVALID, Clipboard.generalClipboard.getData(ClipboardFormats.TEXT_FORMAT));
+		_textEditor.dispatchEvent(new Event(Event.CUT));
+		Assert.equals(VALID, Clipboard.generalClipboard.getData(ClipboardFormats.TEXT_FORMAT));
+		Assert.equals("held", _textEditor.text);
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(2, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testCutEventNoSelection():Void {
+		final INVALID = "INVALID CLIPBOARD DATA";
+		_textEditor.text = "hello";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 1, 0, 1);
+		Clipboard.generalClipboard.setData(ClipboardFormats.TEXT_FORMAT, INVALID);
+		Assert.equals(INVALID, Clipboard.generalClipboard.getData(ClipboardFormats.TEXT_FORMAT));
+		_textEditor.dispatchEvent(new Event(Event.CUT));
+		Assert.equals(INVALID, Clipboard.generalClipboard.getData(ClipboardFormats.TEXT_FORMAT));
+		Assert.equals("hello", _textEditor.text);
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(1, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
 	public function testPasteEvent():Void {
 		_textEditor.text = "hello";
 		_textEditor.stage.focus = _textEditor;
