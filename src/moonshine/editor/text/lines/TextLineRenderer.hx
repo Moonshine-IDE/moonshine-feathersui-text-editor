@@ -54,6 +54,9 @@ class TextLineRenderer extends FeathersControl {
 	private var _mainTextField:TextField;
 	private var _lineNumberTextField:TextField;
 
+	private var _tabOffsets:Array<Int> = [];
+	private var _renderedText:String;
+
 	private var _text:String;
 
 	@:flash.property
@@ -68,6 +71,8 @@ class TextLineRenderer extends FeathersControl {
 			return _text;
 		}
 		_text = value;
+		refreshTabOffsets();
+		refreshRenderedText();
 		setInvalid(DATA);
 		return _text;
 	}
@@ -106,6 +111,24 @@ class TextLineRenderer extends FeathersControl {
 		_numLines = value;
 		setInvalid(DATA);
 		return _numLines;
+	}
+
+	private var _tabWidth:Int = 4;
+
+	@:flash.property
+	public var tabWidth(get, set):Int;
+
+	private function get_tabWidth():Int {
+		return _tabWidth;
+	}
+
+	private function set_tabWidth(value:Int):Int {
+		if (_tabWidth == value) {
+			return _tabWidth;
+		}
+		_tabWidth = value;
+		setInvalid(DATA);
+		return _tabWidth;
 	}
 
 	private var _styleRanges:Array<Int>;
@@ -161,6 +184,8 @@ class TextLineRenderer extends FeathersControl {
 		setInvalid(DATA);
 		return _breakpointVerified;
 	}
+
+	private var _renderTabsWithSpaces = #if flash false #else true #end;
 
 	private var _debuggerStopped:Bool = false;
 
@@ -487,7 +512,8 @@ class TextLineRenderer extends FeathersControl {
 			}
 			charIndex--;
 		}
-		var bounds = _mainTextField.getCharBoundaries(charIndex);
+		var renderedCharIndex = textIndexToRenderedIndex(charIndex);
+		var bounds = _mainTextField.getCharBoundaries(renderedCharIndex);
 		if (bounds == null) {
 			return null;
 		}
@@ -511,7 +537,11 @@ class TextLineRenderer extends FeathersControl {
 		if (_mainTextField == null) {
 			return -1;
 		}
-		return _mainTextField.getCharIndexAtPoint(localX - _mainTextField.x, localY - _mainTextField.y);
+		var renderedIndex = _mainTextField.getCharIndexAtPoint(localX - _mainTextField.x, localY - _mainTextField.y);
+		if (renderedIndex == -1) {
+			return renderedIndex;
+		}
+		return renderedIndexToTextIndex(renderedIndex);
 	}
 
 	/**
@@ -532,17 +562,17 @@ class TextLineRenderer extends FeathersControl {
 			return _text.length;
 		}
 		// Get a line through the middle of the text field for y
-		var charIndexAtPoint = _mainTextField.getCharIndexAtPoint(localX - _mainTextField.x, actualHeight / 2.0);
-		if (charIndexAtPoint != -1 && returnNextAfterCenter) {
-			var bounds = _mainTextField.getCharBoundaries(charIndexAtPoint);
+		var renderedCharIndexAtPoint = _mainTextField.getCharIndexAtPoint(localX - _mainTextField.x, actualHeight / 2.0);
+		if (renderedCharIndexAtPoint != -1 && returnNextAfterCenter) {
+			var bounds = _mainTextField.getCharBoundaries(renderedCharIndexAtPoint);
 			var center = _gutterWidth + bounds.x + (bounds.width / 2.0);
 			// If point falls after the center of the character, move to next one
 			if (localX >= center) {
-				charIndexAtPoint++;
+				renderedCharIndexAtPoint++;
 			}
 		}
 
-		return charIndexAtPoint;
+		return renderedIndexToTextIndex(renderedCharIndexAtPoint);
 	}
 
 	override private function initialize():Void {
@@ -662,17 +692,92 @@ class TextLineRenderer extends FeathersControl {
 		_lineNumberTextField.setTextFormat(tf);
 	}
 
-	private function refreshText():Void {
-		var lineText = _text;
-		var lineTextLength = lineText.length;
-		if (lineTextLength == 0) {
-			// some invisible whitespace for accurate height measurement
-			lineText = " ";
+	private function refreshTabOffsets():Void {
+		_tabOffsets.resize(0);
+		if (_text == null || _text.length == 0 || !_renderTabsWithSpaces) {
+			return;
 		}
-		_mainTextField.text = lineText;
+		var renderedCurrent = 0;
+		var previous = 0;
+		var current = 0;
+		while ((current = _text.indexOf("\t", current)) != -1) {
+			renderedCurrent += (current - previous);
+			var spacesCount = renderedCurrent % _tabWidth;
+			if (spacesCount == 0) {
+				spacesCount = 4;
+			}
+			_tabOffsets.push(current);
+			_tabOffsets.push(spacesCount);
+			current++;
+			renderedCurrent += spacesCount;
+			previous = current;
+		}
+	}
+
+	private function refreshRenderedText():Void {
+		if (_text == null || _text.length == 0) {
+			// some invisible whitespace for accurate height measurement
+			_renderedText = " ";
+			return;
+		}
+		if (!_renderTabsWithSpaces) {
+			_renderedText = _text;
+			return;
+		}
+		_renderedText = "";
+		var i = 0;
+		var previous = 0;
+		while (i < _tabOffsets.length) {
+			var current = _tabOffsets[i];
+			i++;
+			var spacesCount = _tabOffsets[i];
+			i++;
+			var startSubstr = _text.substring(previous, current);
+			var spaces = StringTools.rpad("", " ", spacesCount);
+			_renderedText += startSubstr + spaces;
+			previous = current + 1;
+		}
+		_renderedText += _text.substring(previous);
+	}
+
+	private function textIndexToRenderedIndex(textIndex:Int):Int {
+		if (!_renderTabsWithSpaces) {
+			return textIndex;
+		}
+		var renderedIndex = textIndex;
+		var i = 0;
+		while (i < _tabOffsets.length) {
+			var current = _tabOffsets[i];
+			i++;
+			if (current >= textIndex) {
+				break;
+			}
+			var spacesCount = _tabOffsets[i];
+			i++;
+			renderedIndex += (spacesCount - 1);
+		}
+		return renderedIndex;
+	}
+
+	private function renderedIndexToTextIndex(renderedIndex:Int):Int {
+		if (!_renderTabsWithSpaces) {
+			return renderedIndex;
+		}
+		for (i in 0..._text.length) {
+			var newRenderedIndex = textIndexToRenderedIndex(i);
+			if (newRenderedIndex > renderedIndex) {
+				return i - 1;
+			}
+		}
+		return _text.length;
+	}
+
+	private function refreshText():Void {
+		_mainTextField.text = _renderedText;
 		if (textStyles == null) {
 			return;
 		}
+		var lineTextLength = _text.length;
 		var i = 0;
 		do {
 			var current = 0;
@@ -702,14 +807,18 @@ class TextLineRenderer extends FeathersControl {
 			}
 			var format = textStyles.get(style);
 			if (_linkStartChar != -1 && _linkStartChar >= current && _linkStartChar < next) {
+				var linkStart = textIndexToRenderedIndex(_linkStartChar);
+				var linkEnd = textIndexToRenderedIndex(_linkEndChar);
+				current = textIndexToRenderedIndex(current);
+				next = textIndexToRenderedIndex(next);
 				var linkFormat = TextFormatUtil.clone(format);
 				linkFormat.underline = true;
-				if (_linkStartChar > current) {
-					_mainTextField.setTextFormat(format, current, _linkStartChar);
+				if (linkStart > current) {
+					_mainTextField.setTextFormat(format, current, linkStart);
 				}
-				_mainTextField.setTextFormat(linkFormat, _linkStartChar, _linkEndChar);
-				if (_linkEndChar < next) {
-					_mainTextField.setTextFormat(format, _linkEndChar, next);
+				_mainTextField.setTextFormat(linkFormat, linkStart, linkEnd);
+				if (linkEnd < next) {
+					_mainTextField.setTextFormat(format, linkEnd, next);
 				}
 			} else {
 				if (format.underline == null) {
@@ -717,6 +826,8 @@ class TextLineRenderer extends FeathersControl {
 					// old link, we need false instead of null
 					format.underline = false;
 				}
+				current = textIndexToRenderedIndex(current);
+				next = textIndexToRenderedIndex(next);
 				_mainTextField.setTextFormat(format, current, next);
 			}
 		} while (i < _styleRanges.length);
@@ -919,8 +1030,16 @@ class TextLineRenderer extends FeathersControl {
 				adjustedCaretIndex = 0;
 			}
 		}
-		var bounds = _mainTextField.getCharBoundaries(adjustedCaretIndex);
-		var offsetX = (textLength > 0 && _caretIndex > adjustedCaretIndex) ? bounds.width : 0.0;
+		var renderedCaretIndex = textIndexToRenderedIndex(adjustedCaretIndex);
+		var bounds = _mainTextField.getCharBoundaries(renderedCaretIndex);
+		var offsetX = 0.0;
+		if (textLength > 0 && _caretIndex > adjustedCaretIndex) {
+			if (_renderTabsWithSpaces && _text.charAt(adjustedCaretIndex) == "\t") {
+				offsetX = bounds.width * _tabWidth;
+			} else {
+				offsetX = bounds.width;
+			}
+		}
 		_caretSkin.x = _gutterWidth + bounds.x + offsetX;
 		_caretSkin.y = _mainTextField.y + bounds.y;
 		_caretSkin.height = bounds.height;
@@ -957,9 +1076,11 @@ class TextLineRenderer extends FeathersControl {
 			}
 		}
 
-		var startBounds = _mainTextField.getCharBoundaries(adjustedStartIndex);
+		var renderedStartIndex = textIndexToRenderedIndex(adjustedStartIndex);
+		var renderedEndIndex = textIndexToRenderedIndex(adjustedEndIndex);
+		var startBounds = _mainTextField.getCharBoundaries(renderedStartIndex);
 		var startOffsetX = (textLength > 0 && startIndex > adjustedStartIndex) ? startBounds.width : 0.0;
-		var endBounds = _mainTextField.getCharBoundaries(adjustedEndIndex);
+		var endBounds = _mainTextField.getCharBoundaries(renderedEndIndex);
 		var endOffsetX = (textLength > 0 && endIndex > adjustedEndIndex) ? endBounds.width : 0.0;
 		_currentSelectedTextBackgroundSkin.x = _gutterWidth + startBounds.x + startOffsetX;
 		_currentSelectedTextBackgroundSkin.y = _mainTextField.y + startBounds.y;

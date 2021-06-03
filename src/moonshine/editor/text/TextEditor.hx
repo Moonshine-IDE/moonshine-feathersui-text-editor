@@ -483,10 +483,10 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		// Get current line indentation
 		var indent = TextUtil.indentAmount(caretLine.text);
 		// Get the index with tabs contracted
-		var index = _expandedCaretCharIndex - indent * (tabWidth - 1);
+		var index = _expandedCaretCharIndex - indent * (_tabWidth - 1);
 		// If the index falls within the indentation, approximate
 		if (index <= indent) {
-			index = Math.round(_expandedCaretCharIndex / tabWidth);
+			index = Math.round(_expandedCaretCharIndex / _tabWidth);
 		}
 
 		// Limit the index by the line length
@@ -504,10 +504,26 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		return _expandedCaretCharIndex;
 	}
 
+	private var _tabWidth:Int = 4;
+
 	/**
 		The number of spaces that make up a tab character.
 	**/
-	public var tabWidth:Int = 4;
+	@:flash.property
+	public var tabWidth(get, set):Int;
+
+	private function get_tabWidth():Int {
+		return _tabWidth;
+	}
+
+	private function set_tabWidth(value:Int):Int {
+		if (_tabWidth == value) {
+			return _tabWidth;
+		}
+		_tabWidth = value;
+		setInvalid(DATA);
+		return _tabWidth;
+	}
 
 	/**
 		Determines if the tab key should insert spaces instead of the tab `\t`
@@ -902,7 +918,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		var indent = caretLine != null ? TextUtil.indentAmount(caretLine.text) : 0;
 
 		// Store the index with tabs expanded
-		return Std.int(value + Math.min(indent, value) * (tabWidth - 1));
+		return Std.int(value + Math.min(indent, value) * (_tabWidth - 1));
 	}
 
 	private function textEditorPositionToTextLineRenderer(pos:TextEditorPosition):TextLineRenderer {
@@ -932,7 +948,8 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		var lineModel = cast(state.data, TextLineModel);
 		itemRenderer.lineNumberWidth = lineNumberWidth;
 		itemRenderer.numLines = _lines.length;
-		itemRenderer.showLineNumbers = showLineNumbers;
+		itemRenderer.tabWidth = _tabWidth;
+		itemRenderer.showLineNumbers = _showLineNumbers;
 		itemRenderer.allowToggleBreakpoints = allowToggleBreakpoints;
 		itemRenderer.text = lineModel.text;
 		itemRenderer.lineIndex = lineModel.lineIndex;
