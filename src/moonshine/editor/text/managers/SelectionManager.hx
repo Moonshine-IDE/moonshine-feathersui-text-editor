@@ -155,6 +155,7 @@ class SelectionManager {
 				if (event.ctrlKey && !event.altKey) {
 					var lastLineIndex = _textEditor.lines.length - 1;
 					_textEditor.setSelection(0, 0, lastLineIndex, _textEditor.lines.get(lastLineIndex).text.length);
+					_textEditor.scrollViewIfNeeded();
 					event.preventDefault();
 				}
 		}
@@ -422,6 +423,7 @@ class SelectionManager {
 		}
 		if (processed) {
 			event.preventDefault();
+			_textEditor.scrollViewIfNeeded();
 		}
 	}
 
@@ -433,11 +435,14 @@ class SelectionManager {
 		_textEditor.removeSelection();
 
 		applyChanges(event.changes);
+
+		_textEditor.scrollViewIfNeeded();
 	}
 
 	private function selectionManager_textEditor_selectAllHandler(event:Event):Void {
 		var lastLineIndex = _textEditor.lines.length - 1;
 		_textEditor.setSelection(0, 0, lastLineIndex, _textEditor.lines.get(lastLineIndex).text.length);
+		_textEditor.scrollViewIfNeeded();
 	}
 
 	private var _clickCount:Int = 0;
