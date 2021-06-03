@@ -95,10 +95,10 @@ class FindReplaceManager {
 		var str = _textEditor.text;
 
 		var searchRegExp = (search is EReg) ? (search : EReg) : null;
-		if (searchRegExp == null) {
+		if (searchRegExp == null && search != null) {
 			var searchStr = Std.string(search);
 			if (searchStr.length > 0) {
-				searchRegExp = new EReg(EReg.escape(search), "i");
+				searchRegExp = new EReg(EReg.escape(searchStr), "i");
 			}
 		}
 
