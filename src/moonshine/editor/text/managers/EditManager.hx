@@ -31,6 +31,8 @@ import openfl.ui.Keyboard;
 class EditManager {
 	public function new(textEditor:TextEditor) {
 		_textEditor = textEditor;
+		_textEditor.addEventListener(Event.CUT, editManager_textEditor_cutHandler, false, 0, true);
+		_textEditor.addEventListener(Event.COPY, editManager_textEditor_copyHandler, false, 0, true);
 		_textEditor.addEventListener(Event.PASTE, editManager_textEditor_pasteHandler, false, 0, true);
 		_textEditor.addEventListener(KeyboardEvent.KEY_DOWN, editManager_textEditor_keyDownHandler, false, 0, true);
 		_textEditor.addEventListener(TextEvent.TEXT_INPUT, editManager_textEditor_textInputHandler, false, 0, true);
@@ -211,6 +213,32 @@ class EditManager {
 			return;
 		}
 		insertText(newText);
+	}
+
+	private function copy():Void {
+		if (!_textEditor.hasSelection) {
+			// don't update the clipboard if nothing is selected
+			return;
+		}
+		Clipboard.generalClipboard.setData(ClipboardFormats.TEXT_FORMAT, _textEditor.selectedText, false);
+	}
+
+	private function editManager_textEditor_cutHandler(event:Event):Void {
+		if (event.isDefaultPrevented()) {
+			return;
+		}
+		copy();
+		if (_textEditor.hasSelection) {
+			// don't remove anything if nothing is selected
+			removeAtCursor(false, false);
+		}
+	}
+
+	private function editManager_textEditor_copyHandler(event:Event):Void {
+		if (event.isDefaultPrevented()) {
+			return;
+		}
+		copy();
 	}
 
 	private function editManager_textEditor_pasteHandler(event:Event):Void {
