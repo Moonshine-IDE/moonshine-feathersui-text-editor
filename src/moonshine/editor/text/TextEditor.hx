@@ -342,6 +342,46 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		return _selectionStartLineIndex != -1;
 	}
 
+	@:flash.property
+	public var selectedText(get, never):String;
+
+	private function get_selectedText():String {
+		if (!hasSelection) {
+			return "";
+		}
+
+		if (_selectionStartLineIndex != _selectionEndLineIndex) {
+			var startLine = _selectionStartLineIndex;
+			var endLine = _selectionEndLineIndex;
+
+			var startChar = _selectionStartCharIndex;
+			var endChar = _selectionEndCharIndex;
+
+			if (startLine > endLine) {
+				startLine = endLine;
+				endLine = _selectionStartLineIndex;
+
+				startChar = endChar;
+				endChar = _selectionStartCharIndex;
+			}
+
+			var selText = _lines.get(startLine).text.substr(startChar);
+			for (i in (startLine + 1)...endLine) {
+				selText += _lineDelimiter + _lines.get(i).text;
+			}
+			selText += _lineDelimiter + _lines.get(endLine).text.substr(0, endChar);
+
+			return selText;
+		}
+		var startChar = _selectionStartCharIndex;
+		var endChar = _selectionEndCharIndex;
+		if (startChar > endChar) {
+			startChar = endChar;
+			endChar = _selectionStartCharIndex;
+		}
+		return _lines.get(_selectionStartLineIndex).text.substring(startChar, endChar);
+	}
+
 	private var _selectionStartLineIndex:Int = -1;
 
 	/**
