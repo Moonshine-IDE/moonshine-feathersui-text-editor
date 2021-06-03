@@ -68,7 +68,6 @@ class TextEditorUtil {
 					_charWidthCache.set(calculatedChar, _charWidthCache.get(" ") * textEditor.tabWidth);
 					_charHeightCache.set(calculatedChar, _charHeightCache.get(" "));
 				} else {
-					tf.text = calculatedChar;
 					var bounds = tf.getCharBoundaries(i);
 					_charWidthCache.set(calculatedChar, bounds.width);
 					_charHeightCache.set(calculatedChar, bounds.height);
