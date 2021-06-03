@@ -45,6 +45,7 @@ import moonshine.editor.text.utils.TextUtil;
 import openfl.Lib;
 import openfl.display.InteractiveObject;
 import openfl.errors.IllegalOperationError;
+import openfl.events.Event;
 import openfl.events.FocusEvent;
 import openfl.geom.Point;
 import openfl.geom.Rectangle;
@@ -170,7 +171,11 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		for (i in 0...lines.length) {
 			lineModels[i] = new TextLineModel(lines[i], i);
 		}
+		if (_lines != null) {
+			_lines.removeEventListener(Event.CHANGE, textEditor_lines_changeHandler);
+		}
 		_lines = new ArrayCollection(lineModels);
+		_lines.addEventListener(Event.CHANGE, textEditor_lines_changeHandler);
 
 		_colorManager.reset();
 
@@ -248,16 +253,11 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 
 	private var _gutterWidth:Float = 0.0;
 
-	/**
-		The width of the line number column, measured in pixels. If `null`, will
-		be calculated automatically based on `minLineNumberCharacters`.
-	**/
+	@:style
 	public var lineNumberWidth:Null<Float> = null;
 
 	@:style
 	public var minLineNumberCharacters:Int = 3;
-
-	private var _actualLineNumberWidth:Float = 0.0;
 
 	private var _showLineNumbers:Bool = true;
 
@@ -881,7 +881,8 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 
 	private function updateTextLineRenderer(itemRenderer:TextLineRenderer, state:ListViewItemState):Void {
 		var lineModel = cast(state.data, TextLineModel);
-		itemRenderer.lineNumberWidth = _actualLineNumberWidth;
+		itemRenderer.lineNumberWidth = lineNumberWidth;
+		itemRenderer.numLines = _lines.length;
 		itemRenderer.showLineNumbers = showLineNumbers;
 		itemRenderer.allowToggleBreakpoints = allowToggleBreakpoints;
 		itemRenderer.text = lineModel.text;
@@ -966,18 +967,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			_listView.dataProvider = _lines;
 		}
 
-		refreshLineNumberWidth();
-
 		layoutContent();
-	}
-
-	private function refreshLineNumberWidth():Void {
-		if (lineNumberWidth == null) {
-			var numChars = Math.max(Std.string(lines.length).length, minLineNumberCharacters);
-			_actualLineNumberWidth = numChars * TextEditorUtil.estimateTextWidth(this, "M");
-		} else {
-			_actualLineNumberWidth = lineNumberWidth;
-		}
 	}
 
 	private function layoutContent():Void {
@@ -1064,5 +1054,9 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		line.breakpoint = !line.breakpoint;
 		lines.updateAt(lineIndex);
 		dispatchEvent(new TextEditorLineEvent(TextEditorLineEvent.TOGGLE_BREAKPOINT, lineIndex));
+	}
+
+	private function textEditor_lines_changeHandler(event:Event):Void {
+		setInvalid(DATA);
 	}
 }

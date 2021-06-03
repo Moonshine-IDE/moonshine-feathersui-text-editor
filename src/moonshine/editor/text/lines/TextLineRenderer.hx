@@ -90,6 +90,24 @@ class TextLineRenderer extends FeathersControl {
 		return _lineIndex;
 	}
 
+	private var _numLines:Int = -1;
+
+	@:flash.property
+	public var numLines(get, set):Int;
+
+	private function get_numLines():Int {
+		return _numLines;
+	}
+
+	private function set_numLines(value:Int):Int {
+		if (_numLines == value) {
+			return _numLines;
+		}
+		_numLines = value;
+		setInvalid(DATA);
+		return _numLines;
+	}
+
 	private var _styleRanges:Array<Int>;
 
 	@:flash.property
@@ -179,8 +197,23 @@ class TextLineRenderer extends FeathersControl {
 		return _gutterWidth;
 	}
 
-	@:style
-	public var lineNumberWidth:Float = 0.0;
+	private var _lineNumberWidth:Null<Float> = null;
+
+	@:flash.property
+	public var lineNumberWidth(get, set):Null<Float>;
+
+	private function get_lineNumberWidth():Null<Float> {
+		return _lineNumberWidth;
+	}
+
+	private function set_lineNumberWidth(value:Null<Float>):Null<Float> {
+		if (_lineNumberWidth == value) {
+			return _lineNumberWidth;
+		}
+		_lineNumberWidth = value;
+		setInvalid(DATA);
+		return _lineNumberWidth;
+	}
 
 	private var _showLineNumbers:Bool = true;
 
@@ -544,7 +577,6 @@ class TextLineRenderer extends FeathersControl {
 		if (dataInvalid || stylesInvalid) {
 			refreshGutterBackgroundSkin();
 			refreshBreakpointSkin();
-			refreshGutterWidth();
 		}
 
 		if (stylesInvalid || stateInvalid) {
@@ -562,6 +594,10 @@ class TextLineRenderer extends FeathersControl {
 
 		if (dataInvalid || stylesInvalid) {
 			refreshLineNumberTextStyles();
+		}
+
+		if (dataInvalid || stylesInvalid) {
+			refreshGutterWidth();
 		}
 
 		if (dataInvalid || stateInvalid || stylesInvalid) {
@@ -606,7 +642,10 @@ class TextLineRenderer extends FeathersControl {
 	}
 
 	private function refreshLineNumber():Void {
-		_lineNumberTextField.text = Std.string(lineIndex + 1);
+		var lineNumberText = Std.string(lineIndex + 1);
+		var minNumChars = Std.int(Math.max(3, Std.string(numLines).length));
+		lineNumberText = StringTools.lpad(lineNumberText, "\u00A0", minNumChars);
+		_lineNumberTextField.text = lineNumberText;
 	}
 
 	private function refreshLineNumberTextStyles():Void {
@@ -726,7 +765,11 @@ class TextLineRenderer extends FeathersControl {
 			if (_gutterWidth > 0.0) {
 				_gutterWidth += gutterGap;
 			}
-			_gutterWidth += lineNumberWidth;
+			if (lineNumberWidth != null) {
+				_gutterWidth += lineNumberWidth;
+			} else {
+				_gutterWidth += _lineNumberTextField.width;
+			}
 		}
 		_gutterWidth += gutterPaddingLeft + gutterPaddingRight;
 	}
