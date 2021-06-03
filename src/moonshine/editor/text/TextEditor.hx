@@ -816,14 +816,13 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		var caretPos = TextEditorUtil.estimateTextWidth(this, caretLineText) + _gutterWidth + _viewPortVisibleBounds.x;
 
 		if (_caretLineIndex < lineScrollY || visibleLines <= 2 && _caretLineIndex > lineScrollY) {
-			lineScrollY = _caretLineIndex;
+			lineScrollY = Std.int(Math.min(_caretLineIndex, _maxLineScrollY));
 		} else if (visibleLines > 2 && _caretLineIndex + 2 > lineScrollY + visibleLines) {
-			var scrollPos = _caretLineIndex - visibleLines + 2;
-			if (scrollPos < 0) {
-				scrollPos = 0;
+			var newLineScrollY = _caretLineIndex - visibleLines + 2;
+			if (newLineScrollY < 0) {
+				newLineScrollY = 0;
 			}
-
-			lineScrollY = scrollPos;
+			lineScrollY = Std.int(Math.min(newLineScrollY, _maxLineScrollY));
 		}
 		var horizontalLookahead = TextEditorUtil.estimateTextWidth(this, "M") * 8.0;
 		if (caretPos < (_listView.scrollX + _gutterWidth + _viewPortVisibleBounds.x)) {
