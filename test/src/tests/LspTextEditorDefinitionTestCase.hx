@@ -1,10 +1,7 @@
 package tests;
 
-import moonshine.lsp.Range;
 import moonshine.editor.text.lsp.LspTextEditor;
 import moonshine.editor.text.lsp.events.LspTextEditorLanguageRequestEvent;
-import moonshine.lsp.Position;
-import moonshine.lsp.TextDocumentIdentifier;
 import openfl.Lib;
 import utest.Assert;
 import utest.Test;

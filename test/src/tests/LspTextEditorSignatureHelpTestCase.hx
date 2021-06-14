@@ -2,8 +2,6 @@ package tests;
 
 import moonshine.editor.text.lsp.LspTextEditor;
 import moonshine.editor.text.lsp.events.LspTextEditorLanguageRequestEvent;
-import moonshine.lsp.Position;
-import moonshine.lsp.TextDocumentIdentifier;
 import openfl.Lib;
 import openfl.events.KeyboardEvent;
 import openfl.ui.Keyboard;
