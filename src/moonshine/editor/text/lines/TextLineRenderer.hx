@@ -54,7 +54,8 @@ class TextLineRenderer extends FeathersControl {
 	private var _mainTextField:TextField;
 	private var _lineNumberTextField:TextField;
 
-	private var _tabOffsets:Array<Int> = [];
+	private var _tabToSpaceOffsets:Array<Int> = [];
+	private var _spaceToTabOffsets:Array<Int> = [];
 	private var _renderedText:String;
 
 	private var _text:String;
@@ -693,7 +694,8 @@ class TextLineRenderer extends FeathersControl {
 	}
 
 	private function refreshTabOffsets():Void {
-		_tabOffsets.resize(0);
+		_tabToSpaceOffsets.resize(0);
+		_spaceToTabOffsets.resize(0);
 		if (_text == null || _text.length == 0 || !_renderTabsWithSpaces) {
 			return;
 		}
@@ -706,8 +708,12 @@ class TextLineRenderer extends FeathersControl {
 			if (spacesCount == 0) {
 				spacesCount = 4;
 			}
-			_tabOffsets.push(current);
-			_tabOffsets.push(spacesCount);
+			_tabToSpaceOffsets.push(current);
+			_tabToSpaceOffsets.push(spacesCount);
+			for (i in (renderedCurrent + 1)...(renderedCurrent + spacesCount)) {
+				_spaceToTabOffsets.push(i);
+				_spaceToTabOffsets.push((-1));
+			}
 			current++;
 			renderedCurrent += spacesCount;
 			previous = current;
@@ -727,10 +733,10 @@ class TextLineRenderer extends FeathersControl {
 		_renderedText = "";
 		var i = 0;
 		var previous = 0;
-		while (i < _tabOffsets.length) {
-			var current = _tabOffsets[i];
+		while (i < _tabToSpaceOffsets.length) {
+			var current = _tabToSpaceOffsets[i];
 			i++;
-			var spacesCount = _tabOffsets[i];
+			var spacesCount = _tabToSpaceOffsets[i];
 			i++;
 			var startSubstr = _text.substring(previous, current);
 			var spaces = StringTools.rpad("", " ", spacesCount);
@@ -746,13 +752,13 @@ class TextLineRenderer extends FeathersControl {
 		}
 		var renderedIndex = textIndex;
 		var i = 0;
-		while (i < _tabOffsets.length) {
-			var current = _tabOffsets[i];
+		while (i < _tabToSpaceOffsets.length) {
+			var current = _tabToSpaceOffsets[i];
 			i++;
 			if (current >= textIndex) {
 				break;
 			}
-			var spacesCount = _tabOffsets[i];
+			var spacesCount = _tabToSpaceOffsets[i];
 			i++;
 			renderedIndex += (spacesCount - 1);
 		}
@@ -763,13 +769,19 @@ class TextLineRenderer extends FeathersControl {
 		if (!_renderTabsWithSpaces) {
 			return renderedIndex;
 		}
-		for (i in 0..._text.length) {
-			var newRenderedIndex = textIndexToRenderedIndex(i);
-			if (newRenderedIndex > renderedIndex) {
-				return i - 1;
+		var textIndex = renderedIndex;
+		var i = 0;
+		while (i < _spaceToTabOffsets.length) {
+			var current = _spaceToTabOffsets[i];
+			i++;
+			if (current > renderedIndex) {
+				break;
 			}
+			var spacesCount = _spaceToTabOffsets[i];
+			i++;
+			textIndex += spacesCount;
 		}
-		return _text.length;
+		return textIndex;
 	}
 
 	private function refreshText():Void {
