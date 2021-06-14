@@ -169,6 +169,11 @@ class LspTextEditor extends TextEditor {
 	}
 
 	private function handleDefinitionLink(position:Position, ?locations:Array<LocationLink>):Void {
+		if (position == null && _linksPosition == null) {
+			// nothing has changed
+			return;
+		}
+
 		_linksPosition = position;
 		_links = locations;
 
