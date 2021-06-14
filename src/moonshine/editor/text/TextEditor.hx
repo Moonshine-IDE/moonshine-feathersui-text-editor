@@ -946,25 +946,25 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 
 	private function updateTextLineRenderer(itemRenderer:TextLineRenderer, state:ListViewItemState):Void {
 		var lineModel = cast(state.data, TextLineModel);
-		itemRenderer.lineNumberWidth = lineNumberWidth;
-		itemRenderer.numLines = _lines.length;
-		itemRenderer.tabWidth = _tabWidth;
-		itemRenderer.showLineNumbers = _showLineNumbers;
-		itemRenderer.allowToggleBreakpoints = allowToggleBreakpoints;
-		itemRenderer.text = lineModel.text;
 		itemRenderer.lineIndex = lineModel.lineIndex;
-		itemRenderer.styleRanges = lineModel.styleRanges;
-		itemRenderer.textStyles = _textStyles;
-		itemRenderer.defaultTextStyleContext = (_parser != null) ? _parser.defaultContext : 0x0;
-		itemRenderer.scrollX = _listView.scrollX;
-		itemRenderer.breakpoint = lineModel.breakpoint;
-		itemRenderer.textEditorHasFocus = _hasFocus;
-		itemRenderer.debuggerStopped = _debuggerLineIndex == lineModel.lineIndex;
 		if (lineModel.lineIndex == _caretLineIndex) {
 			itemRenderer.caretIndex = Std.int(Math.min(caretCharIndex, lineModel.text.length));
 		} else {
 			itemRenderer.caretIndex = -1;
 		}
+		itemRenderer.numLines = _lines.length;
+		itemRenderer.tabWidth = _tabWidth;
+		itemRenderer.text = lineModel.text;
+		itemRenderer.scrollX = _listView.scrollX;
+		itemRenderer.breakpoint = lineModel.breakpoint;
+		itemRenderer.textEditorHasFocus = _hasFocus;
+		itemRenderer.allowToggleBreakpoints = allowToggleBreakpoints;
+		itemRenderer.debuggerStopped = _debuggerLineIndex == lineModel.lineIndex;
+		itemRenderer.styleRanges = lineModel.styleRanges;
+		itemRenderer.textStyles = _textStyles;
+		itemRenderer.defaultTextStyleContext = (_parser != null) ? _parser.defaultContext : 0x0;
+		itemRenderer.showLineNumbers = _showLineNumbers;
+		itemRenderer.lineNumberWidth = lineNumberWidth;
 
 		if (_selectionStartLineIndex != _selectionEndLineIndex) {
 			if (lineModel.lineIndex == _selectionStartLineIndex) { // Beginning of selection (may be below or above current point)
