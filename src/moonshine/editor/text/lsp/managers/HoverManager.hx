@@ -59,6 +59,11 @@ class HoverManager {
 	private var _hoverView:Label;
 	private var _isOver = false;
 
+	public function clear():Void {
+		_currentRequestID = -1;
+		closeHoverView();
+	}
+
 	private function handleHover(requestID:Int, result:Hover):Void {
 		if (requestID != _currentRequestID) {
 			// a newer request has taken precedence over this request

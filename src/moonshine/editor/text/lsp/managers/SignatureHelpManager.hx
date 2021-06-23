@@ -60,6 +60,11 @@ class SignatureHelpManager {
 	private var _currentRequestParams:SignatureHelpParams;
 	private var _signatureHelpView:SignatureHelpView;
 
+	public function clear():Void {
+		_currentRequestID = -1;
+		closeSignatureHelpView();
+	}
+
 	private function handleSignatureHelp(requestID:Int, result:SignatureHelp):Void {
 		if (requestID != _currentRequestID) {
 			// a newer request has taken precedence over this request

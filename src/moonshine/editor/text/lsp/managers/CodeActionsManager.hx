@@ -61,6 +61,11 @@ class CodeActionsManager {
 	private var _requestTimeoutID:Int = -1;
 	private var _codeActionsView:CodeActionsView;
 
+	public function clear():Void {
+		_currentRequestID = -1;
+		closeCodeActionsView();
+	}
+
 	private function handleCodeActions(requestID:Int, result:Array<CodeAction>):Void {
 		if (requestID != _currentRequestID) {
 			// a newer request has taken precedence over this request

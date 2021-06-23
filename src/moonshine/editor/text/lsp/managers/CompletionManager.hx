@@ -95,6 +95,11 @@ class CompletionManager {
 	private var _isIncomplete:Bool = false;
 	private var _prevSelectedIndex:Int = -1;
 
+	public function clear():Void {
+		_currentRequestID = -1;
+		closeCompletionListView();
+	}
+
 	private function handleResolveCompletion(requestID:Int, index:Int, result:CompletionItem):Void {
 		if (requestID != _currentRequestID) {
 			// a newer request has taken precedence over this request

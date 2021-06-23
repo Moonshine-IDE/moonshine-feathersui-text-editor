@@ -17,16 +17,6 @@
 
 package moonshine.editor.text.lsp;
 
-import moonshine.lsp.Range;
-import moonshine.lsp.TextDocumentIdentifier;
-import moonshine.editor.text.lsp.managers.DefinitionManager;
-import moonshine.lsp.DefinitionParams;
-import moonshine.lsp.CodeActionParams;
-import moonshine.lsp.HoverParams;
-import moonshine.lsp.Position;
-import moonshine.lsp.CompletionParams;
-import moonshine.lsp.SignatureHelpParams;
-import openfl.errors.IllegalOperationError;
 import feathers.data.ListViewItemState;
 import moonshine.editor.text.lines.TextLineModel;
 import moonshine.editor.text.lines.TextLineRenderer;
@@ -34,12 +24,17 @@ import moonshine.editor.text.lsp.events.LspTextEditorLanguageActionEvent;
 import moonshine.editor.text.lsp.lines.LspTextLineRenderer;
 import moonshine.editor.text.lsp.managers.CodeActionsManager;
 import moonshine.editor.text.lsp.managers.CompletionManager;
+import moonshine.editor.text.lsp.managers.DefinitionManager;
 import moonshine.editor.text.lsp.managers.HoverManager;
 import moonshine.editor.text.lsp.managers.SignatureHelpManager;
 import moonshine.editor.text.utils.TextUtil;
 import moonshine.lsp.CodeAction;
 import moonshine.lsp.Diagnostic;
 import moonshine.lsp.LocationLink;
+import moonshine.lsp.Position;
+import moonshine.lsp.Range;
+import moonshine.lsp.TextDocumentIdentifier;
+import openfl.errors.IllegalOperationError;
 import openfl.events.MouseEvent;
 import openfl.geom.Point;
 
@@ -83,6 +78,47 @@ class LspTextEditor extends TextEditor {
 	private function set_textDocument(value:TextDocumentIdentifier):TextDocumentIdentifier {
 		_textDocument = value;
 		return _textDocument;
+	}
+
+	/**
+		Cancels active requests and clears any pop-up views.
+	**/
+	public function clearAll():Void {
+		clearCompletion();
+		clearSignatureHelp();
+		clearHover();
+		clearCodeActions();
+	}
+
+	/**
+		Cancels active completion requests and clears the pop-up completion
+		list view.
+	**/
+	public function clearCompletion():Void {
+		_completionManager.clear();
+	}
+
+	/**
+		Cancels active signature help requests and clears the pop-up signature
+		help view.
+	**/
+	public function clearSignatureHelp():Void {
+		_signatureHelpManager.clear();
+	}
+
+	/**
+		Cancels active hover requests and clears the pop-up hover view.
+	**/
+	public function clearHover():Void {
+		_hoverManager.clear();
+	}
+
+	/**
+		Cancels active code actions requests and clears the pop-up code actions
+		view.
+	**/
+	public function clearCodeActions():Void {
+		_codeActionsManager.clear();
 	}
 
 	public function completion():Void {
