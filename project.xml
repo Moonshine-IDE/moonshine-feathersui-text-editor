@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
 	
-	<meta title="MoonshineTextEditorCore" package="Moonshine" version="1.0.0" company="Prominic.NET" />
-	<app file="MoonshineTextEditorCore" />
+	<meta title="moonshine-feathersui-text-editor" package="Moonshine" version="1.0.0" company="Prominic.NET" />
+	<app file="moonshine-feathersui-text-editor" />
 
 	<window allow-high-dpi="true"/>
 	<window fps="60"/>
