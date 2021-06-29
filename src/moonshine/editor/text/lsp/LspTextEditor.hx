@@ -69,6 +69,7 @@ class LspTextEditor extends TextEditor {
 
 	private var _textDocument:TextDocumentIdentifier;
 
+	@:flash.property
 	public var textDocument(get, set):TextDocumentIdentifier;
 
 	private function get_textDocument():TextDocumentIdentifier {
