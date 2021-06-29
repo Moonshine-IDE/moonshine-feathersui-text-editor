@@ -61,32 +61,6 @@ class FindReplaceManager {
 			addChangesForReplace(str, replaceText, selectedResult, changes);
 		}
 		_textEditor.dispatchEvent(new TextEditorChangeEvent(TextEditorChangeEvent.TEXT_CHANGE, changes));
-
-		/*if (allRestorePos != -1) {
-				// find the nearest position to where we were before the replace
-				for (i in 0..._findResult.results.length) {
-					var result = _findResult.results[i];
-					if (result.pos == allRestorePos) {
-						// exact match
-						_findResult.selectedIndex = i;
-						break;
-					}
-					if (_findResult.backwards && result.pos < allRestorePos) {
-						_findResult.selectedIndex = i;
-					}
-					if (result.pos > allRestorePos) {
-						if (!_findResult.backwards) {
-							_findResult.selectedIndex = i;
-						}
-						break;
-					}
-				}
-			}
-
-			if (_findResult.selectedIndex != -1) {
-				applySearch(_findResult);
-		}*/
-
 		return _findResult;
 	}
 
