@@ -47,7 +47,4 @@ class TextLineModel extends EventDispatcher {
 	public function get_endContext():Int {
 		return (styleRanges != null) && styleRanges.length > 1 ? styleRanges[styleRanges.length - 1] : 0;
 	}
-
-	// public var diagnostics:Array<Diagnostic>;
-	// public var codeActions:Array<CodeAction>;
 }
