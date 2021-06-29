@@ -18,10 +18,13 @@
 package moonshine.editor.text.syntax.format;
 
 class SyntaxFontSettings {
-	public function new() {}
+	public function new(fontFamily:String = "_typewriter", fontSize:Int = 13) {
+		this.fontFamily = fontFamily;
+		this.fontSize = fontSize;
+	}
 
-	public var fontFamily:String = "_typewriter";
-	public var fontSize:Int = 13;
+	public var fontFamily:String;
+	public var fontSize:Int;
 
 	// Width of a tab-stop, in characters
 	public var tabWidth:Int = 4;
