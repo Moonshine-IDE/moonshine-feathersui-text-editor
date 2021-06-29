@@ -88,6 +88,7 @@ class FindReplaceManager {
 			addChangesForReplace(str, replaceText, replaced[0], changes);
 		}
 		_textEditor.dispatchEvent(new TextEditorChangeEvent(TextEditorChangeEvent.TEXT_CHANGE, changes));
+		applySearch(_findResult);
 		return _findResult;
 	}
 
