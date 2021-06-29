@@ -30,12 +30,13 @@ class TextEditorSearchResult {
 	public var didWrap:Bool = false;
 
 	public var results:Array<{pos:Int, len:Int}>;
+	public var replaced:Array<{pos:Int, len:Int}>;
 
 	public var search:EReg;
 	public var backwards:Bool;
 	public var allowWrap:Bool;
 
-	public function new(search:EReg, backwards:Bool, allowWrap:Bool, ?results:Array<{pos:Int, len:Int}>) {
+	public function new(search:EReg, backwards:Bool, allowWrap:Bool, ?results:Array<{pos:Int, len:Int}>, ?replaced:Array<{pos:Int, len:Int}>) {
 		this.search = search;
 		this.backwards = backwards;
 		this.allowWrap = allowWrap;
@@ -43,5 +44,9 @@ class TextEditorSearchResult {
 			results = [];
 		}
 		this.results = results;
+		if (replaced == null) {
+			replaced = [];
+		}
+		this.replaced = replaced;
 	}
 }

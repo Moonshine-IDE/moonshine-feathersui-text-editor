@@ -75,18 +75,17 @@ class FindReplaceManager {
 		}
 		var str = _textEditor.text;
 
-		var allRestorePos = -1;
 		var changes:Array<TextEditorChange> = [];
 		if (all) {
-			if (_findResult.selectedIndex != -1) {
-				allRestorePos = _findResult.results[_findResult.selectedIndex].pos;
-			}
 			for (result in _findResult.results) {
 				addChangesForReplace(str, replaceText, result, changes);
 			}
+			_findResult.replaced = _findResult.results.copy();
+			_findResult.results.resize(0);
 		} else {
-			var selectedResult = _findResult.results[_findResult.selectedIndex];
-			addChangesForReplace(str, replaceText, selectedResult, changes);
+			var replaced = _findResult.results.splice(_findResult.selectedIndex, 1);
+			_findResult.replaced = replaced;
+			addChangesForReplace(str, replaceText, replaced[0], changes);
 		}
 		_textEditor.dispatchEvent(new TextEditorChangeEvent(TextEditorChangeEvent.TEXT_CHANGE, changes));
 		return _findResult;
@@ -164,6 +163,7 @@ class FindReplaceManager {
 			}
 		}
 
+		res.replaced.resize(0);
 		if (newSelectedIndex == -1) {
 			return res;
 		}
