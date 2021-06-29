@@ -26,9 +26,6 @@ class SyntaxFontSettings {
 	public var fontFamily:String;
 	public var fontSize:Int;
 
-	// Width of a tab-stop, in characters
-	public var tabWidth:Int = 4;
-
 	public var tabStops:Array<Int> = {
 		var stops:Array<Int> = [];
 		var value = 0;
