@@ -113,12 +113,20 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		The string used to indicate line breaks. May be `\n`, `\r`, or `\r\n`.
 	**/
 	@:flash.property
-	public var lineDelimiter(get, never):String;
+	public var lineDelimiter(get, set):String;
 
 	private function get_lineDelimiter():String {
 		if (_lineDelimiter == null) {
 			return defaultLineDelimiter;
 		}
+		return _lineDelimiter;
+	}
+
+	private function set_lineDelimiter(value:String):String {
+		if (_lineDelimiter == value) {
+			return _lineDelimiter;
+		}
+		_lineDelimiter = value;
 		return _lineDelimiter;
 	}
 
