@@ -32,6 +32,34 @@ class FindReplaceManager {
 
 	private var _findResult:TextEditorSearchResult;
 
+	public function find(search:Any /* EReg | String */, backwards:Bool = false, allowWrap:Bool = true, updateSelection:Bool = true):TextEditorSearchResult {
+		// Get string once (it's built dynamically)
+		var str = _textEditor.text;
+
+		var searchRegExp = (search is EReg) ? (search : EReg) : null;
+		if (searchRegExp == null && search != null) {
+			var searchStr = Std.string(search);
+			if (searchStr.length > 0) {
+				searchRegExp = new EReg(EReg.escape(searchStr), "i");
+			}
+		}
+
+		var results = findInternal(str, searchRegExp);
+		_findResult = new TextEditorSearchResult(searchRegExp, backwards, allowWrap, results);
+		if (results.length == 0) {
+			if (updateSelection) {
+				_textEditor.removeSelection();
+			}
+			return _findResult;
+		}
+
+		_findResult = findNextInternal(_findResult, backwards, true, allowWrap);
+		if (updateSelection) {
+			applySearch(_findResult);
+		}
+		return _findResult;
+	}
+
 	public function findNext(backwards:Bool = false, allowWrap:Bool = true):TextEditorSearchResult {
 		if (_findResult == null) {
 			return new TextEditorSearchResult(null, backwards, allowWrap);
@@ -61,34 +89,6 @@ class FindReplaceManager {
 			addChangesForReplace(str, replaceText, selectedResult, changes);
 		}
 		_textEditor.dispatchEvent(new TextEditorChangeEvent(TextEditorChangeEvent.TEXT_CHANGE, changes));
-		return _findResult;
-	}
-
-	public function find(search:Any /* EReg | String */, backwards:Bool = false, allowWrap:Bool = true, updateSelection:Bool = true):TextEditorSearchResult {
-		// Get string once (it's built dynamically)
-		var str = _textEditor.text;
-
-		var searchRegExp = (search is EReg) ? (search : EReg) : null;
-		if (searchRegExp == null && search != null) {
-			var searchStr = Std.string(search);
-			if (searchStr.length > 0) {
-				searchRegExp = new EReg(EReg.escape(searchStr), "i");
-			}
-		}
-
-		var results = findInternal(str, searchRegExp);
-		_findResult = new TextEditorSearchResult(searchRegExp, backwards, allowWrap, results);
-		if (results.length == 0) {
-			if (updateSelection) {
-				_textEditor.removeSelection();
-			}
-			return _findResult;
-		}
-
-		_findResult = findNextInternal(_findResult, backwards, true, allowWrap);
-		if (updateSelection) {
-			applySearch(_findResult);
-		}
 		return _findResult;
 	}
 
