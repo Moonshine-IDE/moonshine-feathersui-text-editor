@@ -315,6 +315,9 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		return _textStyles.get(_parser.defaultContext);
 	}
 
+	@:style
+	public var embedFonts:Bool = false;
+
 	private var _lineHeight:Float = 0.0;
 
 	/**
@@ -973,6 +976,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		itemRenderer.defaultTextStyleContext = (_parser != null) ? _parser.defaultContext : 0x0;
 		itemRenderer.showLineNumbers = _showLineNumbers;
 		itemRenderer.lineNumberWidth = lineNumberWidth;
+		itemRenderer.embedFonts = embedFonts;
 
 		if (_selectionStartLineIndex != _selectionEndLineIndex) {
 			if (lineModel.lineIndex == _selectionStartLineIndex) { // Beginning of selection (may be below or above current point)

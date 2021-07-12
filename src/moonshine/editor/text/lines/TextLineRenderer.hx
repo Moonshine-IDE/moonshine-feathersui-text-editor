@@ -282,6 +282,9 @@ class TextLineRenderer extends FeathersControl {
 	private var _caretSkin:RectangleSkin;
 
 	@:style
+	public var embedFonts:Bool = false;
+
+	@:style
 	public var lineNumberTextFormat:TextFormat = null;
 
 	private var _currentGutterBackgroundSkin:DisplayObject;
@@ -691,6 +694,7 @@ class TextLineRenderer extends FeathersControl {
 			return;
 		}
 		_lineNumberTextField.setTextFormat(tf);
+		_lineNumberTextField.embedFonts = embedFonts;
 	}
 
 	private function refreshTabOffsets():Void {
@@ -843,6 +847,7 @@ class TextLineRenderer extends FeathersControl {
 				_mainTextField.setTextFormat(format, current, next);
 			}
 		} while (i < _styleRanges.length);
+		_mainTextField.embedFonts = embedFonts;
 	}
 
 	private function refreshBackgroundSkin():Void {
