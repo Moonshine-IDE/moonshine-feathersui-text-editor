@@ -92,8 +92,6 @@ class LspTextLineRenderer extends TextLineRenderer {
 			if (endChar > maxChar) {
 				endChar = maxChar;
 			}
-			var startBounds = _mainTextField.getCharBoundaries(startChar);
-			var endBounds = _mainTextField.getCharBoundaries(endChar);
 			var lineColor = switch (diagnostic.severity) {
 				case Error: 0xfa0707;
 				case Warning: 0x078a07;
@@ -102,16 +100,27 @@ class LspTextLineRenderer extends TextLineRenderer {
 				default: 0xfa0707;
 			};
 			_diagnosticsShape.graphics.lineStyle(1, lineColor);
-			_diagnosticsShape.graphics.moveTo(startBounds.x, 0);
 			var stepLength = 3.0;
+			var startX = 0.0;
+			var lineLength = 0.0;
+			if (this._text.length == 0) {
+				var lineMetrics = _mainTextField.getLineMetrics(0);
+				startX = lineMetrics.x;
+				lineLength = Math.max(2.0 * stepLength, lineMetrics.width);
+			} else {
+				var startBounds = _mainTextField.getCharBoundaries(startChar);
+				var endBounds = _mainTextField.getCharBoundaries(endChar);
+				startX = startBounds.x;
+				// does not include the full end char
+				lineLength = endBounds.x - startBounds.x;
+			}
+			_diagnosticsShape.graphics.moveTo(startX, 0.0);
 			var upDirection = false;
 			var offset = 0.0;
 			var startBoundsOffset = 0.0;
-			// does not include the full end char
-			var lineLength = endBounds.x - startBounds.x;
 			while (offset <= lineLength) {
 				offset = offset + stepLength;
-				startBoundsOffset = startBounds.x + offset;
+				startBoundsOffset = startX + offset;
 
 				if (upDirection) {
 					_diagnosticsShape.graphics.lineTo(startBoundsOffset, 0);
