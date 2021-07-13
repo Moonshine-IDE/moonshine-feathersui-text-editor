@@ -178,12 +178,12 @@ class HoverManager {
 		_hoverView.x = xPosition;
 
 		// start by trying to position it above the current line
-		var yPosition = xy.y - _hoverView.height;
+		var yPosition = xy.y - _hoverView.height + 2.0;
 		var minY = 0.0;
 		var maxY = maxAppY;
 		if (yPosition < minY) {
 			// if it doesn't fit above, try positioning it below
-			yPosition = xy.y + _textEditor.lineHeight;
+			yPosition = xy.y + _textEditor.lineHeight - 2.0;
 		}
 		if (yPosition > maxY) {
 			yPosition = maxY;
