@@ -17,8 +17,7 @@
 
 package moonshine.editor.text.lsp.views.theme;
 
-import feathers.controls.Label;
-import moonshine.editor.text.lsp.managers.HoverManager;
+import feathers.controls.ScrollContainer;
 import feathers.skins.RectangleSkin;
 import feathers.style.Theme;
 import feathers.themes.steel.BaseSteelTheme;
@@ -35,18 +34,20 @@ class HoverViewStyles {
 		}
 
 		var styleProvider = theme.styleProvider;
-		if (styleProvider.getStyleFunction(Label, HoverManager.CHILD_VARIANT_HOVER_LABEL) == null) {
-			styleProvider.setStyleFunction(Label, HoverManager.CHILD_VARIANT_HOVER_LABEL, function(view:Label):Void {
+		if (styleProvider.getStyleFunction(HoverView, null) == null) {
+			styleProvider.setStyleFunction(HoverView, null, function(view:HoverView):Void {
 				setHoverViewStyles(view, theme);
 			});
 		}
 	}
 
-	private static function setHoverViewStyles(view:Label, theme:BaseSteelTheme):Void {
+	private static function setHoverViewStyles(view:HoverView, theme:BaseSteelTheme):Void {
 		if (view.backgroundSkin == null) {
 			var skin = new RectangleSkin();
 			skin.fill = SolidColor(theme.darkMode ? 0x000000 : 0xffffff);
 			skin.border = SolidColor(1.0, 0x333333);
+			skin.maxWidth = 450.0;
+			skin.maxHeight = 450.0;
 			view.backgroundSkin = skin;
 		}
 
@@ -54,6 +55,8 @@ class HoverViewStyles {
 			view.textFormat = theme.getTextFormat();
 		}
 
-		view.setPadding(4.0);
+		view.setPadding(1.0);
+
+		theme.styleProvider.getStyleFunction(ScrollContainer, null)(view);
 	}
 }

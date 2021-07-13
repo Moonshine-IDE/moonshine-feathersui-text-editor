@@ -18,11 +18,10 @@
 package moonshine.editor.text.lsp.managers;
 
 import feathers.controls.Application;
-import feathers.controls.Label;
 import feathers.core.PopUpManager;
 import feathers.events.ScrollEvent;
 import moonshine.editor.text.lsp.events.LspTextEditorLanguageRequestEvent;
-import moonshine.editor.text.lsp.views.theme.HoverViewStyles;
+import moonshine.editor.text.lsp.views.HoverView;
 import moonshine.editor.text.utils.LspTextEditorUtil;
 import moonshine.lsp.Hover;
 import moonshine.lsp.HoverParams;
@@ -34,15 +33,10 @@ import openfl.events.MouseEvent;
 import openfl.geom.Point;
 
 class HoverManager {
-	public static final CHILD_VARIANT_HOVER_LABEL = "hoverManager_hoverLabel";
-
 	public function new(textEditor:LspTextEditor) {
-		HoverViewStyles.initialize();
-
 		_textEditor = textEditor;
 
-		_hoverView = new Label();
-		_hoverView.variant = CHILD_VARIANT_HOVER_LABEL;
+		_hoverView = new HoverView();
 		_hoverView.addEventListener(MouseEvent.ROLL_OUT, hoverManager_hoverView_rollOutHandler);
 
 		_textEditor.addEventListener(Event.REMOVED_FROM_STAGE, hoverManager_textEditor_removedFromStageHandler, false, 0, true);
@@ -56,7 +50,7 @@ class HoverManager {
 	private var _currentRequestID:Int = -1;
 	private var _currentRequestParams:HoverParams;
 	private var _requestTimeoutID:Int = -1;
-	private var _hoverView:Label;
+	private var _hoverView:HoverView;
 	private var _isOver = false;
 
 	public function clear():Void {
