@@ -36,31 +36,35 @@ class CodeActionsViewStyles {
 		var styleProvider = theme.styleProvider;
 		if (styleProvider.getStyleFunction(CodeActionsView, null) == null) {
 			styleProvider.setStyleFunction(CodeActionsView, null, function(view:CodeActionsView):Void {
-				if (view.backgroundSkin == null) {
-					var skin = new RectangleSkin();
-					skin.fill = SolidColor(theme.darkMode ? 0x000000 : 0xffffff, 0.8);
-					skin.border = SolidColor(1.0, theme.darkMode ? 0x080808 : 0xacacac);
-					skin.width = 20.0;
-					skin.height = 20.0;
-					view.backgroundSkin = skin;
-				}
-
-				if (view.icon == null) {
-					var bulbColor = 0xeeaa00;
-					var icon = new Shape();
-
-					icon.graphics.beginFill(bulbColor);
-					icon.graphics.drawCircle(4.0, 4.0, 4.0);
-					icon.graphics.endFill();
-					icon.graphics.beginFill(bulbColor);
-					icon.graphics.drawRoundRect(2.0, 7.0, 4.0, 4.0, 3.0);
-					icon.graphics.endFill();
-					icon.graphics.lineStyle(1.0, theme.darkMode ? 0x282828 : 0x000000);
-					icon.graphics.moveTo(2.0, 10.0);
-					icon.graphics.lineTo(6.0, 10.0);
-					view.icon = icon;
-				}
+				setCodeActionsViewStyles(view, theme);
 			});
+		}
+	}
+
+	private static function setCodeActionsViewStyles(view:CodeActionsView, theme:BaseSteelTheme):Void {
+		if (view.backgroundSkin == null) {
+			var skin = new RectangleSkin();
+			skin.fill = SolidColor(theme.darkMode ? 0x000000 : 0xffffff, 0.8);
+			skin.border = SolidColor(1.0, theme.darkMode ? 0x080808 : 0xacacac);
+			skin.width = 20.0;
+			skin.height = 20.0;
+			view.backgroundSkin = skin;
+		}
+
+		if (view.icon == null) {
+			var bulbColor = 0xeeaa00;
+			var icon = new Shape();
+
+			icon.graphics.beginFill(bulbColor);
+			icon.graphics.drawCircle(4.0, 4.0, 4.0);
+			icon.graphics.endFill();
+			icon.graphics.beginFill(bulbColor);
+			icon.graphics.drawRoundRect(2.0, 7.0, 4.0, 4.0, 3.0);
+			icon.graphics.endFill();
+			icon.graphics.lineStyle(1.0, theme.darkMode ? 0x282828 : 0x000000);
+			icon.graphics.moveTo(2.0, 10.0);
+			icon.graphics.lineTo(6.0, 10.0);
+			view.icon = icon;
 		}
 	}
 }

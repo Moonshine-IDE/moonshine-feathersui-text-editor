@@ -35,13 +35,17 @@ class SignatureHelpViewStyles {
 		var styleProvider = theme.styleProvider;
 		if (styleProvider.getStyleFunction(SignatureHelpView, null) == null) {
 			styleProvider.setStyleFunction(SignatureHelpView, null, function(view:SignatureHelpView):Void {
-				if (view.backgroundSkin == null) {
-					var skin = new RectangleSkin();
-					skin.fill = SolidColor(theme.darkMode ? 0x000000 : 0xffffff);
-					skin.border = SolidColor(1.0, 0x333333);
-					view.backgroundSkin = skin;
-				}
+				setSignatureHelpViewStyles(view, theme);
 			});
+		}
+	}
+
+	private static function setSignatureHelpViewStyles(view:SignatureHelpView, theme:BaseSteelTheme):Void {
+		if (view.backgroundSkin == null) {
+			var skin = new RectangleSkin();
+			skin.fill = SolidColor(theme.darkMode ? 0x000000 : 0xffffff);
+			skin.border = SolidColor(1.0, 0x333333);
+			view.backgroundSkin = skin;
 		}
 	}
 }

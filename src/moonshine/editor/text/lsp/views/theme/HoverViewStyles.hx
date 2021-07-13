@@ -37,19 +37,23 @@ class HoverViewStyles {
 		var styleProvider = theme.styleProvider;
 		if (styleProvider.getStyleFunction(Label, HoverManager.CHILD_VARIANT_HOVER_LABEL) == null) {
 			styleProvider.setStyleFunction(Label, HoverManager.CHILD_VARIANT_HOVER_LABEL, function(view:Label):Void {
-				if (view.backgroundSkin == null) {
-					var skin = new RectangleSkin();
-					skin.fill = SolidColor(theme.darkMode ? 0x000000 : 0xffffff);
-					skin.border = SolidColor(1.0, 0x333333);
-					view.backgroundSkin = skin;
-				}
-
-				if (view.textFormat == null) {
-					view.textFormat = theme.getTextFormat();
-				}
-
-				view.setPadding(4.0);
+				setHoverViewStyles(view, theme);
 			});
 		}
+	}
+
+	private static function setHoverViewStyles(view:Label, theme:BaseSteelTheme):Void {
+		if (view.backgroundSkin == null) {
+			var skin = new RectangleSkin();
+			skin.fill = SolidColor(theme.darkMode ? 0x000000 : 0xffffff);
+			skin.border = SolidColor(1.0, 0x333333);
+			view.backgroundSkin = skin;
+		}
+
+		if (view.textFormat == null) {
+			view.textFormat = theme.getTextFormat();
+		}
+
+		view.setPadding(4.0);
 	}
 }
