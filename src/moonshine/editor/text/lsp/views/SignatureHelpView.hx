@@ -76,6 +76,7 @@ class SignatureHelpView extends LayoutGroup {
 
 		label = new Label();
 		label.wordWrap = true;
+		label.selectable = true;
 		// label.layoutData = new VerticalLayoutData(100.0);
 		addChild(label);
 

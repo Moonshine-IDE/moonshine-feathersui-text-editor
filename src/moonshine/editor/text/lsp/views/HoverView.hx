@@ -64,6 +64,7 @@ class HoverView extends ScrollContainer {
 
 		label = new Label();
 		label.themeEnabled = false;
+		label.selectable = true;
 		label.wordWrap = true;
 		addChild(label);
 	}
