@@ -18,8 +18,6 @@
 package moonshine.editor.text.syntax.format;
 
 import moonshine.editor.text.syntax.parser.HTMLLineParser;
-import moonshine.editor.text.syntax.parser.JSLineParser;
-import moonshine.editor.text.syntax.parser.CSSLineParser;
 import moonshine.editor.text.syntax.parser.XMLLineParser;
 import openfl.text.TextFormat;
 

@@ -45,6 +45,9 @@ class JSSyntaxFormatBuilder {
 		formats.set(JSLineParser.JS_COMMENT, getTextFormat(_colorSettings.commentColor));
 		formats.set(JSLineParser.JS_MULTILINE_COMMENT, getTextFormat(_colorSettings.commentColor));
 		formats.set(JSLineParser.JS_REGULAR_EXPRESSION, getTextFormat(_colorSettings.regExpColor));
+		formats.set(JSLineParser.JS_BOOLEAN_KEYWORD, getTextFormat(_colorSettings.keywordColor));
+		formats.set(JSLineParser.JS_UNDEFINED_KEYWORD, getTextFormat(_colorSettings.keywordColor));
+		formats.set(JSLineParser.JS_NULL_KEYWORD, getTextFormat(_colorSettings.keywordColor));
 		formats.set(JSLineParser.JS_KEYWORD, getTextFormat(_colorSettings.keywordColor));
 		formats.set(JSLineParser.JS_VAR_KEYWORD, getTextFormat(_colorSettings.fieldKeywordColor));
 		formats.set(JSLineParser.JS_FUNCTION_KEYWORD, getTextFormat(_colorSettings.methodKeywordColor));
