@@ -27,7 +27,7 @@ class InlineParserManager {
 	}
 
 	public function addParser(parser:InlineParser):Void {
-		parsers[parser.contextMask] = parser;
+		parsers.set(parser.contextMask, parser);
 	}
 
 	public function getParser(context:Int):InlineParser {
