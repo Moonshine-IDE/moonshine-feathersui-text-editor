@@ -168,8 +168,6 @@ class ContextSwitchLineParser extends EventDispatcher implements ILineParser {
 
 						if (inlineCutoff < 0 || pos < inlineCutoff) {
 							var index = i - 1 + n;
-							result.insert(index, 0);
-							index++;
 							result.insert(index, pos);
 							index++;
 							result.insert(index, inlineResult[n + 1] | inlineMask);
