@@ -149,15 +149,14 @@ class ContextSwitchLineParser extends EventDispatcher implements ILineParser {
 				curParser = parserManager.getParser(curContext);
 
 				if (curParser != null) {
-					var inlinePos:Int = result[i - 1];
-					var inlineResult:Array<Int>;
-					var inlineMask:Int = curParser.contextMask;
-					var inlineCutoff:Int = (i < result.length - 1) ? result[i + 1] : -1;
+					var inlinePos = result[i - 1];
+					var inlineMask = curParser.contextMask;
+					var inlineCutoff = (i < result.length - 1) ? result[i + 1] : sourceCode.length;
 
 					tail = sourceCode.substring(inlinePos, inlineCutoff) + "\n";
 
 					curParser.parser.setContext(curContext & ~inlineMask);
-					inlineResult = curParser.parser.parse(tail);
+					var inlineResult = curParser.parser.parse(tail);
 
 					// Remove old results
 					result.splice(i - 1, 2);
