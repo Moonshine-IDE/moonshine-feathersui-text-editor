@@ -818,37 +818,37 @@ class TextLineRenderer extends FeathersControl {
 				// for a couple of frames
 				next = lineTextLength;
 			}
-			if (current >= next) {
+			if (current == next) {
 				continue;
 			}
 			var format = textStyles.get(style);
-			if (format != null) {
-				if (_linkStartChar != -1 && _linkStartChar >= current && _linkStartChar < next) {
-					var linkStart = textIndexToRenderedIndex(_linkStartChar);
-					var linkEnd = textIndexToRenderedIndex(_linkEndChar);
-					current = textIndexToRenderedIndex(current);
-					next = textIndexToRenderedIndex(next);
-					var linkFormat = TextFormatUtil.clone(format);
-					linkFormat.underline = true;
-					if (linkStart > current) {
-						_mainTextField.setTextFormat(format, current, linkStart);
-					}
-					_mainTextField.setTextFormat(linkFormat, linkStart, linkEnd);
-					if (linkEnd < next) {
-						_mainTextField.setTextFormat(format, linkEnd, next);
-					}
-				} else {
-					if (format.underline == null) {
-						// null is not treated like false, so if we want to clear an
-						// old link, we need false instead of null
-						format.underline = false;
-					}
-					current = textIndexToRenderedIndex(current);
-					next = textIndexToRenderedIndex(next);
-					_mainTextField.setTextFormat(format, current, next);
+			if (format == null) {
+				// TextField won't accept a null TextFormat, so use the default
+				format = textStyles.get(_defaultTextStyleContext);
+			}
+			if (_linkStartChar != -1 && _linkStartChar >= current && _linkStartChar < next) {
+				var linkStart = textIndexToRenderedIndex(_linkStartChar);
+				var linkEnd = textIndexToRenderedIndex(_linkEndChar);
+				current = textIndexToRenderedIndex(current);
+				next = textIndexToRenderedIndex(next);
+				var linkFormat = TextFormatUtil.clone(format);
+				linkFormat.underline = true;
+				if (linkStart > current) {
+					_mainTextField.setTextFormat(format, current, linkStart);
+				}
+				_mainTextField.setTextFormat(linkFormat, linkStart, linkEnd);
+				if (linkEnd < next) {
+					_mainTextField.setTextFormat(format, linkEnd, next);
 				}
 			} else {
-				trace("Missing TextFormat for text style: 0x" + StringTools.hex(style));
+				if (format.underline == null) {
+					// null is not treated like false, so if we want to clear an
+					// old link, we need false instead of null
+					format.underline = false;
+				}
+				current = textIndexToRenderedIndex(current);
+				next = textIndexToRenderedIndex(next);
+				_mainTextField.setTextFormat(format, current, next);
 			}
 		} while (i < _styleRanges.length);
 		_mainTextField.embedFonts = embedFonts;
