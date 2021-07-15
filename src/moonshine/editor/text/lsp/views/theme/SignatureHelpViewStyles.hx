@@ -17,6 +17,8 @@
 
 package moonshine.editor.text.lsp.views.theme;
 
+import feathers.text.TextFormat;
+import feathers.controls.Label;
 import feathers.skins.RectangleSkin;
 import feathers.style.Theme;
 import feathers.themes.steel.BaseSteelTheme;
@@ -38,6 +40,11 @@ class SignatureHelpViewStyles {
 				setSignatureHelpViewStyles(view, theme);
 			});
 		}
+		if (styleProvider.getStyleFunction(Label, SignatureHelpView.CHILD_VARIANT_SIGNATURE_LABEL) == null) {
+			styleProvider.setStyleFunction(Label, SignatureHelpView.CHILD_VARIANT_SIGNATURE_LABEL, function(label:Label):Void {
+				setSignatureHelpViewSignatureLabelStyles(label, theme);
+			});
+		}
 	}
 
 	private static function setSignatureHelpViewStyles(view:SignatureHelpView, theme:BaseSteelTheme):Void {
@@ -47,5 +54,11 @@ class SignatureHelpViewStyles {
 			skin.border = SolidColor(1.0, 0x333333);
 			view.backgroundSkin = skin;
 		}
+	}
+
+	private static function setSignatureHelpViewSignatureLabelStyles(label:Label, theme:BaseSteelTheme):Void {
+		var tf = theme.getTextFormat();
+		tf.font = "_typewriter";
+		label.textFormat = tf;
 	}
 }

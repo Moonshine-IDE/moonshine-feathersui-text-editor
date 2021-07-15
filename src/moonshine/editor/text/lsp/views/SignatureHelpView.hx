@@ -29,6 +29,7 @@ import feathers.controls.LayoutGroup;
 
 @:styleContext
 class SignatureHelpView extends LayoutGroup {
+	public static final CHILD_VARIANT_SIGNATURE_LABEL = "signatureHelpView_signatureLabel";
 	public static final CHILD_VARIANT_SIGNATURE_CHANGE_BUTTON = "signatureHelpView_signatureChangeButton";
 
 	public function new() {
@@ -75,6 +76,7 @@ class SignatureHelpView extends LayoutGroup {
 		layout = viewLayout;
 
 		label = new Label();
+		label.variant = CHILD_VARIANT_SIGNATURE_LABEL;
 		label.wordWrap = true;
 		label.selectable = true;
 		// label.layoutData = new VerticalLayoutData(100.0);
