@@ -852,7 +852,11 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		var textLineRenderer = cast(_listView.itemToItemRenderer(line), TextLineRenderer);
 		if (textLineRenderer != null) {
 			var rendererXY = textLineRenderer.globalToLocal(localToGlobal(localXY));
-			charIndex = textLineRenderer.getCharIndexAtPoint(rendererXY.x, rendererXY.y);
+			if (forSelection) {
+				charIndex = textLineRenderer.getSelectionCharIndexAtPoint(rendererXY.x, rendererXY.y);
+			} else {
+				charIndex = textLineRenderer.getCharIndexAtPoint(rendererXY.x, rendererXY.y);
+			}
 		} else {
 			var state = new ListViewItemState(line, lineIndex, false, line.text);
 			textLineRenderer = createTextLineRenderer();
@@ -860,7 +864,11 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			textLineRenderer.validateNow();
 			var rendererX = localXY.x - _viewPortVisibleBounds.x;
 			var rendererY = localXY.y - _viewPortVisibleBounds.y - (lineIndex * _lineHeight);
-			charIndex = textLineRenderer.getCharIndexAtPoint(rendererX, rendererY);
+			if (forSelection) {
+				charIndex = textLineRenderer.getSelectionCharIndexAtPoint(rendererX, rendererY);
+			} else {
+				charIndex = textLineRenderer.getCharIndexAtPoint(rendererX, rendererY);
+			}
 			resetTextLineRenderer(textLineRenderer, state);
 			destroyTextLineRenderer(textLineRenderer);
 		}
