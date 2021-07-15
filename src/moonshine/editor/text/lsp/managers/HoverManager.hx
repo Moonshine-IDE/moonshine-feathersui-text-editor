@@ -20,6 +20,7 @@ package moonshine.editor.text.lsp.managers;
 import feathers.controls.Application;
 import feathers.core.PopUpManager;
 import feathers.events.ScrollEvent;
+import moonshine.editor.text.events.TextEditorEvent;
 import moonshine.editor.text.lsp.events.LspTextEditorLanguageRequestEvent;
 import moonshine.editor.text.lsp.views.HoverView;
 import moonshine.editor.text.utils.LspTextEditorUtil;
@@ -39,6 +40,7 @@ class HoverManager {
 		_hoverView = new HoverView();
 		_hoverView.addEventListener(MouseEvent.ROLL_OUT, hoverManager_hoverView_rollOutHandler);
 
+		_textEditor.addEventListener(TextEditorEvent.SELECTION_CHANGE, hoverManager_textEditor_selectionChangeHandler, false, 0, true);
 		_textEditor.addEventListener(Event.REMOVED_FROM_STAGE, hoverManager_textEditor_removedFromStageHandler, false, 0, true);
 		_textEditor.addEventListener(ScrollEvent.SCROLL, hoverManager_textEditor_scrollHandler, false, 0, true);
 		_textEditor.addEventListener(MouseEvent.MOUSE_MOVE, hoverManager_textEditor_mouseMoveHandler, false, 0, true);
@@ -318,6 +320,10 @@ class HoverManager {
 	}
 
 	private function hoverManager_textEditor_removedFromStageHandler(event:Event):Void {
+		closeHoverView();
+	}
+
+	private function hoverManager_textEditor_selectionChangeHandler(event:TextEditorEvent):Void {
 		closeHoverView();
 	}
 
