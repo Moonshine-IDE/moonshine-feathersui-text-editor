@@ -464,48 +464,38 @@ class SelectionManager {
 		var endLine = 0;
 		var endChar = 0;
 
-		var rdr:TextLineRenderer = null;
-		var current = cast(event.target, DisplayObject);
-		while (current != null) {
-			if ((current is TextLineRenderer)) {
-				rdr = cast(current, TextLineRenderer);
-				break;
-			}
-			current = current.parent;
-		}
-		if (rdr == null) {
+		var pos = _textEditor.localToTextEditorPosition(localPoint, true);
+		if (pos == null) {
+			// this shouldn't happen, but just to be safe
 			return;
 		}
-
-		var newCaretPosition = rdr.getSelectionCharIndexAtPoint(rdr.mouseX, rdr.mouseY);
 		var safeBreakpointHitAreaSize = _textEditor.gutterWidth - 4.0;
-		if (newCaretPosition != -1) {
+		if (pos.character != -1) {
 			if (_clickCount == 1) {
-				startLine = event.shiftKey ? _textEditor.hasSelection ? _textEditor.selectionStartLineIndex : _textEditor.caretLineIndex : rdr.lineIndex;
-				startChar = event.shiftKey ? _textEditor.hasSelection ? _textEditor.selectionStartCharIndex : _textEditor.caretCharIndex : newCaretPosition;
+				startLine = event.shiftKey ? _textEditor.hasSelection ? _textEditor.selectionStartLineIndex : _textEditor.caretLineIndex : pos.line;
+				startChar = event.shiftKey ? _textEditor.hasSelection ? _textEditor.selectionStartCharIndex : _textEditor.caretCharIndex : pos.character;
 
-				endLine = rdr.lineIndex;
-				endChar = newCaretPosition;
+				endLine = pos.line;
+				endChar = pos.character;
 			} else if (_clickCount == 2) {
-				startLine = endLine = rdr.lineIndex;
+				startLine = endLine = pos.line;
 
-				startChar = newCaretPosition - TextUtil.wordBoundaryBackward(_textEditor.lines.get(startLine).text.substring(0, newCaretPosition));
-				endChar = newCaretPosition + TextUtil.wordBoundaryForward(_textEditor.lines.get(endLine).text.substring(newCaretPosition));
+				startChar = pos.character - TextUtil.wordBoundaryBackward(_textEditor.lines.get(startLine).text.substring(0, pos.character));
+				endChar = pos.character + TextUtil.wordBoundaryForward(_textEditor.lines.get(endLine).text.substring(pos.character));
 				if (_textEditor.lines.get(endLine).text.charAt(endChar - 1) == " ") {
 					endChar--;
 				}
 			} else if (_clickCount == 3) {
-				startLine = endLine = rdr.lineIndex;
+				startLine = endLine = pos.line;
 
 				startChar = 0;
 				endChar = _textEditor.lines.get(startLine).text.length;
 			}
 		} else if (localPoint.x < safeBreakpointHitAreaSize && localPoint.x > 16.0) {
-			startLine = event.shiftKey ? _textEditor.hasSelection ? _textEditor.selectionStartLineIndex : _textEditor.caretLineIndex : rdr.lineIndex;
+			startLine = event.shiftKey ? _textEditor.hasSelection ? _textEditor.selectionStartLineIndex : _textEditor.caretLineIndex : pos.line;
 			startChar = event.shiftKey ? _textEditor.hasSelection ? _textEditor.selectionStartCharIndex : _textEditor.caretCharIndex : 0;
 
-			endLine = rdr.lineIndex + (event.shiftKey
-				&& (startLine > rdr.lineIndex || startLine == rdr.lineIndex && startChar > 0) ? 0 : 1);
+			endLine = pos.line + (event.shiftKey && (startLine > pos.line || startLine == pos.line && startChar > 0) ? 0 : 1);
 			endChar = 0;
 
 			if (endLine >= _textEditor.lines.length) {
