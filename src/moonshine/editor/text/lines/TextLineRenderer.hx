@@ -1053,17 +1053,24 @@ class TextLineRenderer extends FeathersControl {
 		}
 		var renderedCaretIndex = textIndexToRenderedIndex(adjustedCaretIndex);
 		var bounds = _mainTextField.getCharBoundaries(renderedCaretIndex);
-		var offsetX = 0.0;
-		if (textLength > 0 && _caretIndex > adjustedCaretIndex) {
-			if (_renderTabsWithSpaces && _text.charAt(adjustedCaretIndex) == "\t") {
-				offsetX = bounds.width * _tabWidth;
-			} else {
-				offsetX = bounds.width;
+		var caretX = _gutterWidth;
+		var caretY = _mainTextField.y;
+		var caretHeight = _mainTextField.height;
+		if (bounds != null) {
+			caretX += bounds.x;
+			caretY += bounds.y;
+			caretHeight = bounds.height;
+			if (textLength > 0 && _caretIndex > adjustedCaretIndex) {
+				if (_renderTabsWithSpaces && _text.charAt(adjustedCaretIndex) == "\t") {
+					caretX += bounds.width * _tabWidth;
+				} else {
+					caretX += bounds.width;
+				}
 			}
 		}
-		_caretSkin.x = _gutterWidth + bounds.x + offsetX;
-		_caretSkin.y = _mainTextField.y + bounds.y;
-		_caretSkin.height = bounds.height;
+		_caretSkin.x = caretX;
+		_caretSkin.y = caretY;
+		_caretSkin.height = caretHeight;
 		_caretSkin.visible = true;
 		_caretX = _caretSkin.x;
 	}
