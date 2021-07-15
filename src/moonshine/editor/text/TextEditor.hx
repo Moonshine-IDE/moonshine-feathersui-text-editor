@@ -915,9 +915,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 
 	override private function initialize():Void {
 		if (_listView == null) {
-			_listView = new ListView();
-			_listView.selectable = false;
-			// _listView.scrollPixelSnapping = true;
+			_listView = new TextEditorListView();
 			var layout = new VerticalListFixedRowLayout();
 			layout.contentJustify = true;
 			_listView.layout = layout;
@@ -1083,8 +1081,9 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	}
 
 	private function textEditor_focusInHandler(event:FocusEvent):Void {
-		if (focusManager == null) {
-			stage.focus = _listView;
+		if (this.stage != null && this.stage.focus != _listView) {
+			event.stopImmediatePropagation();
+			this.stage.focus = _listView;
 		}
 	}
 
@@ -1141,5 +1140,17 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 
 	private function textEditor_lines_changeHandler(event:Event):Void {
 		setInvalid(DATA);
+	}
+}
+
+private class TextEditorListView extends ListView {
+	public function new() {
+		super();
+		selectable = false;
+		// scrollPixelSnapping = true;
+	}
+
+	override private function get_focusEnabled() {
+		return _focusEnabled && _enabled;
 	}
 }
