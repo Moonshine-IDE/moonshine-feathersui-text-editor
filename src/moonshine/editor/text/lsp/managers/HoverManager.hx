@@ -108,6 +108,13 @@ class HoverManager {
 			}
 			var validDiagnosticCount = 0;
 			for (diagnostic in diagnostics) {
+				if (diagnostic.severity == Hint) {
+					// skip hints because they are not meant to be displayed
+					// to the user like regular problems. they're used
+					// internally by the language server or the editor for
+					// other types of things, such as code actions.
+					continue;
+				}
 				var range = diagnostic.range;
 				var start = range.start;
 				var end = range.end;
