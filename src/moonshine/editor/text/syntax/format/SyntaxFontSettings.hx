@@ -18,7 +18,7 @@
 package moonshine.editor.text.syntax.format;
 
 class SyntaxFontSettings {
-	public function new(fontFamily:String = "_typewriter", fontSize:Int = 13) {
+	public function new(fontFamily:String = "_typewriter", fontSize:Int = 14) {
 		this.fontFamily = fontFamily;
 		this.fontSize = fontSize;
 	}
