@@ -44,7 +44,7 @@ class HoverViewStyles {
 	private static function setHoverViewStyles(view:HoverView, theme:BaseSteelTheme):Void {
 		if (view.backgroundSkin == null) {
 			var skin = new RectangleSkin();
-			skin.fill = SolidColor(theme.darkMode ? 0x000000 : 0xffffff);
+			skin.fill = SolidColor(theme.darkMode ? 0x000000 : 0xeeeeee);
 			skin.border = SolidColor(1.0, 0x333333);
 			skin.maxWidth = 450.0;
 			skin.maxHeight = 450.0;

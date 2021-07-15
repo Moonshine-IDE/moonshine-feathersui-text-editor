@@ -43,7 +43,7 @@ class SignatureHelpViewStyles {
 	private static function setSignatureHelpViewStyles(view:SignatureHelpView, theme:BaseSteelTheme):Void {
 		if (view.backgroundSkin == null) {
 			var skin = new RectangleSkin();
-			skin.fill = SolidColor(theme.darkMode ? 0x000000 : 0xffffff);
+			skin.fill = SolidColor(theme.darkMode ? 0x000000 : 0xeeeeee);
 			skin.border = SolidColor(1.0, 0x333333);
 			view.backgroundSkin = skin;
 		}
