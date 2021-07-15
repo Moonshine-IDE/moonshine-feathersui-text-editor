@@ -18,12 +18,9 @@
 package moonshine.editor.text.lsp.managers;
 
 import feathers.controls.Application;
-import feathers.controls.Label;
 import feathers.controls.ListView;
-import feathers.controls.dataRenderers.ItemRenderer;
 import feathers.core.PopUpManager;
 import feathers.data.ArrayCollection;
-import feathers.data.ListViewItemState;
 import feathers.events.ListViewEvent;
 import feathers.events.ScrollEvent;
 import feathers.utils.DisplayObjectRecycler;
@@ -31,7 +28,7 @@ import moonshine.editor.text.changes.TextEditorChange;
 import moonshine.editor.text.events.TextEditorChangeEvent;
 import moonshine.editor.text.lsp.events.LspTextEditorLanguageActionEvent;
 import moonshine.editor.text.lsp.events.LspTextEditorLanguageRequestEvent;
-import moonshine.editor.text.lsp.views.CompletionItemIcon;
+import moonshine.editor.text.lsp.views.CompletionItemRenderer;
 import moonshine.editor.text.utils.LspTextEditorUtil;
 import moonshine.editor.text.utils.TextUtil;
 import moonshine.lsp.CompletionItem;
@@ -55,18 +52,7 @@ class CompletionManager {
 		_completionListView.focusEnabled = false;
 		_completionListView.variant = ListView.VARIANT_POP_UP;
 		_completionListView.itemToText = (item:CompletionItem) -> item.label;
-		_completionListView.itemRendererRecycler = DisplayObjectRecycler.withFunction(() -> {
-			var itemRenderer = new ItemRenderer();
-			itemRenderer.icon = new CompletionItemIcon();
-			itemRenderer.accessoryView = new Label();
-			return itemRenderer;
-		}, (itemRenderer, state:ListViewItemState) -> {
-			var icon = cast(itemRenderer.icon, CompletionItemIcon);
-			icon.data = cast(state.data, CompletionItem);
-			var detailLabel = cast(itemRenderer.accessoryView, Label);
-			itemRenderer.text = state.text;
-			detailLabel.text = cast(state.data, CompletionItem).detail;
-		});
+		_completionListView.itemRendererRecycler = DisplayObjectRecycler.withClass(CompletionItemRenderer);
 		_completionListView.addEventListener(ListViewEvent.ITEM_TRIGGER, completionManager_completionListView_itemTriggerHandler);
 
 		_textEditor.addEventListener(Event.REMOVED_FROM_STAGE, completionManager_textEditor_removedFromStageHandler, false, 0, true);

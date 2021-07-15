@@ -17,25 +17,16 @@
 
 package moonshine.editor.text.lsp.views;
 
-import feathers.skins.CircleSkin;
-import feathers.controls.Label;
-import moonshine.lsp.CompletionItemKind;
-import moonshine.lsp.CompletionItem;
 import feathers.core.FeathersControl;
+import feathers.skins.CircleSkin;
+import feathers.text.TextFormat;
+import moonshine.editor.text.lsp.views.theme.CompletionItemIconStyles;
+import moonshine.lsp.CompletionItem;
+import moonshine.lsp.CompletionItemKind;
+import openfl.text.TextField;
 
+@:styleContext
 class CompletionItemIcon extends FeathersControl {
-	private static final COLOR_MAP:Map<CompletionItemKind, UInt> = [
-		CompletionItemKind.Function => 0x3382dd,
-		CompletionItemKind.Keyword => 0x6d5a9c,
-		CompletionItemKind.Interface => 0x5B4AE4,
-		CompletionItemKind.Class => 0xa848da,
-		CompletionItemKind.Variable => 0x6d5a9c,
-		CompletionItemKind.Field => 0x6d5a1b,
-		CompletionItemKind.Event => 0xC28627,
-		CompletionItemKind.Property => 0x3E8854,
-		CompletionItemKind.Method => 0x3382dd,
-	];
-
 	private static final TEXT_MAP:Map<CompletionItemKind, String> = [
 		CompletionItemKind.Function => "F",
 		CompletionItemKind.Keyword => "K",
@@ -49,10 +40,11 @@ class CompletionItemIcon extends FeathersControl {
 	];
 
 	public function new() {
+		CompletionItemIconStyles.initialize();
 		super();
 	}
 
-	private var _label:Label;
+	private var _textField:TextField;
 	private var _backgroundSkin:CircleSkin;
 
 	private var _data:CompletionItem;
@@ -73,32 +65,46 @@ class CompletionItemIcon extends FeathersControl {
 		return _data;
 	}
 
+	@:style
+	public var textFormat:AbstractTextFormat = null;
+
+	@:style
+	public var colorMap:Map<CompletionItemKind, UInt> = null;
+
 	override private function initialize():Void {
 		super.initialize();
 
-		if (_label == null) {
+		if (_backgroundSkin == null) {
 			_backgroundSkin = new CircleSkin();
 			addChild(_backgroundSkin);
 		}
 
-		if (_label == null) {
-			_label = new Label();
-			addChild(_label);
+		if (_textField == null) {
+			_textField = new TextField();
+			_textField.autoSize = LEFT;
+			_textField.mouseEnabled = false;
+			_textField.selectable = false;
+			addChild(_textField);
 		}
 	}
 
 	override private function update():Void {
 		var dataInvalid = isInvalid(DATA);
+		var stylesInvalid = isInvalid(STYLES);
 
 		if (dataInvalid) {
 			if (_data != null) {
-				var fillColor = COLOR_MAP.exists(_data.kind) ? COLOR_MAP.get(_data.kind) : 0x000000;
+				var fillColor = colorMap.exists(_data.kind) ? colorMap.get(_data.kind) : 0x000000;
 				_backgroundSkin.fill = SolidColor(fillColor);
-				_label.text = TEXT_MAP.exists(_data.kind) ? TEXT_MAP.get(_data.kind) : "";
+				_textField.text = TEXT_MAP.exists(_data.kind) ? TEXT_MAP.get(_data.kind) : "";
 			} else {
 				_backgroundSkin.fill = SolidColor(0x000000);
-				_label.text = "";
+				_textField.text = "";
 			}
+		}
+
+		if (stylesInvalid) {
+			_textField.setTextFormat(textFormat);
 		}
 
 		measure();
@@ -107,7 +113,7 @@ class CompletionItemIcon extends FeathersControl {
 	}
 
 	private function measure():Void {
-		saveMeasurements(20.0, 20.0, 20.0, 20.0);
+		saveMeasurements(16.0, 16.0, 16.0, 16.0);
 	}
 
 	private function layoutContent():Void {
@@ -116,8 +122,7 @@ class CompletionItemIcon extends FeathersControl {
 		_backgroundSkin.width = actualWidth;
 		_backgroundSkin.height = actualHeight;
 
-		_label.validateNow();
-		_label.x = (actualWidth - _label.width) / 2.0;
-		_label.y = (actualHeight - _label.height) / 2.0;
+		_textField.x = (actualWidth - _textField.width) / 2.0;
+		_textField.y = (actualHeight - _textField.height) / 2.0;
 	}
 }
