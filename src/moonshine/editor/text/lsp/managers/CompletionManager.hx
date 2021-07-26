@@ -211,7 +211,9 @@ class CompletionManager {
 		maxAppX -= _completionListView.width;
 		maxAppY -= _completionListView.height;
 
-		_completionListView.x = Math.max(Math.max(viewPortTopLeft.x, 0.0), Math.min(Math.min(viewPortBottomRight.x, maxAppX), xy.x));
+		var minX = Math.max(0.0, viewPortTopLeft.x - _completionListView.width);
+		var maxX = Math.min(viewPortBottomRight.x, maxAppX);
+		_completionListView.x = Math.max(minX, Math.min(maxX, xy.x));
 
 		// start by trying to position it below the current line
 		var yPosition = xy.y + _textEditor.lineHeight;
