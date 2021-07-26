@@ -92,7 +92,8 @@ class CompletionItemIcon extends FeathersControl {
 		var dataInvalid = isInvalid(DATA);
 		var stylesInvalid = isInvalid(STYLES);
 
-		if (dataInvalid) {
+		if (dataInvalid || stylesInvalid) {
+			_textField.defaultTextFormat = textFormat;
 			if (_data != null) {
 				var fillColor = colorMap.exists(_data.kind) ? colorMap.get(_data.kind) : 0x000000;
 				_backgroundSkin.fill = SolidColor(fillColor);
@@ -101,10 +102,6 @@ class CompletionItemIcon extends FeathersControl {
 				_backgroundSkin.fill = SolidColor(0x000000);
 				_textField.text = "";
 			}
-		}
-
-		if (stylesInvalid) {
-			_textField.setTextFormat(textFormat);
 		}
 
 		measure();
