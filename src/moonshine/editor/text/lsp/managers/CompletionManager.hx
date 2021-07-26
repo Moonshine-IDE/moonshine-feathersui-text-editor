@@ -54,6 +54,7 @@ class CompletionManager {
 		_completionListView.itemToText = (item:CompletionItem) -> item.label;
 		_completionListView.itemRendererRecycler = DisplayObjectRecycler.withClass(CompletionItemRenderer);
 		_completionListView.addEventListener(ListViewEvent.ITEM_TRIGGER, completionManager_completionListView_itemTriggerHandler);
+		_completionListView.addEventListener(Event.RESIZE, completionManager_completionListview_resizeHandler);
 
 		_textEditor.addEventListener(Event.REMOVED_FROM_STAGE, completionManager_textEditor_removedFromStageHandler, false, 0, true);
 		_textEditor.addEventListener(ScrollEvent.SCROLL, completionManager_textEditor_scrollHandler, false, 0, true);
@@ -487,6 +488,13 @@ class CompletionManager {
 
 	private function completionManager_completionListView_itemTriggerHandler(event:ListViewEvent):Void {
 		applyCompletionItem(event.state.data);
+	}
+
+	private function completionManager_completionListview_resizeHandler(event:Event):Void {
+		if (!PopUpManager.isTopLevelPopUp(_completionListView)) {
+			return;
+		}
+		positionCompletionListView();
 	}
 
 	private function completionManager_completionListView_changeHandler(event:Event):Void {
