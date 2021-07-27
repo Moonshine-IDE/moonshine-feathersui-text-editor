@@ -54,12 +54,13 @@ class CompletionManager {
 		_textEditor = textEditor;
 
 		_completionListView = new ListView();
-		_completionListView.focusEnabled = false;
+		_completionListView.tabEnabled = false;
 		_completionListView.variant = VARIANT_COMPLETION_LIST_VIEW;
 		_completionListView.itemToText = (item:CompletionItem) -> item.label;
 		_completionListView.itemRendererRecycler = DisplayObjectRecycler.withClass(CompletionItemRenderer);
 		_completionListView.addEventListener(ListViewEvent.ITEM_TRIGGER, completionManager_completionListView_itemTriggerHandler);
 		_completionListView.addEventListener(Event.RESIZE, completionManager_completionListview_resizeHandler);
+		_completionListView.addEventListener(FocusEvent.FOCUS_OUT, completionManager_completionListView_focusOutHandler);
 
 		_textEditor.addEventListener(Event.REMOVED_FROM_STAGE, completionManager_textEditor_removedFromStageHandler, false, 0, true);
 		_textEditor.addEventListener(ScrollEvent.SCROLL, completionManager_textEditor_scrollHandler, false, 0, true);
@@ -339,6 +340,11 @@ class CompletionManager {
 			_textEditor.dispatchEvent(new LspTextEditorLanguageActionEvent(LspTextEditorLanguageActionEvent.RUN_COMMAND, item.command));
 		}
 		_filterText = "";
+		if (_textEditor.focusManager != null) {
+			_textEditor.focusManager.focus = _textEditor;
+		} else if (_textEditor.stage != null) {
+			_textEditor.stage.focus = _textEditor;
+		}
 		closeCompletionListView();
 	}
 
@@ -485,8 +491,21 @@ class CompletionManager {
 	}
 
 	private function completionManager_textEditor_focusOutHandler(event:FocusEvent):Void {
-		if (event.relatedObject != null && _textEditor.contains(event.relatedObject)) {
-			return;
+		var newFocus = event.relatedObject;
+		if (newFocus != null) {
+			if (newFocus == _textEditor || _textEditor.contains(newFocus) || newFocus == _completionListView || _completionListView.contains(newFocus)) {
+				return;
+			}
+		}
+		closeCompletionListView();
+	}
+
+	private function completionManager_completionListView_focusOutHandler(event:FocusEvent):Void {
+		var newFocus = event.relatedObject;
+		if (newFocus != null) {
+			if (newFocus == _textEditor || _textEditor.contains(newFocus) || newFocus == _completionListView || _completionListView.contains(newFocus)) {
+				return;
+			}
 		}
 		closeCompletionListView();
 	}
