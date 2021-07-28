@@ -480,13 +480,17 @@ class CompletionManager {
 	private function updateDetail():Void {
 		var selectedItem = cast(_completionListView.selectedItem, CompletionItem);
 		_completionDetailView.visible = selectedItem != null && selectedItem.detail != null && selectedItem.detail.length > 0;
-		var markdown = "```\n" + StringTools.trim(selectedItem.detail) + "\n```";
-		if (selectedItem.documentation != null && selectedItem.documentation.length > 0) {
-			markdown += "\n\n-----\n\n";
-			markdown += StringTools.trim(selectedItem.documentation);
+		if (_completionDetailView.visible) {
+			var markdown = "```\n" + StringTools.trim(selectedItem.detail) + "\n```";
+			if (selectedItem.documentation != null && selectedItem.documentation.length > 0) {
+				markdown += "\n\n-----\n\n";
+				markdown += StringTools.trim(selectedItem.documentation);
+			}
+			var htmlText = TextFieldMarkdown.markdownToHtml(StringTools.trim(markdown));
+			_completionDetailView.htmlText = StringTools.trim(htmlText);
+		} else {
+			_completionDetailView.htmlText = null;
 		}
-		var htmlText = TextFieldMarkdown.markdownToHtml(StringTools.trim(markdown));
-		_completionDetailView.htmlText = _completionDetailView.visible ? StringTools.trim(htmlText) : "";
 	}
 
 	private function completionManager_textEditor_removedFromStageHandler(event:Event):Void {
