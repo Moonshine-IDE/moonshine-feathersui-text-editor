@@ -39,6 +39,7 @@ import moonshine.lsp.CompletionItem;
 import moonshine.lsp.CompletionList;
 import moonshine.lsp.CompletionParams;
 import moonshine.lsp.CompletionTriggerKind;
+import moonshine.lsp.MarkupContent;
 import moonshine.lsp.Position;
 import openfl.events.Event;
 import openfl.events.FocusEvent;
@@ -424,7 +425,7 @@ class CompletionManager {
 		}
 		_currentRequestID++;
 		var requestID = _currentRequestID;
-		var item = _completionListView.dataProvider.get(index);
+		var item = cast(_completionListView.dataProvider.get(index), CompletionItem);
 		_textEditor.dispatchEvent(new LspTextEditorLanguageRequestEvent(LspTextEditorLanguageRequestEvent.REQUEST_RESOLVE_COMPLETION, item, result -> {
 			handleResolveCompletion(requestID, index, result);
 		}));
@@ -482,20 +483,47 @@ class CompletionManager {
 
 	private function updateDetail():Void {
 		var selectedItem = cast(_completionListView.selectedItem, CompletionItem);
-		_completionDetailView.visible = selectedItem != null
+		if (selectedItem == null) {
+			_completionDetailView.htmlText = null;
+			_completionDetailView.visible = false;
+			return;
+		}
+		var detail = selectedItem.detail;
+		var documentation = parseDocumentation(selectedItem.documentation);
+		var hasContent = selectedItem != null
 			&& ((selectedItem.detail != null && selectedItem.detail.length > 0)
 				|| (selectedItem.documentation != null && selectedItem.documentation.length > 0));
-		if (_completionDetailView.visible) {
-			var markdown = "```\n" + StringTools.trim(selectedItem.detail) + "\n```";
-			if (selectedItem.documentation != null && selectedItem.documentation.length > 0) {
-				markdown += "\n\n-----\n\n";
-				markdown += StringTools.trim(selectedItem.documentation);
-			}
-			var htmlText = TextFieldMarkdown.markdownToHtml(StringTools.trim(markdown));
-			_completionDetailView.htmlText = StringTools.trim(htmlText);
-		} else {
+		if (!hasContent) {
 			_completionDetailView.htmlText = null;
+			_completionDetailView.visible = false;
+			return;
 		}
+		var markdown = "";
+		if (detail != null && detail.length > 0) {
+			markdown += "```\n";
+			markdown += StringTools.trim(detail);
+			markdown += "\n```";
+		}
+		if (documentation != null && documentation.length > 0) {
+			markdown += "\n\n-----\n\n";
+			markdown += StringTools.trim(documentation);
+		}
+		var htmlText = TextFieldMarkdown.markdownToHtml(StringTools.trim(markdown));
+		_completionDetailView.htmlText = StringTools.trim(htmlText);
+	}
+
+	private function parseDocumentation(original:Any):String {
+		if (original == null) {
+			return null;
+		}
+		if ((original is String)) {
+			return (original : String);
+		}
+		if ((original is MarkupContent)) {
+			var markupContent = (original : MarkupContent);
+			return markupContent.value;
+		}
+		return null;
 	}
 
 	private function completionManager_textEditor_removedFromStageHandler(event:Event):Void {
