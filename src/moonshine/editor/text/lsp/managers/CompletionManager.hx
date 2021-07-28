@@ -551,6 +551,10 @@ class CompletionManager {
 					closeCompletionListView();
 					return;
 				case Keyboard.BACKSPACE:
+					if (_isIncomplete) {
+						dispatchCompletionEventForCurrentPosition();
+						return;
+					}
 					var newLength = _filterText.length - 1;
 					if (newLength < _initialFilterTextLength) {
 						// if we've gone before the position where the request was
@@ -662,6 +666,10 @@ class CompletionManager {
 			return;
 		}
 		if (!PopUpManager.isPopUp(_completionListView)) {
+			return;
+		}
+		if (_isIncomplete) {
+			dispatchCompletionEventForCurrentPosition(event.text);
 			return;
 		}
 		_filterText += event.text.toLowerCase();
