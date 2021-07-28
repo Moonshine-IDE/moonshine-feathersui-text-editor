@@ -214,17 +214,27 @@ class CompletionManager {
 	}
 
 	private function positionCompletionListView():Void {
-		var oldIgnoreCompletionDetailViewResize = _ignoreCompletionDetailViewResize;
-		_ignoreCompletionDetailViewResize = true;
+		var oldIgnoreCompletionListViewResize = _ignoreCompletionListViewResize;
+		_ignoreCompletionListViewResize = true;
 		_completionListView.width = Math.min(_sharedObject.data.listWidth, _textEditor.width);
 		_completionListView.validateNow();
-		_ignoreCompletionDetailViewResize = oldIgnoreCompletionDetailViewResize;
+		_ignoreCompletionListViewResize = oldIgnoreCompletionListViewResize;
 
 		var bounds = _textEditor.getTextEditorPositionBoundaries(LspTextEditorUtil.lspPositionToTextEditorPosition(_currentRequestParams.position));
 		if (bounds == null) {
 			closeCompletionListView();
 			return;
 		}
+
+		var oldIgnoreCompletionDetailViewResize = _ignoreCompletionDetailViewResize;
+		_ignoreCompletionDetailViewResize = true;
+		var showDetail = _sharedObject.data.showDetail;
+		if (showDetail) {
+			_completionDetailView.resetWidth();
+			_completionDetailView.resetMaxHeight();
+			_completionDetailView.validateNow();
+		}
+
 		var xy = new Point(bounds.x, bounds.y);
 		xy = _textEditor.localToGlobal(xy);
 		var viewPortBounds = _textEditor.getViewPortVisibleBounds();
@@ -245,63 +255,103 @@ class CompletionManager {
 			maxAppX = Application.topLevelApplication.width;
 			maxAppY = Application.topLevelApplication.height;
 		}
-		maxAppX -= _completionListView.width;
-		maxAppY -= _completionListView.height;
 
-		var minX = Math.max(0.0, viewPortTopLeft.x - _completionListView.width);
-		var maxX = Math.min(viewPortBottomRight.x, maxAppX);
-		_completionListView.x = Math.max(minX, Math.min(maxX, xy.x));
+		var maxAppListX = maxAppX - _completionListView.width;
+		var maxAppListY = maxAppY - _completionListView.height;
+
+		var canPositionListBelow = true;
+		var canPositionDetailOnSide = true;
+		var minListX = Math.max(0.0, viewPortTopLeft.x - _completionListView.width);
+		var maxListX = Math.min(viewPortBottomRight.x, maxAppListX);
+		// when positioned below, don't let it go past the top of the editor
+		var minListY = viewPortTopLeft.y;
+		// and don't let it go past the bottom of the app
+		var maxListY = maxAppListY;
+
+		var maxAppDetailX = maxAppX - _completionDetailView.width;
+		var maxAppDetailY = maxAppY - _completionDetailView.height;
+
+		var listX = Math.max(minListX, Math.min(maxListX, xy.x));
+
+		// check if we can position the detail view on the left or right
+		var detailX = listX + _completionListView.width;
+		if (detailX > maxAppDetailX) {
+			detailX = listX - _completionDetailView.width;
+			if (detailX < 0.0) {
+				canPositionDetailOnSide = false;
+			}
+		}
 
 		// start by trying to position it below the current line
-		var yPosition = xy.y + _textEditor.lineHeight;
-		// when positioned below, don't let it go past the top of the editor
-		var minY = viewPortTopLeft.y;
-		// and don't let it go past the bottom of the app
-		var maxY = maxAppY;
-		if (yPosition > maxAppY) {
+		var listY = xy.y + _textEditor.lineHeight;
+		var notEnoughRoomForList = listY > maxAppListY;
+		var notEnoughRoomForListAndDetail = showDetail
+			&& !canPositionDetailOnSide
+			&& canPositionListBelow
+			&& (listY + _completionListView.height + _completionDetailView.height) > maxAppY;
+		if (notEnoughRoomForList || notEnoughRoomForListAndDetail) {
 			// if it doesn't fit below, try positioning it above
-			yPosition = xy.y - _completionListView.height;
+			canPositionListBelow = false;
+			listY = xy.y - _completionListView.height;
 			// when positioned above, don't let it go past to the top of the app
-			minY = 0.0;
+			minListY = 0.0;
 			// and don't let it go past the bottom of the editor
-			maxY = viewPortBottomRight.y - _completionListView.height;
+			maxListY = viewPortBottomRight.y - _completionListView.height;
 		}
-		if (yPosition > maxY) {
-			yPosition = maxY;
-		}
-		if (yPosition < minY) {
-			yPosition = minY;
-		}
-		_completionListView.y = yPosition;
 
-		var oldIgnoreCompletionDetailViewResize = _ignoreCompletionDetailViewResize;
-		_ignoreCompletionDetailViewResize = true;
-		if (_sharedObject.data.showDetail) {
-			_completionDetailView.resetWidth();
-			_completionDetailView.validateNow();
-			var maxAppX:Float = _textEditor.stage.stageWidth;
-			var maxAppY:Float = _textEditor.stage.stageHeight;
-			if (Application.topLevelApplication != null) {
-				maxAppX = Application.topLevelApplication.width;
-				maxAppY = Application.topLevelApplication.height;
-			}
-			maxAppX -= _completionDetailView.width;
-			maxAppY -= _completionDetailView.height;
-			var xPosition = _completionListView.x + _completionListView.width;
-			var yPosition = _completionListView.y;
-			if (xPosition > maxAppX) {
-				xPosition = _completionListView.x - _completionDetailView.width;
-				if (xPosition < 0.0) {
-					_completionDetailView.width = _completionListView.width;
-					xPosition = _completionListView.x;
-					yPosition = _completionListView.y + _completionListView.height;
-					if (yPosition > maxAppY) {
-						yPosition = _completionListView.y - _completionDetailView.height;
+		if (listY > maxListY) {
+			listY = maxListY;
+		}
+		if (listY < minListY) {
+			listY = minListY;
+		}
+
+		_completionListView.x = listX;
+		_completionListView.y = listY;
+
+		if (showDetail) {
+			var detailY = _completionListView.y;
+			if (canPositionDetailOnSide) {
+				// prefer to position aligned to the top
+				if (detailY > maxAppDetailY) {
+					var bottomOutOfBounds = detailY - maxAppDetailY;
+					// fall back to aligning to the bottom
+					detailY = listY - _completionDetailView.height;
+					if (detailY < 0.0) {
+						// if neither works, choose the one with more space
+						var topOutOfBounds = -detailY;
+						if (bottomOutOfBounds < topOutOfBounds) {
+							// below has more space
+							detailY = listY;
+							_completionDetailView.maxHeight = maxAppDetailY - detailY;
+						} else {
+							// above has more space
+							detailY = 0.0;
+							_completionDetailView.maxHeight = listY + _completionListView.height;
+						}
+					}
+				}
+			} else {
+				// not enough room on the sides, so position above or below
+				detailX = listX;
+				// match the width of the list, even if the content is smaller
+				_completionDetailView.width = _completionListView.width;
+				if (canPositionListBelow) {
+					detailY = listY + _completionListView.height;
+					if (detailY > maxAppDetailY) {
+						_completionDetailView.maxHeight = maxAppY - detailY;
+					}
+				} else {
+					detailY = listY - _completionDetailView.height;
+					if (detailY < 0.0) {
+						detailY = 0.0;
+						_completionDetailView.maxHeight = listY;
 					}
 				}
 			}
-			_completionDetailView.x = xPosition;
-			_completionDetailView.y = yPosition;
+
+			_completionDetailView.x = detailX;
+			_completionDetailView.y = detailY;
 		}
 		_ignoreCompletionDetailViewResize = oldIgnoreCompletionDetailViewResize;
 	}
