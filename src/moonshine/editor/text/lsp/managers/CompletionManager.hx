@@ -21,6 +21,7 @@ import feathers.controls.Application;
 import feathers.controls.ListView;
 import feathers.core.PopUpManager;
 import feathers.data.ArrayCollection;
+import feathers.data.ListViewItemState;
 import feathers.events.ListViewEvent;
 import feathers.events.ScrollEvent;
 import feathers.utils.DisplayObjectRecycler;
@@ -29,6 +30,8 @@ import moonshine.editor.text.events.TextEditorChangeEvent;
 import moonshine.editor.text.lsp.events.LspTextEditorLanguageActionEvent;
 import moonshine.editor.text.lsp.events.LspTextEditorLanguageRequestEvent;
 import moonshine.editor.text.lsp.views.CompletionItemRenderer;
+import moonshine.editor.text.lsp.views.HoverView;
+import moonshine.editor.text.lsp.views.events.CompletionItemRendererEvent;
 import moonshine.editor.text.lsp.views.theme.CompletionListViewStyles;
 import moonshine.editor.text.utils.LspTextEditorUtil;
 import moonshine.editor.text.utils.TextUtil;
@@ -43,6 +46,7 @@ import openfl.events.KeyboardEvent;
 import openfl.events.MouseEvent;
 import openfl.events.TextEvent;
 import openfl.geom.Point;
+import openfl.net.SharedObject;
 import openfl.ui.Keyboard;
 
 class CompletionManager {
@@ -57,10 +61,15 @@ class CompletionManager {
 		_completionListView.tabEnabled = false;
 		_completionListView.variant = VARIANT_COMPLETION_LIST_VIEW;
 		_completionListView.itemToText = (item:CompletionItem) -> item.label;
-		_completionListView.itemRendererRecycler = DisplayObjectRecycler.withClass(CompletionItemRenderer);
+		_completionListView.itemRendererRecycler = DisplayObjectRecycler.withFunction(createCompletionItemRenderer, updateCompletionItemRenderer, null,
+			destroyCompletionItemRenderer);
+		_completionListView.addEventListener(Event.CHANGE, completionManager_completionListView_changeHandler);
 		_completionListView.addEventListener(ListViewEvent.ITEM_TRIGGER, completionManager_completionListView_itemTriggerHandler);
-		_completionListView.addEventListener(Event.RESIZE, completionManager_completionListview_resizeHandler);
+		_completionListView.addEventListener(Event.RESIZE, completionManager_completionListView_resizeHandler);
 		_completionListView.addEventListener(FocusEvent.FOCUS_OUT, completionManager_completionListView_focusOutHandler);
+
+		_completionDetailView = new HoverView();
+		_completionDetailView.addEventListener(Event.RESIZE, completionManager_completionDetailView_resizeHandler);
 
 		_textEditor.addEventListener(Event.REMOVED_FROM_STAGE, completionManager_textEditor_removedFromStageHandler, false, 0, true);
 		_textEditor.addEventListener(ScrollEvent.SCROLL, completionManager_textEditor_scrollHandler, false, 0, true);
@@ -70,6 +79,16 @@ class CompletionManager {
 		_textEditor.addEventListener(KeyboardEvent.KEY_DOWN, completionManager_textEditor_keyDownCaptureHandler, true, 10, true);
 		_textEditor.addEventListener(TextEvent.TEXT_INPUT, completionManager_textEditor_textInputHandler, false, 0, true);
 		_textEditor.addEventListener(FocusEvent.FOCUS_OUT, completionManager_textEditor_focusOutHandler, false, 0, true);
+		_textEditor.addEventListener(Event.RESIZE, completionManager_textEditor_resizeHandler, false, 0, true);
+
+		_sharedObject = SharedObject.getLocal("CompletionManager");
+		if (_sharedObject.data.showDetail == null) {
+			_sharedObject.data.showDetail = false;
+		}
+		if (_sharedObject.data.listWidth == null) {
+			_sharedObject.data.listWidth = 450.0;
+		}
+		_sharedObject.flush();
 	}
 
 	public var shortcutRequiresCtrl:Bool = true;
@@ -83,10 +102,14 @@ class CompletionManager {
 	private var _currentRequestID:Int = -1;
 	private var _currentRequestParams:CompletionParams;
 	private var _completionListView:ListView;
+	private var _completionDetailView:HoverView;
 	private var _filterText:String = "";
 	private var _initialFilterTextLength:Int = 0;
 	private var _isIncomplete:Bool = false;
 	private var _prevSelectedIndex:Int = -1;
+	private var _sharedObject:SharedObject;
+	private var _ignoreCompletionListViewResize:Bool = false;
+	private var _ignoreCompletionDetailViewResize:Bool = false;
 
 	public function clear():Void {
 		_currentRequestID = -1;
@@ -106,6 +129,7 @@ class CompletionManager {
 		_completionListView.dataProvider.set(index, result);
 		// if it's the same object, be sure that the change is noticed
 		_completionListView.dataProvider.updateAt(index);
+		updateDetail();
 	}
 
 	private function handleCompletion(requestID:Int, result:CompletionList):Void {
@@ -145,7 +169,9 @@ class CompletionManager {
 			_completionListView.selectedIndex = 0;
 		}
 		_prevSelectedIndex = _completionListView.selectedIndex;
-		_completionListView.addEventListener(Event.CHANGE, completionManager_completionListView_changeHandler);
+		if (_sharedObject.data.showDetail) {
+			PopUpManager.addPopUp(_completionDetailView, _textEditor, false, false);
+		}
 
 		positionCompletionListView();
 
@@ -188,7 +214,11 @@ class CompletionManager {
 	}
 
 	private function positionCompletionListView():Void {
+		var oldIgnoreCompletionDetailViewResize = _ignoreCompletionDetailViewResize;
+		_ignoreCompletionDetailViewResize = true;
+		_completionListView.width = Math.min(_sharedObject.data.listWidth, _textEditor.width);
 		_completionListView.validateNow();
+		_ignoreCompletionDetailViewResize = oldIgnoreCompletionDetailViewResize;
 
 		var bounds = _textEditor.getTextEditorPositionBoundaries(LspTextEditorUtil.lspPositionToTextEditorPosition(_currentRequestParams.position));
 		if (bounds == null) {
@@ -243,14 +273,47 @@ class CompletionManager {
 			yPosition = minY;
 		}
 		_completionListView.y = yPosition;
+
+		var oldIgnoreCompletionDetailViewResize = _ignoreCompletionDetailViewResize;
+		_ignoreCompletionDetailViewResize = true;
+		if (_sharedObject.data.showDetail) {
+			_completionDetailView.resetWidth();
+			_completionDetailView.validateNow();
+			var maxAppX:Float = _textEditor.stage.stageWidth;
+			var maxAppY:Float = _textEditor.stage.stageHeight;
+			if (Application.topLevelApplication != null) {
+				maxAppX = Application.topLevelApplication.width;
+				maxAppY = Application.topLevelApplication.height;
+			}
+			maxAppX -= _completionDetailView.width;
+			maxAppY -= _completionDetailView.height;
+			var xPosition = _completionListView.x + _completionListView.width;
+			var yPosition = _completionListView.y;
+			if (xPosition > maxAppX) {
+				xPosition = _completionListView.x - _completionDetailView.width;
+				if (xPosition < 0.0) {
+					_completionDetailView.width = _completionListView.width;
+					xPosition = _completionListView.x;
+					yPosition = _completionListView.y + _completionListView.height;
+					if (yPosition > maxAppY) {
+						yPosition = _completionListView.y - _completionDetailView.height;
+					}
+				}
+			}
+			_completionDetailView.x = xPosition;
+			_completionDetailView.y = yPosition;
+		}
+		_ignoreCompletionDetailViewResize = oldIgnoreCompletionDetailViewResize;
 	}
 
 	private function closeCompletionListView():Void {
+		if (PopUpManager.isPopUp(_completionDetailView)) {
+			PopUpManager.removePopUp(_completionDetailView);
+		}
 		if (!PopUpManager.isPopUp(_completionListView)) {
 			return;
 		}
 		PopUpManager.removePopUp(_completionListView);
-		_completionListView.removeEventListener(Event.CHANGE, completionManager_completionListView_changeHandler);
 		_textEditor.stage.removeEventListener(MouseEvent.MOUSE_DOWN, completionManager_textEditor_stage_mouseDownHandler);
 	}
 
@@ -346,6 +409,28 @@ class CompletionManager {
 			_textEditor.stage.focus = _textEditor;
 		}
 		closeCompletionListView();
+	}
+
+	private function createCompletionItemRenderer():CompletionItemRenderer {
+		var itemRenderer = new CompletionItemRenderer();
+		itemRenderer.addEventListener(CompletionItemRendererEvent.SHOW_DETAIL, completionManager_completionItemRenderer_showDetailHandler);
+		itemRenderer.addEventListener(CompletionItemRendererEvent.HIDE_DETAIL, completionManager_completionItemRenderer_hideDetailHandler);
+		return itemRenderer;
+	}
+
+	private function updateCompletionItemRenderer(itemRenderer:CompletionItemRenderer, state:ListViewItemState):Void {
+		itemRenderer.showDetailExternally = _sharedObject.data.showDetail;
+	}
+
+	private function destroyCompletionItemRenderer(itemRenderer:CompletionItemRenderer):Void {
+		itemRenderer.removeEventListener(CompletionItemRendererEvent.SHOW_DETAIL, completionManager_completionItemRenderer_showDetailHandler);
+		itemRenderer.removeEventListener(CompletionItemRendererEvent.HIDE_DETAIL, completionManager_completionItemRenderer_hideDetailHandler);
+	}
+
+	private function updateDetail():Void {
+		var selectedItem = cast(_completionListView.selectedItem, CompletionItem);
+		_completionDetailView.visible = selectedItem != null && selectedItem.detail != null && selectedItem.detail.length > 0;
+		_completionDetailView.htmlText = _completionDetailView.visible ? selectedItem.detail : "";
 	}
 
 	private function completionManager_textEditor_removedFromStageHandler(event:Event):Void {
@@ -514,7 +599,27 @@ class CompletionManager {
 		applyCompletionItem(event.state.data);
 	}
 
-	private function completionManager_completionListview_resizeHandler(event:Event):Void {
+	private function completionManager_completionListView_resizeHandler(event:Event):Void {
+		if (_ignoreCompletionListViewResize) {
+			return;
+		}
+		if (!PopUpManager.isTopLevelPopUp(_completionListView)) {
+			return;
+		}
+		positionCompletionListView();
+	}
+
+	private function completionManager_textEditor_resizeHandler(event:Event):Void {
+		if (!PopUpManager.isTopLevelPopUp(_completionListView)) {
+			return;
+		}
+		positionCompletionListView();
+	}
+
+	private function completionManager_completionDetailView_resizeHandler(event:Event):Void {
+		if (_ignoreCompletionDetailViewResize) {
+			return;
+		}
 		if (!PopUpManager.isTopLevelPopUp(_completionListView)) {
 			return;
 		}
@@ -522,6 +627,8 @@ class CompletionManager {
 	}
 
 	private function completionManager_completionListView_changeHandler(event:Event):Void {
+		updateDetail();
+
 		if (!_isIncomplete) {
 			return;
 		}
@@ -540,5 +647,16 @@ class CompletionManager {
 			return;
 		}
 		closeCompletionListView();
+	}
+
+	private function completionManager_completionItemRenderer_showDetailHandler(event:CompletionItemRendererEvent):Void {
+		_sharedObject.data.showDetail = true;
+		PopUpManager.addPopUp(_completionDetailView, _textEditor, false, false);
+		positionCompletionListView();
+	}
+
+	private function completionManager_completionItemRenderer_hideDetailHandler(event:CompletionItemRendererEvent):Void {
+		_sharedObject.data.showDetail = false;
+		PopUpManager.removePopUp(_completionDetailView);
 	}
 }

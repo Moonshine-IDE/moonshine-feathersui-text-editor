@@ -17,10 +17,11 @@
 
 package moonshine.editor.text.lsp.views.theme;
 
-import feathers.text.TextFormat;
+import feathers.skins.TriangleSkin;
 import feathers.controls.Label;
+import feathers.controls.ToggleButton;
 import feathers.controls.ToggleButtonState;
-import feathers.controls.dataRenderers.ItemRenderer;
+import feathers.skins.RectangleSkin;
 import feathers.skins.UnderlineSkin;
 import feathers.style.Theme;
 import feathers.themes.steel.BaseSteelTheme;
@@ -45,6 +46,11 @@ class CompletionItemRendererStyles {
 		if (styleProvider.getStyleFunction(Label, CompletionItemRenderer.CHILD_VARIANT_DETAIL_TEXT) == null) {
 			styleProvider.setStyleFunction(Label, CompletionItemRenderer.CHILD_VARIANT_DETAIL_TEXT, function(label:Label):Void {
 				setCompletionItemRendererDetailLabelStyles(label, theme);
+			});
+		}
+		if (styleProvider.getStyleFunction(ToggleButton, CompletionItemRenderer.CHILD_VARIANT_DETAIL_TOGGLE_BUTTON) == null) {
+			styleProvider.setStyleFunction(ToggleButton, CompletionItemRenderer.CHILD_VARIANT_DETAIL_TOGGLE_BUTTON, function(button:ToggleButton):Void {
+				setCompletionItemRendererDetailToggleButtonStyles(button, theme);
 			});
 		}
 	}
@@ -94,11 +100,36 @@ class CompletionItemRendererStyles {
 	}
 
 	private static function setCompletionItemRendererDetailLabelStyles(label:Label, theme:BaseSteelTheme):Void {
+		// var backgroundSkin = new RectangleSkin();
+		// backgroundSkin.fill = SolidColor(0xffffff, 0.0);
+		// backgroundSkin.border = None;
+		// backgroundSkin.maxWidth = 250.0;
+		// label.backgroundSkin = backgroundSkin;
+
 		var textFormat = theme.getDetailTextFormat();
 		textFormat.font = "_typewriter";
 		label.textFormat = textFormat;
 		var disabledTextFormat = theme.getDisabledDetailTextFormat();
 		disabledTextFormat.font = "_typewriter";
 		label.disabledTextFormat = disabledTextFormat;
+	}
+
+	private static function setCompletionItemRendererDetailToggleButtonStyles(button:ToggleButton, theme:BaseSteelTheme):Void {
+		button.showText = false;
+
+		var backgroundSkin = new RectangleSkin();
+		backgroundSkin.border = None;
+		backgroundSkin.fill = theme.getContainerFill();
+		backgroundSkin.width = 12.0;
+		backgroundSkin.height = 12.0;
+		button.backgroundSkin = backgroundSkin;
+
+		var icon = new TriangleSkin();
+		icon.pointPosition = RIGHT;
+		icon.drawBaseBorder = false;
+		icon.border = SolidColor(2.0, theme.textColor);
+		icon.width = 4.0;
+		icon.height = 8.0;
+		button.icon = icon;
 	}
 }
