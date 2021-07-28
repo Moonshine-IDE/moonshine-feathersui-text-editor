@@ -111,6 +111,7 @@ class CompletionManager {
 	private var _sharedObject:SharedObject;
 	private var _ignoreCompletionListViewResize:Bool = false;
 	private var _ignoreCompletionDetailViewResize:Bool = false;
+	private var _ignoreCompletionListViewChange:Bool = false;
 
 	public function clear():Void {
 		_currentRequestID = -1;
@@ -127,9 +128,13 @@ class CompletionManager {
 			// received a response
 			return;
 		}
+		var oldIgnoreCompletionListViewChange = _ignoreCompletionListViewChange;
+		_ignoreCompletionListViewChange = true;
 		_completionListView.dataProvider.set(index, result);
 		// if it's the same object, be sure that the change is noticed
 		_completionListView.dataProvider.updateAt(index);
+		_ignoreCompletionListViewChange = oldIgnoreCompletionListViewChange;
+		var selectedItem = cast(_completionListView.selectedItem, CompletionItem);
 		updateDetail();
 	}
 
@@ -166,19 +171,15 @@ class CompletionManager {
 		_completionListView.dataProvider = items;
 		_textEditor.stage.addEventListener(MouseEvent.MOUSE_DOWN, completionManager_textEditor_stage_mouseDownHandler, false, 0, true);
 		PopUpManager.addPopUp(_completionListView, _textEditor, false, false);
+		_prevSelectedIndex = -1;
 		if (items.length > 0) {
 			_completionListView.selectedIndex = 0;
 		}
-		_prevSelectedIndex = _completionListView.selectedIndex;
 		if (_sharedObject.data.showDetail) {
 			PopUpManager.addPopUp(_completionDetailView, _textEditor, false, false);
 		}
 
 		positionCompletionListView();
-
-		if (_isIncomplete && items.length > 0) {
-			dispatchResolveCompletionEvent(0);
-		}
 	}
 
 	private function completionItemSortCompareFunction(item1:CompletionItem, item2:CompletionItem):Int {
@@ -722,17 +723,23 @@ class CompletionManager {
 	private function completionManager_completionListView_changeHandler(event:Event):Void {
 		updateDetail();
 
-		if (!_isIncomplete) {
+		if (_ignoreCompletionListViewChange) {
 			return;
 		}
-		if (_completionListView.selectedIndex == -1) {
+		var selectedIndex = _completionListView.selectedIndex;
+		if (selectedIndex == -1) {
 			return;
 		}
-		if (_completionListView.selectedIndex == _prevSelectedIndex) {
+		if (selectedIndex == _prevSelectedIndex) {
 			return;
 		}
-		_prevSelectedIndex = _completionListView.selectedIndex;
-		dispatchResolveCompletionEvent(_completionListView.selectedIndex);
+		_prevSelectedIndex = selectedIndex;
+		var selectedItem = cast(_completionListView.selectedItem, CompletionItem);
+		var needsResolve = selectedItem != null && (selectedItem.documentation == null || selectedItem.detail == null);
+		if (!needsResolve) {
+			return;
+		}
+		dispatchResolveCompletionEvent(selectedIndex);
 	}
 
 	private function completionManager_textEditor_stage_mouseDownHandler(event:MouseEvent):Void {
