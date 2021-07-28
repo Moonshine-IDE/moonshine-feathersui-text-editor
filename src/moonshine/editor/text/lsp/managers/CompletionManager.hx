@@ -385,6 +385,9 @@ class CompletionManager {
 		// if the completion list is already open, close it before making a new request
 		closeCompletionListView();
 
+		// make sure that the current caret position is visible
+		_textEditor.scrollViewIfNeeded();
+
 		if (params.context == null
 			|| params.context.triggerKind != CompletionTriggerKind.TriggerCharacter
 			|| params.context.triggerCharacter == null) {
