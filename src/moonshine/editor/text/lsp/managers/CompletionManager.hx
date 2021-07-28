@@ -482,7 +482,9 @@ class CompletionManager {
 
 	private function updateDetail():Void {
 		var selectedItem = cast(_completionListView.selectedItem, CompletionItem);
-		_completionDetailView.visible = selectedItem != null && selectedItem.detail != null && selectedItem.detail.length > 0;
+		_completionDetailView.visible = selectedItem != null
+			&& ((selectedItem.detail != null && selectedItem.detail.length > 0)
+				|| (selectedItem.documentation != null && selectedItem.documentation.length > 0));
 		if (_completionDetailView.visible) {
 			var markdown = "```\n" + StringTools.trim(selectedItem.detail) + "\n```";
 			if (selectedItem.documentation != null && selectedItem.documentation.length > 0) {
