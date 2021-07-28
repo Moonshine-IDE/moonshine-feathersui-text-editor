@@ -146,6 +146,285 @@ class SelectionManager {
 		}
 	}
 
+	private function keyboardHome(event:KeyboardEvent):Void {
+		var selectionStartLineIndex = _textEditor.hasSelection ? _textEditor.selectionStartLineIndex : _textEditor.caretLineIndex;
+		var selectionStartCharIndex = _textEditor.hasSelection ? _textEditor.selectionStartCharIndex : _textEditor.caretCharIndex;
+
+		if (_textEditor.hasSelection && !event.shiftKey) {
+			_textEditor.removeSelection();
+		}
+
+		if (event.ctrlKey) {
+			var newLineIndex = 0;
+			var newCaretIndex = 0;
+			if (event.shiftKey) {
+				_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, newLineIndex, newCaretIndex);
+			} else {
+				_textEditor.setSelection(0, 0, 0, 0);
+			}
+			_textEditor.lineScrollY = 0;
+		} else {
+			var caretLine = _textEditor.lines.get(_textEditor.caretLineIndex);
+			var tabIndex = TextUtil.indentAmount(caretLine.text);
+			var newCaretIndex = (_textEditor.caretCharIndex == tabIndex) ? 0 : tabIndex;
+
+			if (event.shiftKey) {
+				_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, _textEditor.caretLineIndex, newCaretIndex);
+			} else {
+				_textEditor.setSelection(_textEditor.caretLineIndex, newCaretIndex, _textEditor.caretLineIndex, newCaretIndex);
+			}
+		}
+	}
+
+	private function keyboardEnd(event:KeyboardEvent):Void {
+		var selectionStartLineIndex = _textEditor.hasSelection ? _textEditor.selectionStartLineIndex : _textEditor.caretLineIndex;
+		var selectionStartCharIndex = _textEditor.hasSelection ? _textEditor.selectionStartCharIndex : _textEditor.caretCharIndex;
+
+		if (_textEditor.hasSelection && !event.shiftKey) {
+			_textEditor.removeSelection();
+		}
+
+		if (event.ctrlKey) {
+			var newLineIndex = _textEditor.lines.length - 1;
+			var newCaretIndex = _textEditor.lines.get(newLineIndex).text.length;
+			if (event.shiftKey) {
+				_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, newLineIndex, newCaretIndex);
+			} else {
+				_textEditor.setSelection(newLineIndex, newCaretIndex, newLineIndex, newCaretIndex);
+			}
+			_textEditor.lineScrollY = _textEditor.maxLineScrollY;
+		} else {
+			var caretLine = _textEditor.lines.get(_textEditor.caretLineIndex);
+			var newCaretIndex = caretLine.text.length;
+			if (event.shiftKey) {
+				_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, _textEditor.caretLineIndex, newCaretIndex);
+			} else {
+				_textEditor.setSelection(_textEditor.caretLineIndex, newCaretIndex, _textEditor.caretLineIndex, newCaretIndex);
+			}
+		}
+	}
+
+	private function keyboardPageUp(event:KeyboardEvent):Void {
+		var selectionStartLineIndex = _textEditor.hasSelection ? _textEditor.selectionStartLineIndex : _textEditor.caretLineIndex;
+		var selectionStartCharIndex = _textEditor.hasSelection ? _textEditor.selectionStartCharIndex : _textEditor.caretCharIndex;
+
+		if (_textEditor.hasSelection && !event.shiftKey) {
+			_textEditor.removeSelection();
+		}
+
+		if (event.ctrlKey) {
+			var newLineIndex = _textEditor.lineScrollY;
+			if (event.shiftKey) {
+				_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, newLineIndex, _textEditor.caretCharIndex);
+			} else {
+				_textEditor.setSelectionAdvanced(newLineIndex, _textEditor.expandedCaretCharIndex, newLineIndex, _textEditor.expandedCaretCharIndex, false);
+			}
+		} else {
+			var newLineIndex = Std.int(Math.max(_textEditor.caretLineIndex - _textEditor.visibleLines, 0));
+			if (event.shiftKey) {
+				_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, newLineIndex, _textEditor.caretCharIndex);
+			} else {
+				_textEditor.setSelectionAdvanced(newLineIndex, _textEditor.expandedCaretCharIndex, newLineIndex, _textEditor.expandedCaretCharIndex, false);
+			}
+			_textEditor.lineScrollY = _textEditor.lineScrollY - _textEditor.visibleLines;
+		}
+	}
+
+	private function keyboardPageDown(event:KeyboardEvent):Void {
+		var selectionStartLineIndex = _textEditor.hasSelection ? _textEditor.selectionStartLineIndex : _textEditor.caretLineIndex;
+		var selectionStartCharIndex = _textEditor.hasSelection ? _textEditor.selectionStartCharIndex : _textEditor.caretCharIndex;
+
+		if (_textEditor.hasSelection && !event.shiftKey) {
+			_textEditor.removeSelection();
+		}
+
+		if (event.ctrlKey) {
+			var newLineIndex = _textEditor.lineScrollY + _textEditor.visibleLines - 2;
+			if (event.shiftKey) {
+				_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, newLineIndex, _textEditor.caretCharIndex);
+			} else {
+				_textEditor.setSelectionAdvanced(newLineIndex, _textEditor.expandedCaretCharIndex, newLineIndex, _textEditor.expandedCaretCharIndex, false);
+			}
+		} else {
+			var newLineIndex = Std.int(Math.min(_textEditor.caretLineIndex + _textEditor.visibleLines, _textEditor.lines.length - 1));
+			if (event.shiftKey) {
+				_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, newLineIndex, _textEditor.caretCharIndex);
+			} else {
+				_textEditor.setSelectionAdvanced(newLineIndex, _textEditor.expandedCaretCharIndex, newLineIndex, _textEditor.expandedCaretCharIndex, false);
+			}
+			_textEditor.lineScrollY += _textEditor.visibleLines;
+		}
+	}
+
+	private function keyboardLeft(event:KeyboardEvent):Void {
+		var selectionStartLineIndex = _textEditor.hasSelection ? _textEditor.selectionStartLineIndex : _textEditor.caretLineIndex;
+		var selectionStartCharIndex = _textEditor.hasSelection ? _textEditor.selectionStartCharIndex : _textEditor.caretCharIndex;
+		var chars = 1;
+
+		var caretLine = _textEditor.lines.get(_textEditor.caretLineIndex);
+		if (event.commandKey) // CHECK COMMAND KEY VALUE // Mac specific text editing functionality
+		{
+			if (!event.shiftKey && _textEditor.hasSelection) {
+				_textEditor.removeSelection();
+			}
+
+			var tabIndex = TextUtil.indentAmount(caretLine.text);
+			var newCaretIndex = (_textEditor.caretCharIndex == tabIndex) ? 0 : tabIndex;
+
+			if (event.shiftKey) {
+				_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, _textEditor.caretLineIndex, newCaretIndex);
+			} else {
+				_textEditor.setSelection(_textEditor.caretLineIndex, newCaretIndex, _textEditor.caretLineIndex, newCaretIndex);
+			}
+		} else if (_textEditor.hasSelection && !event.shiftKey) {
+			if (_textEditor.caretLineIndex > _textEditor.selectionStartLineIndex
+				|| _textEditor.caretCharIndex > _textEditor.selectionStartCharIndex) {
+				focusSelectionStart();
+			}
+
+			_textEditor.removeSelection();
+		} else if (_textEditor.caretCharIndex > 0) {
+			if (event.altKey) {
+				chars = TextUtil.wordBoundaryBackward(caretLine.text.substring(0, _textEditor.caretCharIndex));
+			}
+			var newCaretIndex = _textEditor.caretCharIndex - chars;
+			if (event.shiftKey) {
+				_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, _textEditor.caretLineIndex, newCaretIndex);
+			} else {
+				_textEditor.setSelection(_textEditor.caretLineIndex, newCaretIndex, _textEditor.caretLineIndex, newCaretIndex);
+			}
+		} else {
+			if (_textEditor.caretLineIndex == 0) {
+				return;
+			}
+			var newLineIndex = _textEditor.caretLineIndex - 1;
+			if (newLineIndex >= 0) {
+				var newCaretIndex = _textEditor.lines.get(newLineIndex).text.length;
+				if (event.shiftKey) {
+					_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, newLineIndex, newCaretIndex);
+				} else {
+					_textEditor.setSelection(newLineIndex, newCaretIndex, newLineIndex, newCaretIndex);
+				}
+			}
+		}
+	}
+
+	private function keyboardRight(event:KeyboardEvent):Void {
+		var selectionStartLineIndex = _textEditor.hasSelection ? _textEditor.selectionStartLineIndex : _textEditor.caretLineIndex;
+		var selectionStartCharIndex = _textEditor.hasSelection ? _textEditor.selectionStartCharIndex : _textEditor.caretCharIndex;
+		var chars = 1;
+
+		var caretLine = _textEditor.lines.get(_textEditor.caretLineIndex);
+		if (event.commandKey) // CHECK COMMAND KEY VALUE // Mac specific text editing functionality
+		{
+			if (!event.shiftKey && _textEditor.hasSelection) {
+				_textEditor.removeSelection();
+			}
+
+			var newCaretIndex = caretLine.text.length;
+			if (event.shiftKey) {
+				_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, _textEditor.caretLineIndex, newCaretIndex);
+			} else {
+				_textEditor.setSelection(_textEditor.caretLineIndex, newCaretIndex, _textEditor.caretLineIndex, newCaretIndex);
+			}
+		} else if (_textEditor.hasSelection && !event.shiftKey) {
+			if (_textEditor.caretLineIndex < _textEditor.selectionStartLineIndex
+				|| _textEditor.caretCharIndex < _textEditor.selectionStartCharIndex) {
+				focusSelectionStart();
+			}
+			_textEditor.removeSelection();
+		} else if (_textEditor.caretCharIndex < caretLine.text.length) {
+			if (event.altKey) {
+				chars = TextUtil.wordBoundaryForward(caretLine.text.substring(_textEditor.caretCharIndex));
+			}
+
+			var newCaretIndex = _textEditor.caretCharIndex + chars;
+			if (event.shiftKey) {
+				_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, _textEditor.caretLineIndex, newCaretIndex);
+			} else {
+				_textEditor.setSelection(_textEditor.caretLineIndex, newCaretIndex, _textEditor.caretLineIndex, newCaretIndex);
+			}
+		} else {
+			if (_textEditor.caretLineIndex < _textEditor.lines.length - 1) {
+				return;
+			}
+
+			var newLineIndex = _textEditor.caretLineIndex + 1;
+			if (newLineIndex < _textEditor.lines.length) {
+				var newCaretIndex = 0;
+				if (event.shiftKey) {
+					_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, newLineIndex, newCaretIndex);
+				} else {
+					_textEditor.setSelection(newLineIndex, newCaretIndex, newLineIndex, newCaretIndex);
+				}
+			}
+		}
+	}
+
+	private function keyboardUp(event:KeyboardEvent):Void {
+		var selectionStartLineIndex = _textEditor.hasSelection ? _textEditor.selectionStartLineIndex : _textEditor.caretLineIndex;
+		var selectionStartCharIndex = _textEditor.hasSelection ? _textEditor.selectionStartCharIndex : _textEditor.caretCharIndex;
+
+		if (event.ctrlKey) {
+			if (_textEditor.lineScrollY > 0) {
+				// Ensure the caret stays in view (unless there's active selection)
+				if (!_textEditor.hasSelection && _textEditor.caretLineIndex > (_textEditor.lineScrollY + _textEditor.visibleLines - 2)) {
+					var newLineIndex = _textEditor.lineScrollY + _textEditor.visibleLines - 2;
+					_textEditor.setSelectionAdvanced(newLineIndex, _textEditor.expandedCaretCharIndex, newLineIndex, _textEditor.expandedCaretCharIndex,
+						false);
+				}
+				_textEditor.lineScrollY = _textEditor.lineScrollY - 1;
+			}
+		} else {
+			if (_textEditor.hasSelection && !event.shiftKey) {
+				_textEditor.removeSelection();
+			}
+			var newLineIndex = _textEditor.caretLineIndex - 1;
+			var newCaretIndex = event.shiftKey ? _textEditor.caretCharIndex : _textEditor.expandedCaretCharIndex;
+			if (newLineIndex < 0) {
+				newLineIndex = 0;
+				newCaretIndex = 0;
+			}
+			if (event.shiftKey) {
+				_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, newLineIndex, newCaretIndex);
+			} else {
+				_textEditor.setSelectionAdvanced(newLineIndex, newCaretIndex, newLineIndex, newCaretIndex, false);
+			}
+		}
+	}
+
+	private function keyboardDown(event:KeyboardEvent):Void {
+		var selectionStartLineIndex = _textEditor.hasSelection ? _textEditor.selectionStartLineIndex : _textEditor.caretLineIndex;
+		var selectionStartCharIndex = _textEditor.hasSelection ? _textEditor.selectionStartCharIndex : _textEditor.caretCharIndex;
+
+		if (event.ctrlKey) {
+			if (_textEditor.lineScrollY < _textEditor.maxLineScrollY) {
+				// Ensure the caret stays in view (unless there's active selection)
+				if (!_textEditor.hasSelection && _textEditor.caretLineIndex < _textEditor.lineScrollY + 1) {
+					var newLineIndex = _textEditor.lineScrollY + 1;
+					_textEditor.setSelectionAdvanced(newLineIndex, _textEditor.expandedCaretCharIndex, newLineIndex, _textEditor.expandedCaretCharIndex,
+						false);
+				}
+				_textEditor.lineScrollY = _textEditor.lineScrollY + 1;
+			}
+		} else {
+			if (_textEditor.hasSelection && !event.shiftKey) {
+				_textEditor.removeSelection();
+			}
+			var newLineIndex = _textEditor.caretLineIndex + 1;
+			var newCaretIndex = event.shiftKey ? _textEditor.caretCharIndex : _textEditor.expandedCaretCharIndex;
+			if (newLineIndex >= _textEditor.lines.length) {
+				newLineIndex = _textEditor.lines.length - 1;
+				newCaretIndex = _textEditor.lines.get(_textEditor.lines.length - 1).text.length;
+			}
+			if (event.shiftKey) {
+				_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, newLineIndex, newCaretIndex);
+			} else {
+				_textEditor.setSelectionAdvanced(newLineIndex, newCaretIndex, newLineIndex, newCaretIndex, false);
+			}
+		}
+	}
+
 	private function selectionManager_textEditor_keyDownHandler(event:KeyboardEvent):Void {
 		if (event.isDefaultPrevented()) {
 			return;
@@ -166,257 +445,23 @@ class SelectionManager {
 			return;
 		}
 		var processed = true;
-		var chars = 1;
-		var word = event.altKey;
-
-		var selectionStartLineIndex = _textEditor.hasSelection ? _textEditor.selectionStartLineIndex : _textEditor.caretLineIndex;
-		var selectionStartCharIndex = _textEditor.hasSelection ? _textEditor.selectionStartCharIndex : _textEditor.caretCharIndex;
-
 		switch (event.keyCode) {
 			case Keyboard.LEFT:
-				var caretLine = _textEditor.lines.get(_textEditor.caretLineIndex);
-				if (event.commandKey) // CHECK COMMAND KEY VALUE // Mac specific text editing functionality
-				{
-					if (!event.shiftKey && _textEditor.hasSelection) {
-						_textEditor.removeSelection();
-					}
-
-					var tabIndex = TextUtil.indentAmount(caretLine.text);
-					var newCaretIndex = (_textEditor.caretCharIndex == tabIndex) ? 0 : tabIndex;
-
-					if (event.shiftKey) {
-						_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, _textEditor.caretLineIndex, newCaretIndex);
-					} else {
-						_textEditor.setSelection(_textEditor.caretLineIndex, newCaretIndex, _textEditor.caretLineIndex, newCaretIndex);
-					}
-				} else if (_textEditor.hasSelection && !event.shiftKey) {
-					if (_textEditor.caretLineIndex > _textEditor.selectionStartLineIndex
-						|| _textEditor.caretCharIndex > _textEditor.selectionStartCharIndex) {
-						focusSelectionStart();
-					}
-
-					_textEditor.removeSelection();
-				} else if (_textEditor.caretCharIndex > 0) {
-					if (word) {
-						chars = TextUtil.wordBoundaryBackward(caretLine.text.substring(0, _textEditor.caretCharIndex));
-					}
-					var newCaretIndex = _textEditor.caretCharIndex - chars;
-					if (event.shiftKey) {
-						_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, _textEditor.caretLineIndex, newCaretIndex);
-					} else {
-						_textEditor.setSelection(_textEditor.caretLineIndex, newCaretIndex, _textEditor.caretLineIndex, newCaretIndex);
-					}
-				} else {
-					if (_textEditor.caretLineIndex == 0) {
-						return;
-					}
-					var newLineIndex = _textEditor.caretLineIndex - 1;
-					if (newLineIndex >= 0) {
-						var newCaretIndex = _textEditor.lines.get(newLineIndex).text.length;
-						if (event.shiftKey) {
-							_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, newLineIndex, newCaretIndex);
-						} else {
-							_textEditor.setSelection(newLineIndex, newCaretIndex, newLineIndex, newCaretIndex);
-						}
-					}
-				}
+				keyboardLeft(event);
 			case Keyboard.RIGHT:
-				var caretLine = _textEditor.lines.get(_textEditor.caretLineIndex);
-				if (event.commandKey) // CHECK COMMAND KEY VALUE // Mac specific text editing functionality
-				{
-					if (!event.shiftKey && _textEditor.hasSelection) {
-						_textEditor.removeSelection();
-					}
-
-					var newCaretIndex = caretLine.text.length;
-					if (event.shiftKey) {
-						_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, _textEditor.caretLineIndex, newCaretIndex);
-					} else {
-						_textEditor.setSelection(_textEditor.caretLineIndex, newCaretIndex, _textEditor.caretLineIndex, newCaretIndex);
-					}
-				} else if (_textEditor.hasSelection && !event.shiftKey) {
-					if (_textEditor.caretLineIndex < _textEditor.selectionStartLineIndex
-						|| _textEditor.caretCharIndex < _textEditor.selectionStartCharIndex) {
-						focusSelectionStart();
-					}
-					_textEditor.removeSelection();
-				} else if (_textEditor.caretCharIndex < caretLine.text.length) {
-					if (word) {
-						chars = TextUtil.wordBoundaryForward(caretLine.text.substring(_textEditor.caretCharIndex));
-					}
-
-					var newCaretIndex = _textEditor.caretCharIndex + chars;
-					if (event.shiftKey) {
-						_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, _textEditor.caretLineIndex, newCaretIndex);
-					} else {
-						_textEditor.setSelection(_textEditor.caretLineIndex, newCaretIndex, _textEditor.caretLineIndex, newCaretIndex);
-					}
-				} else {
-					if (_textEditor.caretLineIndex < _textEditor.lines.length - 1) {
-						return;
-					}
-
-					var newLineIndex = _textEditor.caretLineIndex + 1;
-					if (newLineIndex < _textEditor.lines.length) {
-						var newCaretIndex = 0;
-						if (event.shiftKey) {
-							_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, newLineIndex, newCaretIndex);
-						} else {
-							_textEditor.setSelection(newLineIndex, newCaretIndex, newLineIndex, newCaretIndex);
-						}
-					}
-				}
+				keyboardRight(event);
 			case Keyboard.UP:
-				if (event.ctrlKey) {
-					if (_textEditor.lineScrollY > 0) {
-						// Ensure the caret stays in view (unless there's active selection)
-						if (!_textEditor.hasSelection
-							&& _textEditor.caretLineIndex > (_textEditor.lineScrollY + _textEditor.visibleLines - 2)) {
-							var newLineIndex = _textEditor.lineScrollY + _textEditor.visibleLines - 2;
-							_textEditor.setSelectionAdvanced(newLineIndex, _textEditor.expandedCaretCharIndex, newLineIndex,
-								_textEditor.expandedCaretCharIndex, false);
-						}
-						_textEditor.lineScrollY = _textEditor.lineScrollY - 1;
-					}
-				} else {
-					if (_textEditor.hasSelection && !event.shiftKey) {
-						_textEditor.removeSelection();
-					}
-					var newLineIndex = _textEditor.caretLineIndex - 1;
-					var newCaretIndex = event.shiftKey ? _textEditor.caretCharIndex : _textEditor.expandedCaretCharIndex;
-					if (newLineIndex < 0) {
-						newLineIndex = 0;
-						newCaretIndex = 0;
-					}
-					if (event.shiftKey) {
-						_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, newLineIndex, newCaretIndex);
-					} else {
-						_textEditor.setSelectionAdvanced(newLineIndex, newCaretIndex, newLineIndex, newCaretIndex, false);
-					}
-				}
+				keyboardUp(event);
 			case Keyboard.DOWN:
-				if (event.ctrlKey) {
-					if (_textEditor.lineScrollY < _textEditor.maxLineScrollY) {
-						// Ensure the caret stays in view (unless there's active selection)
-						if (!_textEditor.hasSelection && _textEditor.caretLineIndex < _textEditor.lineScrollY + 1) {
-							var newLineIndex = _textEditor.lineScrollY + 1;
-							_textEditor.setSelectionAdvanced(newLineIndex, _textEditor.expandedCaretCharIndex, newLineIndex,
-								_textEditor.expandedCaretCharIndex, false);
-						}
-						_textEditor.lineScrollY = _textEditor.lineScrollY + 1;
-					}
-				} else {
-					if (_textEditor.hasSelection && !event.shiftKey) {
-						_textEditor.removeSelection();
-					}
-					var newLineIndex = _textEditor.caretLineIndex + 1;
-					var newCaretIndex = event.shiftKey ? _textEditor.caretCharIndex : _textEditor.expandedCaretCharIndex;
-					if (newLineIndex >= _textEditor.lines.length) {
-						newLineIndex = _textEditor.lines.length - 1;
-						newCaretIndex = _textEditor.lines.get(_textEditor.lines.length - 1).text.length;
-					}
-					if (event.shiftKey) {
-						_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, newLineIndex, newCaretIndex);
-					} else {
-						_textEditor.setSelectionAdvanced(newLineIndex, newCaretIndex, newLineIndex, newCaretIndex, false);
-					}
-				}
+				keyboardDown(event);
 			case Keyboard.PAGE_DOWN:
-				if (_textEditor.hasSelection && !event.shiftKey) {
-					_textEditor.removeSelection();
-				}
-
-				if (event.ctrlKey) {
-					var newLineIndex = _textEditor.lineScrollY + _textEditor.visibleLines - 2;
-					if (event.shiftKey) {
-						_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, newLineIndex, _textEditor.caretCharIndex);
-					} else {
-						_textEditor.setSelectionAdvanced(newLineIndex, _textEditor.expandedCaretCharIndex, newLineIndex, _textEditor.expandedCaretCharIndex,
-							false);
-					}
-				} else {
-					var newLineIndex = Std.int(Math.min(_textEditor.caretLineIndex + _textEditor.visibleLines, _textEditor.lines.length - 1));
-					if (event.shiftKey) {
-						_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, newLineIndex, _textEditor.caretCharIndex);
-					} else {
-						_textEditor.setSelectionAdvanced(newLineIndex, _textEditor.expandedCaretCharIndex, newLineIndex, _textEditor.expandedCaretCharIndex,
-							false);
-					}
-					_textEditor.lineScrollY += _textEditor.visibleLines;
-				}
-
+				keyboardPageDown(event);
 			case Keyboard.PAGE_UP:
-				if (_textEditor.hasSelection && !event.shiftKey) {
-					_textEditor.removeSelection();
-				}
-
-				if (event.ctrlKey) {
-					var newLineIndex = _textEditor.lineScrollY;
-					if (event.shiftKey) {
-						_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, newLineIndex, _textEditor.caretCharIndex);
-					} else {
-						_textEditor.setSelectionAdvanced(newLineIndex, _textEditor.expandedCaretCharIndex, newLineIndex, _textEditor.expandedCaretCharIndex,
-							false);
-					}
-				} else {
-					var newLineIndex = Std.int(Math.max(_textEditor.caretLineIndex - _textEditor.visibleLines, 0));
-					if (event.shiftKey) {
-						_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, newLineIndex, _textEditor.caretCharIndex);
-					} else {
-						_textEditor.setSelectionAdvanced(newLineIndex, _textEditor.expandedCaretCharIndex, newLineIndex, _textEditor.expandedCaretCharIndex,
-							false);
-					}
-					_textEditor.lineScrollY = _textEditor.lineScrollY - _textEditor.visibleLines;
-				}
-
+				keyboardPageUp(event);
 			case Keyboard.HOME:
-				if (_textEditor.hasSelection && !event.shiftKey) {
-					_textEditor.removeSelection();
-				}
-
-				if (event.ctrlKey) {
-					var newLineIndex = 0;
-					var newCaretIndex = 0;
-					if (event.shiftKey) {
-						_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, newLineIndex, newCaretIndex);
-					} else {
-						_textEditor.setSelection(0, 0, 0, 0);
-					}
-					_textEditor.lineScrollY = 0;
-				} else {
-					var caretLine = _textEditor.lines.get(_textEditor.caretLineIndex);
-					var tabIndex = TextUtil.indentAmount(caretLine.text);
-					var newCaretIndex = (_textEditor.caretCharIndex == tabIndex) ? 0 : tabIndex;
-
-					if (event.shiftKey) {
-						_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, _textEditor.caretLineIndex, newCaretIndex);
-					} else {
-						_textEditor.setSelection(_textEditor.caretLineIndex, newCaretIndex, _textEditor.caretLineIndex, newCaretIndex);
-					}
-				}
+				keyboardHome(event);
 			case Keyboard.END:
-				if (_textEditor.hasSelection && !event.shiftKey) {
-					_textEditor.removeSelection();
-				}
-
-				if (event.ctrlKey) {
-					var newLineIndex = _textEditor.lines.length - 1;
-					var newCaretIndex = _textEditor.lines.get(newLineIndex).text.length;
-					if (event.shiftKey) {
-						_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, newLineIndex, newCaretIndex);
-					} else {
-						_textEditor.setSelection(newLineIndex, newCaretIndex, newLineIndex, newCaretIndex);
-					}
-					_textEditor.lineScrollY = _textEditor.maxLineScrollY;
-				} else {
-					var caretLine = _textEditor.lines.get(_textEditor.caretLineIndex);
-					var newCaretIndex = caretLine.text.length;
-					if (event.shiftKey) {
-						_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, _textEditor.caretLineIndex, newCaretIndex);
-					} else {
-						_textEditor.setSelection(_textEditor.caretLineIndex, newCaretIndex, _textEditor.caretLineIndex, newCaretIndex);
-					}
-				}
+				keyboardEnd(event);
 			default:
 				// Unflag as processed if nothing matched
 				processed = false;
