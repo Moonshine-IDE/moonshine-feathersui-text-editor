@@ -71,6 +71,7 @@ class CompletionManager {
 
 		_completionDetailView = new HoverView();
 		_completionDetailView.addEventListener(Event.RESIZE, completionManager_completionDetailView_resizeHandler);
+		_completionDetailView.addEventListener(FocusEvent.FOCUS_OUT, completionManager_completionDetailView_focusOutHandler);
 
 		_textEditor.addEventListener(Event.REMOVED_FROM_STAGE, completionManager_textEditor_removedFromStageHandler, false, 0, true);
 		_textEditor.addEventListener(ScrollEvent.SCROLL, completionManager_textEditor_scrollHandler, false, 0, true);
@@ -678,24 +679,31 @@ class CompletionManager {
 		refreshAfterFilterUpdate();
 	}
 
-	private function completionManager_textEditor_focusOutHandler(event:FocusEvent):Void {
+	private function checkForFocusOut(event:FocusEvent):Void {
 		var newFocus = event.relatedObject;
 		if (newFocus != null) {
-			if (newFocus == _textEditor || _textEditor.contains(newFocus) || newFocus == _completionListView || _completionListView.contains(newFocus)) {
+			if (newFocus == _textEditor
+				|| _textEditor.contains(newFocus)
+				|| newFocus == _completionListView
+				|| _completionListView.contains(newFocus)
+				|| newFocus == _completionDetailView
+				|| _completionDetailView.contains(newFocus)) {
 				return;
 			}
 		}
 		closeCompletionListView();
 	}
 
+	private function completionManager_textEditor_focusOutHandler(event:FocusEvent):Void {
+		checkForFocusOut(event);
+	}
+
 	private function completionManager_completionListView_focusOutHandler(event:FocusEvent):Void {
-		var newFocus = event.relatedObject;
-		if (newFocus != null) {
-			if (newFocus == _textEditor || _textEditor.contains(newFocus) || newFocus == _completionListView || _completionListView.contains(newFocus)) {
-				return;
-			}
-		}
-		closeCompletionListView();
+		checkForFocusOut(event);
+	}
+
+	private function completionManager_completionDetailView_focusOutHandler(event:FocusEvent):Void {
+		checkForFocusOut(event);
 	}
 
 	private function completionManager_completionListView_itemTriggerHandler(event:ListViewEvent):Void {
@@ -752,7 +760,10 @@ class CompletionManager {
 	}
 
 	private function completionManager_textEditor_stage_mouseDownHandler(event:MouseEvent):Void {
-		if (_completionListView == event.target || _completionListView.contains(event.target)) {
+		if (_completionListView == event.target
+			|| _completionListView.contains(event.target)
+			|| _completionDetailView == event.target
+			|| _completionDetailView.contains(event.target)) {
 			return;
 		}
 		closeCompletionListView();
