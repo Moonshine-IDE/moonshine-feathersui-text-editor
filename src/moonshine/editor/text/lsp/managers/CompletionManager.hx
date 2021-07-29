@@ -492,8 +492,7 @@ class CompletionManager {
 		var detail = selectedItem.detail;
 		var documentation = parseDocumentation(selectedItem.documentation);
 		var hasContent = selectedItem != null
-			&& ((selectedItem.detail != null && selectedItem.detail.length > 0)
-				|| (selectedItem.documentation != null && selectedItem.documentation.length > 0));
+			&& ((detail != null && detail.length > 0) || (documentation != null && documentation.length > 0));
 		if (!hasContent) {
 			_completionDetailView.htmlText = null;
 			_completionDetailView.visible = false;
@@ -524,6 +523,8 @@ class CompletionManager {
 			var markupContent = (original : MarkupContent);
 			return markupContent.value;
 		}
+		// some kind of content that we don't understand
+		// to be safe, show nothing
 		return null;
 	}
 
