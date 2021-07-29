@@ -35,7 +35,8 @@ class Main extends Application {
 				{
 					var info = new SignatureInformation();
 					info.label = "addChild(child:DisplayObject):DisplayObject";
-					info.parameters = [new ParameterInformation("child")];
+					info.parameters = [new ParameterInformation("child", "The child to add.")];
+					info.documentation = "Adds a DisplayObject instance to a DisplayObjectContainer instance";
 					info;
 				},
 			];
