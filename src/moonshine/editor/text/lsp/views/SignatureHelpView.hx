@@ -43,7 +43,6 @@ class SignatureHelpView extends LayoutGroup {
 	private var nextButton:Button;
 
 	private var _activeSignature:Int = 0;
-	private var _activeParameter:Int = 0;
 
 	private var _signatureHelp:SignatureHelp;
 
@@ -61,7 +60,6 @@ class SignatureHelpView extends LayoutGroup {
 		_signatureHelp = value;
 		if (_signatureHelp != null) {
 			_activeSignature = _signatureHelp.activeSignature;
-			_activeParameter = _signatureHelp.activeParameter;
 		}
 		setInvalid(DATA);
 		return _signatureHelp;
@@ -127,11 +125,15 @@ class SignatureHelpView extends LayoutGroup {
 		if (_signatureHelp == null
 			|| _signatureHelp.signatures == null
 			|| _signatureHelp.signatures.length == 0
-			|| _activeSignature == -1
-			|| _activeParameter == -1) {
+			|| _activeSignature == -1) {
 			return null;
 		}
+		var activeParameter = _signatureHelp.activeParameter;
 		var signature = _signatureHelp.signatures[_activeSignature];
+		if (signature.activeParameter != -1) {
+			activeParameter = signature.activeParameter;
+		}
+
 		var parameters = signature.parameters;
 		var signatureParts = ~/[\(\)]/g.split(signature.label);
 		var signatureHelpText = StringTools.htmlEscape(signatureParts[0]);
@@ -143,11 +145,11 @@ class SignatureHelpView extends LayoutGroup {
 				signatureHelpText += ",";
 			}
 			var partText = parameterParts[i];
-			if (i == _activeParameter) {
+			if (i == activeParameter) {
 				signatureHelpText += "<b>";
 			}
 			signatureHelpText += StringTools.htmlEscape(partText);
-			if (i == _activeParameter) {
+			if (i == activeParameter) {
 				signatureHelpText += "</b>";
 			}
 		}
