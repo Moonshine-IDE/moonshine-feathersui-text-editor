@@ -28,6 +28,8 @@ class HoverView extends ScrollContainer {
 	public function new() {
 		HoverViewStyles.initialize();
 		super();
+
+		tabEnabled = false;
 	}
 
 	private var label:Label;
