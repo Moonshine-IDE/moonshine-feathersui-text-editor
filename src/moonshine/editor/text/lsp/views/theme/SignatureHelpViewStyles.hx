@@ -17,8 +17,9 @@
 
 package moonshine.editor.text.lsp.views.theme;
 
-import feathers.text.TextFormat;
-import feathers.controls.Label;
+import feathers.skins.TriangleSkin;
+import feathers.controls.Button;
+import feathers.controls.ScrollContainer;
 import feathers.skins.RectangleSkin;
 import feathers.style.Theme;
 import feathers.themes.steel.BaseSteelTheme;
@@ -40,9 +41,14 @@ class SignatureHelpViewStyles {
 				setSignatureHelpViewStyles(view, theme);
 			});
 		}
-		if (styleProvider.getStyleFunction(Label, SignatureHelpView.CHILD_VARIANT_SIGNATURE_LABEL) == null) {
-			styleProvider.setStyleFunction(Label, SignatureHelpView.CHILD_VARIANT_SIGNATURE_LABEL, function(label:Label):Void {
-				setSignatureHelpViewSignatureLabelStyles(label, theme);
+		if (styleProvider.getStyleFunction(Button, null) == null) {
+			styleProvider.setStyleFunction(Button, SignatureHelpView.CHILD_VARIANT_PREVIOUS_SIGNATURE_BUTTON, function(button:Button):Void {
+				setSignatureHelpViewPreviousSignatureButtonStyles(button, theme);
+			});
+		}
+		if (styleProvider.getStyleFunction(Button, null) == null) {
+			styleProvider.setStyleFunction(Button, SignatureHelpView.CHILD_VARIANT_NEXT_SIGNATURE_BUTTON, function(button:Button):Void {
+				setSignatureHelpViewNextSignatureButtonStyles(button, theme);
 			});
 		}
 	}
@@ -52,13 +58,47 @@ class SignatureHelpViewStyles {
 			var skin = new RectangleSkin();
 			skin.fill = SolidColor(theme.darkMode ? 0x000000 : 0xeeeeee);
 			skin.border = SolidColor(1.0, 0x333333);
+			skin.maxWidth = 450.0;
+			skin.maxHeight = 450.0;
 			view.backgroundSkin = skin;
 		}
+
+		if (view.textFormat == null) {
+			view.textFormat = theme.getTextFormat();
+		}
+
+		view.setPadding(1.0);
+
+		theme.styleProvider.getStyleFunction(ScrollContainer, null)(view);
 	}
 
-	private static function setSignatureHelpViewSignatureLabelStyles(label:Label, theme:BaseSteelTheme):Void {
-		var tf = theme.getTextFormat();
-		tf.font = "_typewriter";
-		label.textFormat = tf;
+	private static function setSignatureHelpViewPreviousSignatureButtonStyles(button:Button, theme:BaseSteelTheme):Void {
+		button.showText = false;
+
+		var icon = new TriangleSkin();
+		icon.pointPosition = LEFT;
+		icon.fill = SolidColor(theme.textColor);
+		icon.disabledFill = SolidColor(theme.disabledTextColor);
+		icon.width = 8.0;
+		icon.height = 8.0;
+		button.icon = icon;
+
+		theme.styleProvider.getStyleFunction(Button, null)(button);
+		button.setPadding(4.0);
+	}
+
+	private static function setSignatureHelpViewNextSignatureButtonStyles(button:Button, theme:BaseSteelTheme):Void {
+		button.showText = false;
+
+		var icon = new TriangleSkin();
+		icon.pointPosition = RIGHT;
+		icon.fill = SolidColor(theme.textColor);
+		icon.disabledFill = SolidColor(theme.disabledTextColor);
+		icon.width = 8.0;
+		icon.height = 8.0;
+		button.icon = icon;
+
+		theme.styleProvider.getStyleFunction(Button, null)(button);
+		button.setPadding(4.0);
 	}
 }
