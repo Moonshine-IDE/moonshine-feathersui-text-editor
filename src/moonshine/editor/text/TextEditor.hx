@@ -1150,7 +1150,8 @@ private class TextEditorListView extends ListView {
 		// scrollPixelSnapping = true;
 	}
 
-	override private function get_focusEnabled() {
-		return _focusEnabled && _enabled;
+	@:getter(tabEnabled)
+	override private function get_tabEnabled() {
+		return _enabled && rawTabEnabled;
 	}
 }
