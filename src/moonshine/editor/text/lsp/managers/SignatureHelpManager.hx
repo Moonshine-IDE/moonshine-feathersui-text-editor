@@ -40,6 +40,7 @@ class SignatureHelpManager {
 		_textEditor = textEditor;
 
 		_signatureHelpView = new SignatureHelpView();
+		_signatureHelpView.addEventListener(FocusEvent.FOCUS_OUT, signatureHelpManager_signatureHelpView_focusOutHandler);
 
 		_textEditor.addEventListener(Event.REMOVED_FROM_STAGE, signatureHelpManager_textEditor_removedFromStageHandler, false, 0, true);
 		_textEditor.addEventListener(ScrollEvent.SCROLL, signatureHelpManager_textEditor_scrollHandler, false, 0, true);
@@ -243,11 +244,22 @@ class SignatureHelpManager {
 		}
 	}
 
-	private function signatureHelpManager_textEditor_focusOutHandler(event:FocusEvent):Void {
-		if (event.relatedObject != null && _textEditor.contains(event.relatedObject)) {
-			return;
+	private function checkForFocusOut(event:FocusEvent):Void {
+		var newFocus = event.relatedObject;
+		if (newFocus != null) {
+			if (newFocus == _textEditor || _textEditor.contains(newFocus) || newFocus == _signatureHelpView || _signatureHelpView.contains(newFocus)) {
+				return;
+			}
 		}
 		closeSignatureHelpView();
+	}
+
+	private function signatureHelpManager_textEditor_focusOutHandler(event:FocusEvent):Void {
+		checkForFocusOut(event);
+	}
+
+	private function signatureHelpManager_signatureHelpView_focusOutHandler(event:FocusEvent):Void {
+		checkForFocusOut(event);
 	}
 
 	private function signatureHelpManager_textEditor_stage_mouseDownHandler(event:MouseEvent):Void {
