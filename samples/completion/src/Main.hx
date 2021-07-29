@@ -38,6 +38,7 @@ class Main extends Application {
 					item.label = "parent";
 					item.kind = Field;
 					item.detail = "openfl.display.DisplayObjectContainer";
+					item.documentation = "Indicates the DisplayObjectContainer object that contains this display object.";
 					item;
 				},
 				{
@@ -45,6 +46,7 @@ class Main extends Application {
 					item.label = "root";
 					item.kind = Field;
 					item.detail = "openfl.display.DisplayObject";
+					item.documentation = "The top-most display object in the portion of the display list's tree structure.";
 					item;
 				},
 				{
@@ -52,6 +54,7 @@ class Main extends Application {
 					item.label = "stage";
 					item.kind = Field;
 					item.detail = "openfl.display.Stage";
+					item.documentation = "The stage of the display object";
 					item;
 				},
 			]);
