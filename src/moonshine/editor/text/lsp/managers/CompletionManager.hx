@@ -511,6 +511,7 @@ class CompletionManager {
 		}
 		var htmlText = TextFieldMarkdown.markdownToHtml(StringTools.trim(markdown));
 		_completionDetailView.htmlText = StringTools.trim(htmlText);
+		_completionDetailView.visible = true;
 	}
 
 	private function parseDocumentation(original:Any):String {
