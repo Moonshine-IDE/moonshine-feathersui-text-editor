@@ -497,6 +497,11 @@ class SelectionManager {
 	private function selectionManager_textEditor_mouseDownHandler(event:MouseEvent):Void {
 		var localPoint = new Point(_textEditor.mouseX, _textEditor.mouseY);
 
+		var viewPortVisibleBounds = _textEditor.getViewPortVisibleBounds();
+		if (!viewPortVisibleBounds.containsPoint(localPoint)) {
+			return;
+		}
+
 		// Double click?
 		if (_clickCount > 0 && Lib.getTimer() - _lastClickTime < 300 && Point.distance(localPoint, _lastClickPos) < 10) {
 			_clickCount = _clickCount % 3 + 1;
@@ -511,7 +516,6 @@ class SelectionManager {
 
 		var pos = _textEditor.localToTextEditorPosition(localPoint, true);
 		if (pos == null) {
-			// this shouldn't happen, but just to be safe
 			return;
 		}
 		var safeBreakpointHitAreaSize = _textEditor.gutterWidth - 4.0;
