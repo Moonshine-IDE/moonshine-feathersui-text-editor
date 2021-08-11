@@ -254,6 +254,9 @@ class LspTextEditor extends TextEditor {
 			return;
 		}
 		var position = localToTextEditorPosition(new Point(mouseX, mouseY));
+		if (position == null) {
+			return;
+		}
 		if (position.line != _linksPosition.line) {
 			return;
 		}
