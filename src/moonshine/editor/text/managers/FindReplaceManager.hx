@@ -186,9 +186,7 @@ class FindReplaceManager {
 	// Map to TextEditor internal representation
 	private function applySearch(s:TextEditorSearchResult):Void {
 		_textEditor.setSelection(s.startLineIndex, s.startCharIndex, s.endLineIndex, s.endCharIndex);
-
 		_textEditor.scrollViewIfNeeded();
-		_textEditor.lines.updateAll();
 	}
 
 	private function updatePositionFromSelectedIndex(res:TextEditorSearchResult):Void {

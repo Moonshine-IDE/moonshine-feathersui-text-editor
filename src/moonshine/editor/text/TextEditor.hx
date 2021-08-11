@@ -703,7 +703,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		if (!selectionChanged) {
 			return;
 		}
-		_lines.updateAll();
+		refreshSelectedLinesIfVisible();
 		dispatchEvent(new TextEditorEvent(TextEditorEvent.SELECTION_CHANGE));
 	}
 
@@ -1094,17 +1094,20 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		if (_readOnly) {
 			throw new IllegalOperationError("Read-only text editor must not dispatch text change event");
 		}
-		_lines.updateAll();
+		for (change in event.changes) {
+			var startLine = change.startLine;
+			var endLine = change.endLine;
+			for (i in startLine...(endLine + 1)) {
+				_lines.updateAt(i);
+			}
+		}
 	}
 
 	private function textEditor_colorChangeHandler(event:TextEditorLineEvent):Void {
 		if (_listView == null || _listView.dataProvider == null) {
 			return;
 		}
-		// Line invalidation is required if the changed line is on-screen
-		if ((event.lineIndex >= _lineScrollY) && event.lineIndex <= (_lineScrollY + visibleLines + 1)) {
-			_lines.updateAll();
-		}
+		refreshLineIfVisible(event.lineIndex);
 	}
 
 	private function textEditor_listView_scrollHandler(event:ScrollEvent):Void {
@@ -1127,12 +1130,12 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 
 	private function textEditor_listView_focusInHandler(event:FocusEvent):Void {
 		_hasFocus = true;
-		_lines.updateAll();
+		refreshSelectedLinesIfVisible();
 	}
 
 	private function textEditor_listView_focusOutHandler(event:FocusEvent):Void {
 		_hasFocus = false;
-		_lines.updateAll();
+		refreshSelectedLinesIfVisible();
 	}
 
 	private function textEditor_textLineRenderer_toggleBreakpointHandler(event:TextEditorLineEvent):Void {
@@ -1142,8 +1145,26 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		var lineIndex = event.lineIndex;
 		var line = _lines.get(lineIndex);
 		line.breakpoint = !line.breakpoint;
-		lines.updateAt(lineIndex);
+		refreshLineIfVisible(lineIndex);
 		dispatchEvent(new TextEditorLineEvent(TextEditorLineEvent.TOGGLE_BREAKPOINT, lineIndex));
+	}
+
+	public function refreshLineIfVisible(lineIndex:Int):Void {
+		if (lineIndex < _lineScrollY || lineIndex > (_lineScrollY + visibleLines + 1)) {
+			return;
+		}
+		// Line invalidation is required if the changed line is on-screen
+		_lines.updateAt(lineIndex);
+	}
+
+	private function refreshSelectedLinesIfVisible():Void {
+		if (_caretLineIndex != -1) {
+			refreshLineIfVisible(_caretLineIndex);
+		} else if (_selectionStartLineIndex != -1 && _selectionEndLineIndex != -1) {
+			for (i in _selectionStartLineIndex...(_selectionEndLineIndex + 1)) {
+				refreshLineIfVisible(i);
+			}
+		}
 	}
 
 	private function textEditor_lines_changeHandler(event:Event):Void {
