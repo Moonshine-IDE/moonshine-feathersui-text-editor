@@ -1069,17 +1069,18 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		_viewPortVisibleBounds.y += _listView.y;
 
 		var firstLine = cast(_listView.itemToItemRenderer(_lines.get(_lineScrollY)), TextLineRenderer);
-		_gutterWidth = firstLine.gutterWidth;
 
-		if (_lines.length == 0) {
+		if (_lines.length == 0 || firstLine == null) {
 			// don't want to divide by zero
 			_lineHeight = 0.0;
 			_visibleLines = 1;
 			_maxLineScrollY = 0;
+			_gutterWidth = 0.0;
 		} else {
 			_lineHeight = firstLine.height;
 			_visibleLines = Std.int(_viewPortVisibleBounds.height / _lineHeight);
 			_maxLineScrollY = Std.int(Math.max(_visibleLines, _lines.length)) - _visibleLines;
+			_gutterWidth = firstLine.gutterWidth;
 		}
 	}
 
