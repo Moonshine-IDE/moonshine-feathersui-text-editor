@@ -1111,6 +1111,11 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		if (_ignoreScrollChanges) {
 			return;
 		}
+
+		_listView.getViewPortVisibleBounds(_viewPortVisibleBounds);
+		_viewPortVisibleBounds.x += _listView.x;
+		_viewPortVisibleBounds.y += _listView.y;
+
 		var newLineScrollY = 0;
 		if (_lineHeight != 0.0) {
 			// don't want to divide by zero
