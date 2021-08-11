@@ -886,9 +886,6 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			return;
 		}
 		_ignoreScrollChanges = true;
-		var caretLine = _lines.get(_caretLineIndex);
-		var caretLineText = caretLine.text.substring(0, caretCharIndex);
-		var caretPos = TextEditorUtil.estimateTextWidth(this, caretLineText) + _gutterWidth + _viewPortVisibleBounds.x;
 
 		if (_caretLineIndex < lineScrollY || visibleLines <= 2 && _caretLineIndex > lineScrollY) {
 			lineScrollY = Std.int(Math.min(_caretLineIndex, _maxLineScrollY));
@@ -899,16 +896,22 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			}
 			lineScrollY = Std.int(Math.min(newLineScrollY, _maxLineScrollY));
 		}
-		var horizontalLookahead = TextEditorUtil.estimateTextWidth(this, "M") * 8.0;
-		if (caretPos < (_listView.scrollX + _gutterWidth + _viewPortVisibleBounds.x)) {
-			var scrollPos = caretPos - horizontalLookahead - _gutterWidth - _viewPortVisibleBounds.x;
-			if (scrollPos < 0.0) {
-				scrollPos = 0.0;
-			}
 
-			_listView.scrollX = scrollPos;
-		} else if (caretPos > (_listView.scrollX + _viewPortVisibleBounds.width)) {
-			_listView.scrollX = caretPos - _viewPortVisibleBounds.width + horizontalLookahead;
+		_listView.validateNow();
+
+		var textLineRenderer = textEditorPositionToTextLineRenderer(new TextEditorPosition(_caretLineIndex, caretCharIndex));
+		// it shouldn't ever be null because we're scrolling to show the line,
+		// but it's safer to check just in case
+		if (textLineRenderer != null) {
+			var bounds = textLineRenderer.getCharBoundaries(caretCharIndex);
+			var horizontalLookahead = bounds.width * 8.0;
+			var scrollX = bounds.x + horizontalLookahead - _viewPortVisibleBounds.width;
+			if (scrollX < _listView.minScrollX) {
+				scrollX = _listView.minScrollX;
+			} else if (scrollX > _listView.maxScrollX) {
+				scrollX = _listView.maxScrollX;
+			}
+			_listView.scrollX = scrollX;
 		}
 		_ignoreScrollChanges = false;
 	}
