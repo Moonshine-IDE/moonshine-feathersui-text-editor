@@ -17,6 +17,7 @@
 
 package moonshine.editor.text.utils;
 
+import moonshine.editor.text.changes.TextEditorChange;
 import openfl.Lib;
 import openfl.text.TextField;
 import openfl.text.TextFormat;
@@ -26,6 +27,47 @@ class TextEditorUtil {
 	private static var _previousTextFormat:TextFormat;
 	private static var _charWidthCache:Map<String, Float> = [];
 	private static var _charHeightCache:Map<String, Float> = [];
+
+	public static function applyTextChangeToLines(lines:Array<String>, change:TextEditorChange):Array<String> {
+		var result = lines.copy();
+
+		var startLine = change.startLine;
+		var startChar = change.startChar;
+		var endLine = change.endLine;
+		var endChar = change.endChar;
+
+		var newText = change.newText;
+		var insertedLines:Array<String> = null;
+		if (newText != null && newText.length > 0) {
+			insertedLines = ~/\r?\n|\r/g.split(newText);
+		}
+
+		var startTextToKeep = result[startLine].substring(0, startChar);
+		var endTextToKeep = result[endLine].substring(endChar);
+
+		// Remove all lines after the first
+		if (startLine != endLine) {
+			result.splice(startLine + 1, endLine - startLine);
+		}
+
+		if (insertedLines == null) {
+			// remove only
+			result[startLine] = startTextToKeep + endTextToKeep;
+		} else {
+			for (i in 0...insertedLines.length) {
+				var updatedText = "";
+				if (i == 0) {
+					updatedText = startTextToKeep;
+				}
+				updatedText += insertedLines[i];
+				if (i == (insertedLines.length - 1)) {
+					updatedText += endTextToKeep;
+				}
+				result[startLine + i] = updatedText;
+			}
+		}
+		return result;
+	}
 
 	private static function updateCache(textEditor:TextEditor, text:String):Void {
 		var textFormat = textEditor.getDefaultTextStyle();
