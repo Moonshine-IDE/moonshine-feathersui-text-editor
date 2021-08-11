@@ -48,7 +48,7 @@ class SignatureHelpView extends ScrollContainer implements IFocusExtras {
 	private var prevButton:Button;
 	private var nextButton:Button;
 
-	private var _activeSignature:Int = 0;
+	private var _activeSignatureIndex:Int = 0;
 
 	private var _signatureHelp:SignatureHelp;
 
@@ -65,7 +65,9 @@ class SignatureHelpView extends ScrollContainer implements IFocusExtras {
 		}
 		_signatureHelp = value;
 		if (_signatureHelp != null) {
-			_activeSignature = _signatureHelp.activeSignature;
+			_activeSignatureIndex = _signatureHelp.activeSignature;
+		} else {
+			_activeSignatureIndex = -1;
 		}
 		setInvalid(DATA);
 		return _signatureHelp;
@@ -171,14 +173,21 @@ class SignatureHelpView extends ScrollContainer implements IFocusExtras {
 			return null;
 		}
 		var markdown = "";
-		var signature = _signatureHelp.signatures[_activeSignature];
-		var signatureDocumentation = getDocumentation(signature.documentation);
-		var activeParameter = _signatureHelp.activeParameter;
-		if (signature.activeParameter != -1) {
-			activeParameter = signature.activeParameter;
+
+		var activeParameterIndex = _signatureHelp.activeParameter;
+		var signatureDocumentation:String = null;
+		var parameterDocumentation:String = null;
+		if (_activeSignatureIndex != -1 && _activeSignatureIndex < _signatureHelp.signatures.length) {
+			var activeSignature = _signatureHelp.signatures[_activeSignatureIndex];
+			signatureDocumentation = getDocumentation(activeSignature.documentation);
+			if (activeSignature.activeParameter != -1) {
+				activeParameterIndex = activeSignature.activeParameter;
+			}
+			if (activeParameterIndex != -1 && activeParameterIndex < activeSignature.parameters.length) {
+				var activeParameter = activeSignature.parameters[activeParameterIndex];
+				parameterDocumentation = getDocumentation(activeParameter.documentation);
+			}
 		}
-		var parameter = signature.parameters[activeParameter];
-		var parameterDocumentation = getDocumentation(parameter.documentation);
 
 		var hasParameterDocumentation = parameterDocumentation != null && parameterDocumentation.length > 0;
 		var hasSignatureDocumentation = signatureDocumentation != null && signatureDocumentation.length > 0;
@@ -195,18 +204,22 @@ class SignatureHelpView extends ScrollContainer implements IFocusExtras {
 			}
 			markdown += StringTools.trim(signatureDocumentation);
 		}
-		return signatureText + "\n" + TextFieldMarkdown.markdownToHtml(StringTools.trim(markdown));
+		var result = signatureText;
+		if (markdown.length > 0) {
+			result += "\n" + TextFieldMarkdown.markdownToHtml(markdown);
+		}
+		return result;
 	}
 
 	private function getSignatureHtmlText():String {
 		if (_signatureHelp == null
 			|| _signatureHelp.signatures == null
 			|| _signatureHelp.signatures.length == 0
-			|| _activeSignature == -1) {
+			|| _activeSignatureIndex == -1) {
 			return null;
 		}
 		var activeParameter = _signatureHelp.activeParameter;
-		var signature = _signatureHelp.signatures[_activeSignature];
+		var signature = _signatureHelp.signatures[_activeSignatureIndex];
 		if (signature.activeParameter != -1) {
 			activeParameter = signature.activeParameter;
 		}
@@ -256,17 +269,17 @@ class SignatureHelpView extends ScrollContainer implements IFocusExtras {
 	}
 
 	private function signatureHelpView_prevButton_triggerHandler(event:TriggerEvent):Void {
-		_activeSignature--;
-		if (_activeSignature < 0) {
-			_activeSignature = 0;
+		_activeSignatureIndex--;
+		if (_activeSignatureIndex < 0) {
+			_activeSignatureIndex = 0;
 		}
 		setInvalid(DATA);
 	}
 
 	private function signatureHelpView_nextButton_triggerHandler(event:TriggerEvent):Void {
-		_activeSignature++;
-		if (_activeSignature >= _signatureHelp.signatures.length) {
-			_activeSignature = _signatureHelp.signatures.length - 1;
+		_activeSignatureIndex++;
+		if (_activeSignatureIndex >= _signatureHelp.signatures.length) {
+			_activeSignatureIndex = _signatureHelp.signatures.length - 1;
 		}
 		setInvalid(DATA);
 	}
