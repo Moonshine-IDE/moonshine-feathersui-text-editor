@@ -45,10 +45,14 @@ import openfl.events.Event;
 import openfl.events.KeyboardEvent;
 import openfl.text.TextFormat;
 import openfl.ui.Keyboard;
-#if (air || (openfl > "9.1.0" && sys))
+#if (openfl > "9.1.0" && (air || sys))
 import openfl.filesystem.File;
 import openfl.filesystem.FileMode;
 import openfl.filesystem.FileStream;
+#elseif (air)
+import flash.filesystem.File;
+import flash.filesystem.FileMode;
+import flash.filesystem.FileStream;
 #end
 
 class Main extends Application {
