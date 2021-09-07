@@ -1139,7 +1139,13 @@ class TextLineRenderer extends FeathersControl {
 		if (_currentGutterBackgroundSkin != null) {
 			_currentGutterBackgroundSkin.width = _gutterWidth;
 			_currentGutterBackgroundSkin.height = actualHeight;
-			_currentGutterBackgroundSkin.x = Math.round(_scrollX);
+			#if flash
+			// the flash target internally rounds to the nearest pixel, while
+			// other targets do not
+			_currentGutterBackgroundSkin.x = Math.fround(_scrollX);
+			#else
+			_currentGutterBackgroundSkin.x = _scrollX;
+			#end
 			_currentGutterBackgroundSkin.y = 0.0;
 		}
 
