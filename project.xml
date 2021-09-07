@@ -2,7 +2,7 @@
 <project>
 	
 	<meta title="moonshine-feathersui-text-editor" package="Moonshine" version="1.0.0" company="Prominic.NET" />
-	<app file="moonshine-feathersui-text-editor" />
+	<app main="openfl.display.Sprite" file="moonshine-feathersui-text-editor" />
 
 	<window allow-high-dpi="true"/>
 	<window fps="60"/>
