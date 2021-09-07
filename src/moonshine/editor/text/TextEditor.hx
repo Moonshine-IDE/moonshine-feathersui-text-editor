@@ -972,6 +972,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		} else {
 			itemRenderer.caretIndex = -1;
 		}
+		itemRenderer.minLineNumberCharacters = minLineNumberCharacters;
 		itemRenderer.numLines = _lines.length;
 		itemRenderer.tabWidth = _tabWidth;
 		itemRenderer.text = lineModel.text;

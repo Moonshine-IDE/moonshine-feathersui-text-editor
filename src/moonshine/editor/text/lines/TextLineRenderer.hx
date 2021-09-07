@@ -96,6 +96,24 @@ class TextLineRenderer extends FeathersControl {
 		return _lineIndex;
 	}
 
+	private var _minLineNumberCharacters:Int = 1;
+
+	@:flash.property
+	public var minLineNumberCharacters(get, set):Int;
+
+	private function get_minLineNumberCharacters():Int {
+		return _minLineNumberCharacters;
+	}
+
+	private function set_minLineNumberCharacters(value:Int):Int {
+		if (_minLineNumberCharacters == value) {
+			return _minLineNumberCharacters;
+		}
+		_minLineNumberCharacters = value;
+		setInvalid(DATA);
+		return _minLineNumberCharacters;
+	}
+
 	private var _numLines:Int = -1;
 
 	@:flash.property
@@ -677,8 +695,8 @@ class TextLineRenderer extends FeathersControl {
 
 	private function refreshLineNumber():Void {
 		var lineNumberText = Std.string(lineIndex + 1);
-		var minNumChars = Std.int(Math.max(3, Std.string(numLines).length));
-		lineNumberText = StringTools.lpad(lineNumberText, "\u00A0", minNumChars);
+		var minNumChars = Std.int(Math.max(_minLineNumberCharacters, Std.string(numLines).length));
+		lineNumberText = StringTools.lpad(lineNumberText, " ", minNumChars);
 		_lineNumberTextField.text = lineNumberText;
 	}
 
