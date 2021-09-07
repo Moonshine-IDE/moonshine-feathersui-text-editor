@@ -262,7 +262,7 @@ class SelectionManager {
 		var chars = 1;
 
 		var caretLine = _textEditor.lines.get(_textEditor.caretLineIndex);
-		if (event.commandKey) // CHECK COMMAND KEY VALUE // Mac specific text editing functionality
+		if (event.commandKey) // Mac specific text editing functionality
 		{
 			if (!event.shiftKey && _textEditor.hasSelection) {
 				_textEditor.removeSelection();
@@ -315,7 +315,7 @@ class SelectionManager {
 		var chars = 1;
 
 		var caretLine = _textEditor.lines.get(_textEditor.caretLineIndex);
-		if (event.commandKey) // CHECK COMMAND KEY VALUE // Mac specific text editing functionality
+		if (event.commandKey) // Mac specific text editing functionality
 		{
 			if (!event.shiftKey && _textEditor.hasSelection) {
 				_textEditor.removeSelection();
@@ -365,7 +365,18 @@ class SelectionManager {
 		var selectionStartLineIndex = _textEditor.hasSelection ? _textEditor.selectionStartLineIndex : _textEditor.caretLineIndex;
 		var selectionStartCharIndex = _textEditor.hasSelection ? _textEditor.selectionStartCharIndex : _textEditor.caretCharIndex;
 
-		if (event.ctrlKey) {
+		if (event.commandKey) // Mac specific text editing functionality
+		{
+			if (!event.shiftKey && _textEditor.hasSelection) {
+				_textEditor.removeSelection();
+			}
+
+			if (event.shiftKey) {
+				_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, 0, 0);
+			} else {
+				_textEditor.setSelection(0, 0, 0, 0);
+			}
+		} else if (event.ctrlKey) {
 			if (_textEditor.lineScrollY > 0) {
 				// Ensure the caret stays in view (unless there's active selection)
 				if (!_textEditor.hasSelection && _textEditor.caretLineIndex > (_textEditor.lineScrollY + _textEditor.visibleLines - 2)) {
@@ -397,7 +408,20 @@ class SelectionManager {
 		var selectionStartLineIndex = _textEditor.hasSelection ? _textEditor.selectionStartLineIndex : _textEditor.caretLineIndex;
 		var selectionStartCharIndex = _textEditor.hasSelection ? _textEditor.selectionStartCharIndex : _textEditor.caretCharIndex;
 
-		if (event.ctrlKey) {
+		if (event.commandKey) // Mac specific text editing functionality
+		{
+			if (!event.shiftKey && _textEditor.hasSelection) {
+				_textEditor.removeSelection();
+			}
+
+			var newLineIndex = _textEditor.lines.length - 1;
+			var newCaretIndex = _textEditor.lines.get(newLineIndex).text.length;
+			if (event.shiftKey) {
+				_textEditor.setSelection(selectionStartLineIndex, selectionStartCharIndex, newLineIndex, newCaretIndex);
+			} else {
+				_textEditor.setSelection(newLineIndex, newCaretIndex, newLineIndex, newCaretIndex);
+			}
+		} else if (event.ctrlKey) {
 			if (_textEditor.lineScrollY < _textEditor.maxLineScrollY) {
 				// Ensure the caret stays in view (unless there's active selection)
 				if (!_textEditor.hasSelection && _textEditor.caretLineIndex < _textEditor.lineScrollY + 1) {
