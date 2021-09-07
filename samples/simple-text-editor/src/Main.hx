@@ -45,10 +45,10 @@ import openfl.events.Event;
 import openfl.events.KeyboardEvent;
 import openfl.text.TextFormat;
 import openfl.ui.Keyboard;
-#if air
-import flash.filesystem.File;
-import flash.filesystem.FileMode;
-import flash.filesystem.FileStream;
+#if (air || (openfl > "9.1.0" && sys))
+import openfl.filesystem.File;
+import openfl.filesystem.FileMode;
+import openfl.filesystem.FileStream;
 #end
 
 class Main extends Application {
@@ -207,7 +207,7 @@ class Main extends Application {
 
 	private var _syntaxName:String;
 
-	private var _openedFile:#if air File #else Dynamic #end;
+	private var _openedFile:File;
 
 	private var _findResult:TextEditorSearchResult;
 
@@ -252,7 +252,7 @@ class Main extends Application {
 	}
 
 	private function openFileButton_triggerHandler(event:TriggerEvent):Void {
-		#if air
+		#if (air || (openfl > "9.1.0" && sys))
 		var file = new File();
 		file.addEventListener(Event.SELECT, event -> {
 			openFile(file);
@@ -263,7 +263,7 @@ class Main extends Application {
 		#end
 	}
 
-	#if air
+	#if (air || (openfl > "9.1.0" && sys))
 	private function saveFile(file:File):Void {
 		_openedFile = file;
 		var stream = new FileStream();
@@ -377,7 +377,7 @@ class Main extends Application {
 		refreshSyntaxName();
 	}
 
-	#if air
+	#if (air || (openfl > "9.1.0" && sys))
 	private function openFile(file:File):Void {
 		newFile(file.extension);
 
@@ -397,7 +397,7 @@ class Main extends Application {
 	#end
 
 	private function saveFileButton_triggerHandler(event:TriggerEvent):Void {
-		#if air
+		#if (air || (openfl > "9.1.0" && sys))
 		if (_openedFile == null) {
 			var file = new File();
 			file.addEventListener(Event.SELECT, event -> {
