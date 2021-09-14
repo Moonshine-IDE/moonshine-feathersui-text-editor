@@ -295,6 +295,7 @@ class Main extends Application {
 		_findResult = null;
 		var brackets:Array<Array<String>> = null;
 		var formats:Map<Int, TextFormat> = [];
+		var lineComment:String = null;
 		switch (extension) {
 			case "hx":
 				_syntaxName = "Haxe";
@@ -304,6 +305,7 @@ class Main extends Application {
 				formatBuilder.setColorSettings(_colorSettings);
 				formats = formatBuilder.build();
 				brackets = [["{", "}"], ["[", "]"], ["(", ")"]];
+				lineComment = "//";
 			case "as":
 				_syntaxName = "ActionScript";
 				_parser = new AS3LineParser();
@@ -312,6 +314,7 @@ class Main extends Application {
 				formatBuilder.setColorSettings(_colorSettings);
 				formats = formatBuilder.build();
 				brackets = [["{", "}"], ["[", "]"], ["(", ")"]];
+				lineComment = "//";
 			case "js" | "json":
 				_syntaxName = (extension == "json") ? "JSON" : "JavaScript";
 				_parser = new JSLineParser();
@@ -320,6 +323,9 @@ class Main extends Application {
 				formatBuilder.setColorSettings(_colorSettings);
 				formats = formatBuilder.build();
 				brackets = [["{", "}"], ["[", "]"], ["(", ")"]];
+				if (extension != "json") {
+					lineComment = "//";
+				}
 			case "py":
 				_syntaxName = "Python";
 				_parser = new PythonLineParser();
@@ -328,6 +334,7 @@ class Main extends Application {
 				formatBuilder.setColorSettings(_colorSettings);
 				formats = formatBuilder.build();
 				brackets = [["{", "}"], ["[", "]"], ["(", ")"]];
+				lineComment = "#";
 			case "java":
 				_syntaxName = "Java";
 				_parser = new JavaLineParser();
@@ -336,6 +343,7 @@ class Main extends Application {
 				formatBuilder.setColorSettings(_colorSettings);
 				formats = formatBuilder.build();
 				brackets = [["{", "}"], ["[", "]"], ["(", ")"]];
+				lineComment = "//";
 			case "groovy" | "gradle":
 				_syntaxName = "Groovy";
 				_parser = new GroovyLineParser();
@@ -344,6 +352,7 @@ class Main extends Application {
 				formatBuilder.setColorSettings(_colorSettings);
 				formats = formatBuilder.build();
 				brackets = [["{", "}"], ["[", "]"], ["(", ")"]];
+				lineComment = "//";
 			case "css":
 				_syntaxName = "CSS";
 				_parser = new CSSLineParser();
@@ -385,6 +394,7 @@ class Main extends Application {
 				formats = formatBuilder.build();
 		}
 		_textEditor.brackets = brackets;
+		_textEditor.lineComment = lineComment;
 		_textEditor.setParserAndTextStyles(_parser, formats);
 
 		refreshFileNameOrEdited();
