@@ -296,6 +296,7 @@ class Main extends Application {
 		var brackets:Array<Array<String>> = null;
 		var formats:Map<Int, TextFormat> = [];
 		var lineComment:String = null;
+		var blockComment:Array<String> = null;
 		switch (extension) {
 			case "hx":
 				_syntaxName = "Haxe";
@@ -306,6 +307,7 @@ class Main extends Application {
 				formats = formatBuilder.build();
 				brackets = [["{", "}"], ["[", "]"], ["(", ")"]];
 				lineComment = "//";
+				blockComment = ["/*", "*/"];
 			case "as":
 				_syntaxName = "ActionScript";
 				_parser = new AS3LineParser();
@@ -315,6 +317,7 @@ class Main extends Application {
 				formats = formatBuilder.build();
 				brackets = [["{", "}"], ["[", "]"], ["(", ")"]];
 				lineComment = "//";
+				blockComment = ["/*", "*/"];
 			case "js" | "json":
 				_syntaxName = (extension == "json") ? "JSON" : "JavaScript";
 				_parser = new JSLineParser();
@@ -325,6 +328,7 @@ class Main extends Application {
 				brackets = [["{", "}"], ["[", "]"], ["(", ")"]];
 				if (extension != "json") {
 					lineComment = "//";
+					blockComment = ["/*", "*/"];
 				}
 			case "py":
 				_syntaxName = "Python";
@@ -335,6 +339,7 @@ class Main extends Application {
 				formats = formatBuilder.build();
 				brackets = [["{", "}"], ["[", "]"], ["(", ")"]];
 				lineComment = "#";
+				blockComment = ["\"\"\"", "\"\"\""];
 			case "java":
 				_syntaxName = "Java";
 				_parser = new JavaLineParser();
@@ -344,6 +349,7 @@ class Main extends Application {
 				formats = formatBuilder.build();
 				brackets = [["{", "}"], ["[", "]"], ["(", ")"]];
 				lineComment = "//";
+				blockComment = ["/*", "*/"];
 			case "groovy" | "gradle":
 				_syntaxName = "Groovy";
 				_parser = new GroovyLineParser();
@@ -353,6 +359,7 @@ class Main extends Application {
 				formats = formatBuilder.build();
 				brackets = [["{", "}"], ["[", "]"], ["(", ")"]];
 				lineComment = "//";
+				blockComment = ["/*", "*/"];
 			case "css":
 				_syntaxName = "CSS";
 				_parser = new CSSLineParser();
@@ -361,6 +368,7 @@ class Main extends Application {
 				formatBuilder.setColorSettings(_colorSettings);
 				formats = formatBuilder.build();
 				brackets = [["{", "}"], ["[", "]"], ["(", ")"]];
+				blockComment = ["/*", "*/"];
 			case "xml":
 				_syntaxName = "XML";
 				_parser = new XMLLineParser();
@@ -369,6 +377,7 @@ class Main extends Application {
 				formatBuilder.setColorSettings(_colorSettings);
 				formats = formatBuilder.build();
 				brackets = [["<!--", "-->"], ["<", ">"], ["{", "}"], ["(", ")"]];
+				blockComment = ["<!--", "-->"];
 			case "mxml":
 				_syntaxName = "MXML";
 				_parser = new MXMLLineParser();
@@ -377,6 +386,7 @@ class Main extends Application {
 				formatBuilder.setColorSettings(_colorSettings);
 				formats = formatBuilder.build();
 				brackets = [["<!--", "-->"], ["<", ">"], ["{", "}"], ["(", ")"]];
+				blockComment = ["<!--", "-->"];
 			case "html" | "htm":
 				_syntaxName = "HTML";
 				_parser = new HTMLLineParser();
@@ -385,6 +395,7 @@ class Main extends Application {
 				formatBuilder.setColorSettings(_colorSettings);
 				formats = formatBuilder.build();
 				brackets = [["<!--", "-->"], ["<", ">"], ["{", "}"], ["(", ")"]];
+				blockComment = ["<!--", "-->"];
 			default:
 				_syntaxName = null;
 				_parser = new PlainTextLineParser();
@@ -395,6 +406,7 @@ class Main extends Application {
 		}
 		_textEditor.brackets = brackets;
 		_textEditor.lineComment = lineComment;
+		_textEditor.blockComment = blockComment;
 		_textEditor.setParserAndTextStyles(_parser, formats);
 
 		refreshFileNameOrEdited();
