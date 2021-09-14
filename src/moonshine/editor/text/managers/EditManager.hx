@@ -71,7 +71,7 @@ class EditManager {
 			var line = startLine;
 			while (line <= endLine) {
 				if (reverse) {
-					var indent = TextUtil.getIndentAtStartOfLine(_textEditor.lines.get(line).text, _textEditor.tabWidth);
+					var indent = TextUtil.getFirstIndentAtStartOfLine(_textEditor.lines.get(line).text, _textEditor.tabWidth);
 					if (indent.length > 0) {
 						changes.push(new TextEditorChange(line, 0, line, indent.length));
 					}
@@ -88,13 +88,52 @@ class EditManager {
 			}
 		} else if (reverse) {
 			var lineIndex = _textEditor.caretLineIndex;
-			var indent = TextUtil.getIndentAtStartOfLine(_textEditor.lines.get(lineIndex).text, _textEditor.tabWidth);
+			var indent = TextUtil.getFirstIndentAtStartOfLine(_textEditor.lines.get(lineIndex).text, _textEditor.tabWidth);
 			if (indent.length > 0) {
 				dispatchChanges([new TextEditorChange(lineIndex, 0, lineIndex, indent.length)]);
 			}
 		} else {
 			insertText(getTabString());
 		}
+	}
+
+	private function findFullIndentForNewLine(currentLineIndex:Int):String {
+		var findFullIndent = ~/^\s*/;
+		var i = currentLineIndex;
+		while (i >= 0) {
+			var line = _textEditor.lines.get(i);
+			var lineText = line.text;
+			if (!findFullIndent.match(lineText)) {
+				// this shouldn't happen, but just in case
+				continue;
+			}
+			var indent = findFullIndent.matched(0);
+			// accept 0 indent only if the line contains non-whitepace
+			// if it contains only whitespace, keep searching (unless we reached
+			// the first line)
+			if (StringTools.trim(lineText).length > 0 || i == 0) {
+				if (_textEditor.brackets != null) {
+					for (brackets in _textEditor.brackets) {
+						var open = brackets[0];
+						var openIndex = lineText.lastIndexOf(open);
+						if (openIndex != -1) {
+							var close = brackets[1];
+							var closeIndex = lineText.lastIndexOf(close);
+							// if the last open bracket appears after the last close
+							// bracket (or if there is no close bracket), then
+							// automatically increase the indent
+							if (closeIndex == -1 || closeIndex < openIndex) {
+								indent = indent + getTabString();
+								break;
+							}
+						}
+					}
+				}
+				return indent;
+			}
+			i--;
+		}
+		return "";
 	}
 
 	private function getTabString():String {
@@ -190,7 +229,8 @@ class EditManager {
 		}
 		switch (event.keyCode) {
 			case Keyboard.ENTER:
-				insertText(_textEditor.lineDelimiter);
+				var indent = findFullIndentForNewLine(_textEditor.caretLineIndex);
+				insertText(_textEditor.lineDelimiter + indent);
 			case Keyboard.BACKSPACE:
 				removeAtCursor(false, event.altKey);
 			case Keyboard.DELETE:

@@ -132,7 +132,7 @@ class TextUtil {
 		);
 	}
 
-	public static function getIndentAtStartOfLine(line:String, tabSize:Int):String {
+	public static function getFirstIndentAtStartOfLine(line:String, tabSize:Int):String {
 		var firstChar = line.charAt(0);
 		if (firstChar == "\t") {
 			return firstChar;
@@ -142,7 +142,7 @@ class TextUtil {
 			for (i in 1...tabSize) {
 				var char = line.charAt(i);
 				if (char != " ") {
-					return null;
+					return "";
 				}
 				indent += char;
 			}
