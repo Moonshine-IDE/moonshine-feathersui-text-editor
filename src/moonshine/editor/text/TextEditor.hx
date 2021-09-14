@@ -629,6 +629,14 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	public var lineComment:String = null;
 
 	/**
+		The opening and closing strings that define a block comment. The array
+		must contain exactly two items. The first item is the opening string of
+		the block comment, and the second item is the closing string of the
+		block comment.
+	**/
+	public var blockComment:Array<String> = null;
+
+	/**
 		Updates the code parser used for syntax highlighting.
 	**/
 	public function setParserAndTextStyles(parser:ILineParser, textStyles:Map<Int, TextFormat>):Void {
@@ -664,6 +672,17 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			throw new IllegalOperationError("Toggle line comment not allowed on read-only text editor");
 		}
 		_editMananger.toggleLineComment();
+	}
+
+	/**
+		Toggles line comments for the currently selected lines (or the line with
+		the caret, if no lines are selected).
+	**/
+	public function toggleBlockComment():Void {
+		if (readOnly) {
+			throw new IllegalOperationError("Toggle block comment not allowed on read-only text editor");
+		}
+		_editMananger.toggleBlockComment();
 	}
 
 	/**

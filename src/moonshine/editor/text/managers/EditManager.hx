@@ -88,6 +88,80 @@ class EditManager {
 		dispatchChanges(changes);
 	}
 
+	public function toggleBlockComment():Void {
+		var blockComment = _textEditor.blockComment;
+		if (blockComment == null || blockComment.length < 2) {
+			return;
+		}
+
+		var startLine = _textEditor.caretLineIndex;
+		var startChar = _textEditor.caretCharIndex;
+		var endLine = startLine;
+		var endChar = startChar;
+		if (_textEditor.selectionStartLineIndex != _textEditor.selectionEndLineIndex
+			|| _textEditor.selectionStartCharIndex != _textEditor.selectionEndCharIndex) {
+			startLine = _textEditor.selectionStartLineIndex;
+			startChar = _textEditor.selectionStartCharIndex;
+			endLine = _textEditor.selectionEndLineIndex;
+			endChar = _textEditor.selectionEndCharIndex;
+		}
+		if (endLine < startLine) {
+			var temp = startLine;
+			startLine = endLine;
+			endLine = temp;
+			temp = startChar;
+			startChar = endChar;
+			endChar = temp;
+		}
+
+		var blockStart = blockComment[0];
+		var blockEnd = blockComment[1];
+
+		var removeStartChar = -1;
+		var removeEndChar = -1;
+		var startLineText = _textEditor.lines.get(startLine).text;
+		var endLineText = _textEditor.lines.get(endLine).text;
+		var startIndex = startLineText.lastIndexOf(blockStart, startChar);
+		if (startIndex != -1) {
+			var endIndex = endLineText.indexOf(blockEnd, endChar);
+			if (endIndex != -1) {
+				removeStartChar = startIndex;
+				removeEndChar = endIndex + blockEnd.length;
+			}
+		}
+
+		var newSelectionStartChar = startChar;
+		var newSelectionEndChar = endChar;
+		var changes:Array<TextEditorChange> = [];
+		if (removeStartChar != -1 && removeEndChar != -1) {
+			var endCommentSize = blockEnd.length;
+			if (endLineText.charAt(removeEndChar - blockEnd.length - 1) == " ") {
+				endCommentSize++;
+			}
+			changes.push(new TextEditorChange(endLine, removeEndChar - endCommentSize, endLine, removeEndChar));
+			var startCommentSize = blockStart.length;
+			if (startLineText.charAt(removeStartChar + blockEnd.length) == " ") {
+				startCommentSize++;
+			}
+			changes.push(new TextEditorChange(startLine, removeStartChar, startLine, removeStartChar + startCommentSize));
+			newSelectionStartChar -= startCommentSize;
+			if (startLine == endLine) {
+				newSelectionEndChar -= startCommentSize;
+			}
+		} else {
+			newSelectionStartChar += blockStart.length + 1;
+			newSelectionEndChar += blockStart.length + 1;
+			if (startLine == endLine && startChar == endChar) {
+				changes.push(new TextEditorChange(startLine, startChar, startLine, startChar, blockStart + "  " + blockEnd));
+			} else {
+				changes.push(new TextEditorChange(endLine, endChar, endLine, endChar, " " + blockEnd));
+				changes.push(new TextEditorChange(startLine, startChar, startLine, startChar, blockStart + " "));
+			}
+		}
+		dispatchChanges(changes);
+		_textEditor.setSelection(startLine, newSelectionStartChar, endLine, newSelectionEndChar);
+	}
+
 	private function indent(reverse:Bool):Void {
 		if (_textEditor.selectionStartLineIndex != _textEditor.selectionEndLineIndex) {
 			var changes:Array<TextEditorChange> = [];
