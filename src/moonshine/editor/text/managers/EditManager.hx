@@ -41,6 +41,53 @@ class EditManager {
 
 	private var _textEditor:TextEditor;
 
+	public function toggleLineComment():Void {
+		var lineComment = _textEditor.lineComment;
+		if (lineComment == null || lineComment.length == 0) {
+			return;
+		}
+
+		var startLine = _textEditor.caretLineIndex;
+		var endLine = startLine;
+		if (_textEditor.selectionStartLineIndex != _textEditor.selectionEndLineIndex) {
+			startLine = _textEditor.selectionStartLineIndex;
+			endLine = _textEditor.selectionEndLineIndex;
+		}
+		if (endLine < startLine) {
+			var temp = startLine;
+			startLine = endLine;
+			endLine = temp;
+		}
+
+		var removeComment = true;
+		var startsWithComment = new EReg('^\\s*${EReg.escape(lineComment)}', "");
+		for (i in startLine...(endLine + 1)) {
+			var lineText = _textEditor.lines.get(i).text;
+			if (!startsWithComment.match(lineText)) {
+				removeComment = false;
+			}
+		}
+		var changes:Array<TextEditorChange> = [];
+		for (i in startLine...(endLine + 1)) {
+			var startingWhitespace = ~/^\s*/;
+			var lineText = _textEditor.lines.get(i).text;
+			if (!startingWhitespace.match(lineText)) {
+				continue;
+			}
+			var whitespaceSize = startingWhitespace.matched(0).length;
+			if (removeComment) {
+				var commentSize = lineComment.length;
+				if (lineText.charAt(whitespaceSize + commentSize) == " ") {
+					commentSize++;
+				}
+				changes.push(new TextEditorChange(i, whitespaceSize, i, whitespaceSize + commentSize));
+			} else {
+				changes.push(new TextEditorChange(i, whitespaceSize, i, whitespaceSize, lineComment + " "));
+			}
+		}
+		dispatchChanges(changes);
+	}
+
 	private function indent(reverse:Bool):Void {
 		if (_textEditor.selectionStartLineIndex != _textEditor.selectionEndLineIndex) {
 			var changes:Array<TextEditorChange> = [];
@@ -255,6 +302,11 @@ class EditManager {
 			case Keyboard.TAB:
 				indent(event.shiftKey);
 				event.preventDefault();
+			case Keyboard.SLASH:
+				if (event.ctrlKey) {
+					toggleLineComment();
+					event.preventDefault();
+				}
 		}
 		// Prevent COMMAND key combinations from ever triggering text input
 		// CHECK COMMAND KEY VALUE FOR MAC

@@ -624,6 +624,11 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	public var brackets:Array<Array<String>>;
 
 	/**
+		The string that defines the start of a line comment.
+	**/
+	public var lineComment:String = null;
+
+	/**
 		Updates the code parser used for syntax highlighting.
 	**/
 	public function setParserAndTextStyles(parser:ILineParser, textStyles:Map<Int, TextFormat>):Void {
@@ -648,6 +653,17 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		if (_undoManager != null) {
 			_undoManager.save();
 		}
+	}
+
+	/**
+		Toggles line comments for the currently selected lines (or the line with
+		the caret, if no lines are selected).
+	**/
+	public function toggleLineComment():Void {
+		if (readOnly) {
+			throw new IllegalOperationError("Toggle line comment not allowed on read-only text editor");
+		}
+		_editMananger.toggleLineComment();
 	}
 
 	/**
