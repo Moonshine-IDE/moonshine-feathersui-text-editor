@@ -211,7 +211,7 @@ class Main extends Application {
 
 	private var _syntaxName:String;
 
-	private var _openedFile:File;
+	private var _openedFile:#if (air || sys) File #else Dynamic #end;
 
 	private var _findResult:TextEditorSearchResult;
 
