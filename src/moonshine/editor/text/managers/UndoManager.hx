@@ -26,6 +26,7 @@ class UndoManager {
 	public function new(textEditor:TextEditor) {
 		_textEditor = textEditor;
 		_textEditor.addEventListener(KeyboardEvent.KEY_DOWN, undoManager_textEditor_keyDownHandler, false, 0, true);
+		// needs to be called before the changes are applied to the text editor
 		_textEditor.addEventListener(TextEditorChangeEvent.TEXT_CHANGE, undoManager_textEditor_textChangeHandler, false, 10, true);
 	}
 
@@ -103,8 +104,10 @@ class UndoManager {
 			}
 		}
 
+		var reversedRedoChanges = redoChanges.copy();
+		reversedRedoChanges.reverse();
 		var localOffsets = createLocalOffsets(redoChanges);
-		var undoChanges:Array<TextEditorChange> = redoChanges.map(change -> {
+		var undoChanges:Array<TextEditorChange> = reversedRedoChanges.map(change -> {
 			var oldText:String = null;
 			var oldLinesCount = 1;
 			if (change.startLine != change.endLine || change.startChar != change.endChar) {

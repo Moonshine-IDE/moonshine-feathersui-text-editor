@@ -17,6 +17,7 @@
 
 package moonshine.editor.text.managers;
 
+import haxe.ds.ArraySort;
 import moonshine.editor.text.changes.TextEditorChange;
 import moonshine.editor.text.events.TextEditorChangeEvent;
 import moonshine.editor.text.lines.TextLineModel;
@@ -36,6 +37,7 @@ class EditManager {
 		_textEditor.addEventListener(Event.PASTE, editManager_textEditor_pasteHandler, false, 0, true);
 		_textEditor.addEventListener(KeyboardEvent.KEY_DOWN, editManager_textEditor_keyDownHandler, false, 0, true);
 		_textEditor.addEventListener(TextEvent.TEXT_INPUT, editManager_textEditor_textInputHandler, false, 0, true);
+		_textEditor.addEventListener(TextEditorChangeEvent.TEXT_CHANGE, editManager_textEditor_textChangePriorityHandler, false, 100, true);
 		_textEditor.addEventListener(TextEditorChangeEvent.TEXT_CHANGE, editManager_textEditor_textChangeHandler, false, 0, true);
 	}
 
@@ -514,12 +516,14 @@ class EditManager {
 		return 0;
 	}
 
-	private function editManager_textEditor_textChangeHandler(event:TextEditorChangeEvent):Void {
-		var changes = event.changes.copy();
+	private function editManager_textEditor_textChangePriorityHandler(event:TextEditorChangeEvent):Void {
 		// sort from end to start so that we don't have to handle any offsets
 		// since the changes will not overlap, it's okay to sort them
-		changes.sort(sortTextChanges);
-		for (change in changes) {
+		ArraySort.sort(event.changes, sortTextChanges);
+	}
+
+	private function editManager_textEditor_textChangeHandler(event:TextEditorChangeEvent):Void {
+		for (change in event.changes) {
 			applyChange(change);
 		}
 	}
