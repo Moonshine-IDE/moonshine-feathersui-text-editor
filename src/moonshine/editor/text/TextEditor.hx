@@ -615,6 +615,15 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	}
 
 	/**
+		Defines sets of brackets for the current language.
+
+		Each item in the `Array` must be an `Array<String>` containing exactly
+		two items. The first item is the opening bracket, and the second item
+		is the closing bracket.
+	**/
+	public var brackets:Array<Array<String>>;
+
+	/**
 		Updates the code parser used for syntax highlighting.
 	**/
 	public function setParserAndTextStyles(parser:ILineParser, textStyles:Map<Int, TextFormat>):Void {
