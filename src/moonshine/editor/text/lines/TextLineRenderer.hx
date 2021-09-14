@@ -1136,16 +1136,17 @@ class TextLineRenderer extends FeathersControl {
 	}
 
 	private function layoutContent():Void {
+		#if flash
+		// the flash target internally rounds to the nearest pixel, while
+		// other targets do not
+		var gutterStartX = Math.fround(_scrollX);
+		#else
+		var gutterStartX = _scrollX;
+		#end
 		if (_currentGutterBackgroundSkin != null) {
 			_currentGutterBackgroundSkin.width = _gutterWidth;
 			_currentGutterBackgroundSkin.height = actualHeight;
-			#if flash
-			// the flash target internally rounds to the nearest pixel, while
-			// other targets do not
-			_currentGutterBackgroundSkin.x = Math.fround(_scrollX);
-			#else
-			_currentGutterBackgroundSkin.x = _scrollX;
-			#end
+			_currentGutterBackgroundSkin.x = gutterStartX;
 			_currentGutterBackgroundSkin.y = 0.0;
 		}
 
@@ -1157,7 +1158,7 @@ class TextLineRenderer extends FeathersControl {
 		}
 
 		_lineNumberTextField.visible = _showLineNumbers;
-		_lineNumberTextField.x = _currentGutterBackgroundSkin.x + _gutterWidth - _lineNumberTextField.width - gutterPaddingRight;
+		_lineNumberTextField.x = gutterStartX + _gutterWidth - _lineNumberTextField.width - gutterPaddingRight;
 		_lineNumberTextField.y = (actualHeight - _lineNumberTextField.height) / 2.0;
 
 		if (_currentBreakpointSkin != null) {
@@ -1165,7 +1166,7 @@ class TextLineRenderer extends FeathersControl {
 			if ((_currentBreakpointSkin is IValidating)) {
 				cast(_currentBreakpointSkin, IValidating).validateNow();
 			}
-			_currentBreakpointSkin.x = _currentGutterBackgroundSkin.x + gutterPaddingLeft;
+			_currentBreakpointSkin.x = gutterStartX + gutterPaddingLeft;
 			_currentBreakpointSkin.y = (actualHeight - _currentBreakpointSkin.height) / 2.0;
 		}
 
