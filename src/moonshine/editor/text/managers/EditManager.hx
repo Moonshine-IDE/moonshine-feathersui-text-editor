@@ -90,7 +90,13 @@ class EditManager {
 			var lineIndex = _textEditor.caretLineIndex;
 			var indent = TextUtil.getFirstIndentAtStartOfLine(_textEditor.lines.get(lineIndex).text, _textEditor.tabWidth);
 			if (indent.length > 0) {
+				var caretIndex = _textEditor.caretCharIndex;
+				caretIndex -= indent.length;
+				if (caretIndex < 0) {
+					caretIndex = 0;
+				}
 				dispatchChanges([new TextEditorChange(lineIndex, 0, lineIndex, indent.length)]);
+				_textEditor.setSelection(lineIndex, caretIndex, lineIndex, caretIndex);
 			}
 		} else {
 			insertText(getTabString());
@@ -147,6 +153,17 @@ class EditManager {
 		if (_textEditor.hasSelection) {
 			dispatchChanges([removeSelection(text)]);
 			return;
+		}
+		if (_textEditor.brackets != null) {
+			var trimmed = StringTools.trim(_textEditor.caretLine.text);
+			if (trimmed.length == 0) {
+				for (brackets in _textEditor.brackets) {
+					var close = brackets[1];
+					if (text == close) {
+						indent(true);
+					}
+				}
+			}
 		}
 		var line = _textEditor.caretLineIndex;
 		var char = _textEditor.caretCharIndex;
