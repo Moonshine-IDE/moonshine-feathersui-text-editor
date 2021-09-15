@@ -291,7 +291,10 @@ class EditManager {
 			for (autoClosingPair in _textEditor.autoClosingPairs) {
 				var lineIndex = _textEditor.caretLineIndex;
 				var charIndex = _textEditor.caretCharIndex;
-				if (_activeAutoClosingPair != null && charIndex == _activeAutoClosingPairEndCharIndex && autoClosingPair.close == text) {
+				if (_activeAutoClosingPair != null
+					&& charIndex == _activeAutoClosingPairEndCharIndex
+					&& _activeAutoClosingPair.open == autoClosingPair.open
+					&& autoClosingPair.close == text) {
 					var newCaretCharIndex = charIndex + autoClosingPair.open.length;
 					_textEditor.setSelection(lineIndex, newCaretCharIndex, lineIndex, newCaretCharIndex);
 					return;
