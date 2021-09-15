@@ -58,7 +58,7 @@ class LspTextLineRenderer extends TextLineRenderer {
 	override private function update():Void {
 		super.update();
 
-		this.drawDiagnostics();
+		drawDiagnostics();
 	}
 
 	private function drawDiagnostics():Void {
@@ -103,7 +103,7 @@ class LspTextLineRenderer extends TextLineRenderer {
 			var stepLength = 3.0;
 			var startX = 0.0;
 			var lineLength = 0.0;
-			if (this._text.length == 0) {
+			if (_text.length == 0) {
 				var lineMetrics = _mainTextField.getLineMetrics(0);
 				startX = lineMetrics.x;
 				lineLength = Math.max(2.0 * stepLength, lineMetrics.width);

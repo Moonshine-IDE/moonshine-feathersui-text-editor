@@ -83,7 +83,7 @@ class SignatureHelpView extends ScrollContainer implements IFocusExtras {
 	public var focusExtrasBefore(get, never):Array<DisplayObject>;
 
 	private function get_focusExtrasBefore():Array<DisplayObject> {
-		return this._focusExtrasBefore;
+		return _focusExtrasBefore;
 	}
 
 	private var _focusExtrasAfter:Array<DisplayObject> = [];
@@ -93,7 +93,7 @@ class SignatureHelpView extends ScrollContainer implements IFocusExtras {
 	public var focusExtrasAfter(get, never):Array<DisplayObject>;
 
 	private function get_focusExtrasAfter():Array<DisplayObject> {
-		return this._focusExtrasAfter;
+		return _focusExtrasAfter;
 	}
 
 	override private function initialize():Void {
@@ -146,25 +146,25 @@ class SignatureHelpView extends ScrollContainer implements IFocusExtras {
 
 		super.update();
 
-		this.layoutButtonGroup();
+		layoutButtonGroup();
 	}
 
 	override private function calculateViewPortOffsets(forceScrollBars:Bool, useActualBounds:Bool):Void {
 		if (_signatureHelp != null && _signatureHelp.signatures.length > 1) {
-			this.buttonGroup.validateNow();
-			this.leftViewPortOffset += this.buttonGroup.width;
-			this.chromeMeasuredHeight = Math.max(this.chromeMeasuredHeight, this.buttonGroup.height);
-			this.chromeMeasuredMinHeight = Math.max(this.chromeMeasuredMinHeight, this.buttonGroup.minHeight);
+			buttonGroup.validateNow();
+			leftViewPortOffset += buttonGroup.width;
+			chromeMeasuredHeight = Math.max(chromeMeasuredHeight, buttonGroup.height);
+			chromeMeasuredMinHeight = Math.max(chromeMeasuredMinHeight, buttonGroup.minHeight);
 		}
 		super.calculateViewPortOffsets(forceScrollBars, useActualBounds);
 	}
 
 	private function layoutButtonGroup():Void {
-		this.buttonGroup.visible = _signatureHelp != null && _signatureHelp.signatures.length > 1;
-		this.buttonGroup.x = this.paddingLeft;
-		this.buttonGroup.y = this.paddingTop;
-		this.buttonGroup.height = this.actualHeight - this.paddingTop - this.paddingBottom;
-		this.buttonGroup.validateNow();
+		buttonGroup.visible = _signatureHelp != null && _signatureHelp.signatures.length > 1;
+		buttonGroup.x = paddingLeft;
+		buttonGroup.y = paddingTop;
+		buttonGroup.height = actualHeight - paddingTop - paddingBottom;
+		buttonGroup.validateNow();
 	}
 
 	private function getHtmlText():String {

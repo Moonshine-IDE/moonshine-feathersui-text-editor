@@ -41,7 +41,7 @@ import openfl.geom.Point;
 class LspTextEditor extends TextEditor {
 	public function new(?textDocument:TextDocumentIdentifier, ?text:String, readOnly:Bool = false) {
 		super(text, readOnly);
-		this._textDocument = textDocument;
+		_textDocument = textDocument;
 		if (!_readOnly) {
 			_completionManager = new CompletionManager(this);
 			_signatureHelpManager = new SignatureHelpManager(this);
