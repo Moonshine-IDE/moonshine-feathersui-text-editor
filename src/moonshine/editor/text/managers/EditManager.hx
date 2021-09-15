@@ -279,6 +279,66 @@ class EditManager {
 		return "\t";
 	}
 
+	private function textEndsInUnterminatedStringOrComment(text:String):Bool {
+		var lineComment = _textEditor.lineComment;
+		var blockCommentStart = _textEditor.blockComment != null ? _textEditor.blockComment[0] : null;
+		var blockCommentEnd = _textEditor.blockComment != null ? _textEditor.blockComment[1] : null;
+		var stringTerminators = ["'", "\""];
+		var stringStart = null;
+		var pendingLineComment:String = "";
+		var pendingBlockComment:String = "";
+		var i = 0;
+		while (i < text.length) {
+			var char = text.charAt(i);
+			if (stringStart != null) {
+				// inside a string
+				if (char == stringStart) {
+					stringStart = null;
+				}
+			} else {
+				// not inside a string
+				if (stringTerminators.contains(char)) {
+					stringStart = char;
+					pendingLineComment = "";
+					pendingBlockComment = "";
+				} else {
+					if (lineComment != null) {
+						var lineCommentChar = lineComment.charAt(pendingLineComment.length);
+						if (char == lineCommentChar) {
+							pendingLineComment += char;
+							if (pendingLineComment == lineComment) {
+								// this is a line comment!
+								return true;
+							}
+						} else {
+							pendingLineComment = "";
+						}
+					}
+					if (blockCommentStart != null) {
+						var blockCommentChar = blockCommentStart.charAt(pendingBlockComment.length);
+						if (char == blockCommentChar) {
+							pendingBlockComment += char;
+							if (pendingBlockComment == blockCommentStart) {
+								// this is a block comment!
+								var blockCommentEndIndex = text.indexOf(blockCommentEnd, i + blockCommentStart.length);
+								if (blockCommentEndIndex == -1) {
+									return true;
+								}
+								i += blockCommentEndIndex + blockCommentEnd.length;
+								pendingLineComment = "";
+								pendingBlockComment = "";
+							}
+						} else {
+							pendingBlockComment = "";
+						}
+					}
+				}
+			}
+			i++;
+		}
+		return stringStart != null;
+	}
+
 	private function insertText(text:String):Void {
 		if (_textEditor.hasSelection) {
 			var change = createRemoveSelectionTextEditorChange(text);
@@ -299,18 +359,20 @@ class EditManager {
 					_textEditor.setSelection(lineIndex, newCaretCharIndex, lineIndex, newCaretCharIndex);
 					return;
 				}
-				var lineText = _textEditor.caretLine.text;
-				var needsClose = autoClosingPair.open == text && !TextUtil.textEndsWithUnterminatedString(lineText.substr(0, charIndex));
-				if (needsClose) {
-					text += autoClosingPair.close;
-					dispatchChanges([new TextEditorChange(lineIndex, charIndex, lineIndex, charIndex, text)]);
-					var newCaretCharIndex = charIndex + autoClosingPair.open.length;
-					_textEditor.setSelection(lineIndex, newCaretCharIndex, lineIndex, newCaretCharIndex);
-					_activeAutoClosingPair = autoClosingPair;
-					_activeAutoClosingPairLineIndex = lineIndex;
-					_activeAutoClosingPairStartCharIndex = newCaretCharIndex;
-					_activeAutoClosingPairEndCharIndex = newCaretCharIndex;
-					return;
+				if (autoClosingPair.open == text) {
+					var startLineText = _textEditor.caretLine.text.substr(0, charIndex);
+					var needsClose = !textEndsInUnterminatedStringOrComment(startLineText);
+					if (needsClose) {
+						text += autoClosingPair.close;
+						dispatchChanges([new TextEditorChange(lineIndex, charIndex, lineIndex, charIndex, text)]);
+						var newCaretCharIndex = charIndex + autoClosingPair.open.length;
+						_textEditor.setSelection(lineIndex, newCaretCharIndex, lineIndex, newCaretCharIndex);
+						_activeAutoClosingPair = autoClosingPair;
+						_activeAutoClosingPairLineIndex = lineIndex;
+						_activeAutoClosingPairStartCharIndex = newCaretCharIndex;
+						_activeAutoClosingPairEndCharIndex = newCaretCharIndex;
+						return;
+					}
 				}
 			}
 		}
