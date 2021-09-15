@@ -41,6 +41,7 @@ import moonshine.editor.text.syntax.parser.MXMLLineParser;
 import moonshine.editor.text.syntax.parser.PlainTextLineParser;
 import moonshine.editor.text.syntax.parser.PythonLineParser;
 import moonshine.editor.text.syntax.parser.XMLLineParser;
+import moonshine.editor.text.utils.AutoClosingPair;
 import openfl.events.Event;
 import openfl.events.KeyboardEvent;
 import openfl.text.TextFormat;
@@ -294,6 +295,7 @@ class Main extends Application {
 		_findReplaceToolBar.includeInLayout = false;
 		_findResult = null;
 		var brackets:Array<Array<String>> = null;
+		var autoClosingPairs:Array<AutoClosingPair> = null;
 		var formats:Map<Int, TextFormat> = [];
 		var lineComment:String = null;
 		var blockComment:Array<String> = null;
@@ -306,6 +308,13 @@ class Main extends Application {
 				formatBuilder.setColorSettings(_colorSettings);
 				formats = formatBuilder.build();
 				brackets = [["{", "}"], ["[", "]"], ["(", ")"]];
+				autoClosingPairs = [
+					new AutoClosingPair("{", "}"),
+					new AutoClosingPair("[", "]"),
+					new AutoClosingPair("(", ")"),
+					new AutoClosingPair("'", "'"),
+					new AutoClosingPair("\"", "\"")
+				];
 				lineComment = "//";
 				blockComment = ["/*", "*/"];
 			case "as":
@@ -316,6 +325,13 @@ class Main extends Application {
 				formatBuilder.setColorSettings(_colorSettings);
 				formats = formatBuilder.build();
 				brackets = [["{", "}"], ["[", "]"], ["(", ")"]];
+				autoClosingPairs = [
+					new AutoClosingPair("{", "}"),
+					new AutoClosingPair("[", "]"),
+					new AutoClosingPair("(", ")"),
+					new AutoClosingPair("'", "'"),
+					new AutoClosingPair("\"", "\"")
+				];
 				lineComment = "//";
 				blockComment = ["/*", "*/"];
 			case "js" | "json":
@@ -326,6 +342,14 @@ class Main extends Application {
 				formatBuilder.setColorSettings(_colorSettings);
 				formats = formatBuilder.build();
 				brackets = [["{", "}"], ["[", "]"], ["(", ")"]];
+				autoClosingPairs = [
+					new AutoClosingPair("{", "}"),
+					new AutoClosingPair("[", "]"),
+					new AutoClosingPair("(", ")"),
+					new AutoClosingPair("'", "'"),
+					new AutoClosingPair("\"", "\""),
+					new AutoClosingPair("`", "`")
+				];
 				if (extension != "json") {
 					lineComment = "//";
 					blockComment = ["/*", "*/"];
@@ -348,6 +372,13 @@ class Main extends Application {
 				formatBuilder.setColorSettings(_colorSettings);
 				formats = formatBuilder.build();
 				brackets = [["{", "}"], ["[", "]"], ["(", ")"]];
+				autoClosingPairs = [
+					new AutoClosingPair("{", "}"),
+					new AutoClosingPair("[", "]"),
+					new AutoClosingPair("(", ")"),
+					new AutoClosingPair("'", "'"),
+					new AutoClosingPair("\"", "\"")
+				];
 				lineComment = "//";
 				blockComment = ["/*", "*/"];
 			case "groovy" | "gradle":
@@ -358,6 +389,13 @@ class Main extends Application {
 				formatBuilder.setColorSettings(_colorSettings);
 				formats = formatBuilder.build();
 				brackets = [["{", "}"], ["[", "]"], ["(", ")"]];
+				autoClosingPairs = [
+					new AutoClosingPair("{", "}"),
+					new AutoClosingPair("[", "]"),
+					new AutoClosingPair("(", ")"),
+					new AutoClosingPair("'", "'"),
+					new AutoClosingPair("\"", "\"")
+				];
 				lineComment = "//";
 				blockComment = ["/*", "*/"];
 			case "css":
@@ -368,6 +406,13 @@ class Main extends Application {
 				formatBuilder.setColorSettings(_colorSettings);
 				formats = formatBuilder.build();
 				brackets = [["{", "}"], ["[", "]"], ["(", ")"]];
+				autoClosingPairs = [
+					new AutoClosingPair("{", "}"),
+					new AutoClosingPair("[", "]"),
+					new AutoClosingPair("(", ")"),
+					new AutoClosingPair("'", "'"),
+					new AutoClosingPair("\"", "\"")
+				];
 				blockComment = ["/*", "*/"];
 			case "xml":
 				_syntaxName = "XML";
@@ -377,6 +422,15 @@ class Main extends Application {
 				formatBuilder.setColorSettings(_colorSettings);
 				formats = formatBuilder.build();
 				brackets = [["<!--", "-->"], ["<", ">"], ["{", "}"], ["(", ")"]];
+				autoClosingPairs = [
+					new AutoClosingPair("{", "}"),
+					new AutoClosingPair("[", "]"),
+					new AutoClosingPair("(", ")"),
+					new AutoClosingPair("'", "'"),
+					new AutoClosingPair("\"", "\""),
+					new AutoClosingPair("<!--", "-->"),
+					new AutoClosingPair("<![CDATA[", "]]>")
+				];
 				blockComment = ["<!--", "-->"];
 			case "mxml":
 				_syntaxName = "MXML";
@@ -386,6 +440,15 @@ class Main extends Application {
 				formatBuilder.setColorSettings(_colorSettings);
 				formats = formatBuilder.build();
 				brackets = [["<!--", "-->"], ["<", ">"], ["{", "}"], ["(", ")"]];
+				autoClosingPairs = [
+					new AutoClosingPair("{", "}"),
+					new AutoClosingPair("[", "]"),
+					new AutoClosingPair("(", ")"),
+					new AutoClosingPair("'", "'"),
+					new AutoClosingPair("\"", "\""),
+					new AutoClosingPair("<!--", "-->"),
+					new AutoClosingPair("<![CDATA[", "]]>")
+				];
 				blockComment = ["<!--", "-->"];
 			case "html" | "htm":
 				_syntaxName = "HTML";
@@ -395,6 +458,14 @@ class Main extends Application {
 				formatBuilder.setColorSettings(_colorSettings);
 				formats = formatBuilder.build();
 				brackets = [["<!--", "-->"], ["<", ">"], ["{", "}"], ["(", ")"]];
+				autoClosingPairs = [
+					new AutoClosingPair("{", "}"),
+					new AutoClosingPair("[", "]"),
+					new AutoClosingPair("(", ")"),
+					new AutoClosingPair("'", "'"),
+					new AutoClosingPair("\"", "\""),
+					new AutoClosingPair("<!--", "-->")
+				];
 				blockComment = ["<!--", "-->"];
 			default:
 				_syntaxName = null;
@@ -405,6 +476,7 @@ class Main extends Application {
 				formats = formatBuilder.build();
 		}
 		_textEditor.brackets = brackets;
+		_textEditor.autoClosingPairs = autoClosingPairs;
 		_textEditor.lineComment = lineComment;
 		_textEditor.blockComment = blockComment;
 		_textEditor.setParserAndTextStyles(_parser, formats);
