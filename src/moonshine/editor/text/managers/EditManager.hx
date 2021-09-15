@@ -228,14 +228,6 @@ class EditManager {
 		}
 	}
 
-	private function createDecreaseIndentTextEditorChange(lineIndex:Int):TextEditorChange {
-		var indent = TextUtil.getFirstIndentAtStartOfLine(_textEditor.lines.get(lineIndex).text, _textEditor.tabWidth);
-		if (indent.length == 0) {
-			return null;
-		}
-		return new TextEditorChange(lineIndex, 0, lineIndex, indent.length);
-	}
-
 	private function findFullIndentForNewLine(currentLineIndex:Int):String {
 		var findFullIndent = ~/^\s*/;
 		var i = currentLineIndex;
@@ -284,7 +276,10 @@ class EditManager {
 
 	private function insertText(text:String):Void {
 		if (_textEditor.hasSelection) {
-			dispatchChanges([removeSelection(text)]);
+			var change = createRemoveSelectionTextEditorChange(text);
+			if (change != null) {
+				dispatchChanges([change]);
+			}
 			return;
 		}
 		if (_textEditor.autoClosingPairs != null) {
@@ -332,10 +327,9 @@ class EditManager {
 		dispatchChanges([new TextEditorChange(line, char, line, char, text)]);
 	}
 
-	private function removeAtCursor(afterCaret:Bool, isWord:Bool):Void {
+	private function createRemoveAtCursorTextEditorChange(afterCaret:Bool, isWord:Bool):Null<TextEditorChange> {
 		if (_textEditor.hasSelection) {
-			dispatchChanges([removeSelection()]);
-			return;
+			return createRemoveSelectionTextEditorChange();
 		}
 
 		var startLine = _textEditor.caretLineIndex;
@@ -347,7 +341,7 @@ class EditManager {
 		if (startChar == 0 && !afterCaret) {
 			// Can't remove first line with backspace
 			if (startLine == 0)
-				return;
+				return null;
 
 			startLine--;
 			startChar = _textEditor.lines.get(startLine).text.length;
@@ -356,7 +350,7 @@ class EditManager {
 		// Delete remove linebreak & append to line below it
 		else if (startChar == _textEditor.lines.get(startLine).text.length && afterCaret) {
 			if (startLine == _textEditor.lines.length - 1)
-				return;
+				return null;
 
 			endLine++;
 			startChar = _textEditor.lines.get(startLine).text.length;
@@ -367,10 +361,14 @@ class EditManager {
 			startChar -= isWord ? TextUtil.wordBoundaryBackward(_textEditor.lines.get(startLine).text.substring(0, endChar)) : 1;
 		}
 
-		dispatchChanges([new TextEditorChange(startLine, startChar, endLine, endChar)]);
+		return new TextEditorChange(startLine, startChar, endLine, endChar);
 	}
 
-	private function removeSelection(?newText:String):TextEditorChange {
+	private function createRemoveSelectionTextEditorChange(?newText:String):Null<TextEditorChange> {
+		if (!_textEditor.hasSelection && (newText == null || newText.length == 0)) {
+			return null;
+		}
+
 		var startChar:Int;
 		var endChar:Int;
 		var startLine:Int;
@@ -398,6 +396,14 @@ class EditManager {
 		return new TextEditorChange(startLine, startChar, endLine, endChar, newText);
 	}
 
+	private function createDecreaseIndentTextEditorChange(lineIndex:Int):Null<TextEditorChange> {
+		var indent = TextUtil.getFirstIndentAtStartOfLine(_textEditor.lines.get(lineIndex).text, _textEditor.tabWidth);
+		if (indent.length == 0) {
+			return null;
+		}
+		return new TextEditorChange(lineIndex, 0, lineIndex, indent.length);
+	}
+
 	private function dispatchChanges(changes:Array<TextEditorChange>):Void {
 		_textEditor.dispatchEvent(new TextEditorChangeEvent(TextEditorChangeEvent.TEXT_CHANGE, changes));
 	}
@@ -411,9 +417,15 @@ class EditManager {
 				var indent = findFullIndentForNewLine(_textEditor.caretLineIndex);
 				insertText(_textEditor.lineDelimiter + indent);
 			case Keyboard.BACKSPACE:
-				removeAtCursor(false, event.altKey);
+				var change = createRemoveAtCursorTextEditorChange(false, event.altKey);
+				if (change != null) {
+					dispatchChanges([change]);
+				}
 			case Keyboard.DELETE:
-				removeAtCursor(true, event.altKey);
+				var change = createRemoveAtCursorTextEditorChange(true, event.altKey);
+				if (change != null) {
+					dispatchChanges([change]);
+				}
 			case Keyboard.TAB:
 				indent(event.shiftKey);
 				event.preventDefault();
@@ -454,7 +466,10 @@ class EditManager {
 		copy();
 		if (_textEditor.hasSelection) {
 			// don't remove anything if nothing is selected
-			removeAtCursor(false, false);
+			var change = createRemoveSelectionTextEditorChange();
+			if (change != null) {
+				dispatchChanges([change]);
+			}
 		}
 	}
 
