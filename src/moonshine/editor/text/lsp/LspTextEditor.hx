@@ -181,15 +181,13 @@ class LspTextEditor extends TextEditor {
 		renderer.removeEventListener(MouseEvent.CLICK, lspTextEditor_textLineRenderer_clickHandler);
 	}
 
-	override private function updateTextLineRenderer(itemRenderer:TextLineRenderer, state:ListViewItemState):Void {
-		super.updateTextLineRenderer(itemRenderer, state);
+	override private function updateTextLineRendererFromModel(itemRenderer:TextLineRenderer, lineModel:TextLineModel):Void {
+		super.updateTextLineRendererFromModel(itemRenderer, lineModel);
 
 		var lspItemRenderer = cast(itemRenderer, LspTextLineRenderer);
 		lspItemRenderer.diagnostics = diagnostics;
 
-		var line = (state.data : TextLineModel);
-
-		if (_linksPosition != null && _linksPosition.line == line.lineIndex) {
+		if (_linksPosition != null && _linksPosition.line == lineModel.lineIndex) {
 			itemRenderer.linkStartChar = _linkStartChar;
 			itemRenderer.linkEndChar = _linkEndChar;
 		} else {
@@ -212,7 +210,7 @@ class LspTextEditor extends TextEditor {
 		}
 
 		if (_linksPosition != null) {
-			refreshLineIfVisible(_linksPosition.line);
+			refreshVisibleLine(_linksPosition.line);
 		}
 
 		_linksPosition = position;
@@ -241,7 +239,7 @@ class LspTextEditor extends TextEditor {
 		}
 
 		if (_linksPosition != null) {
-			refreshLineIfVisible(_linksPosition.line);
+			refreshVisibleLine(_linksPosition.line);
 		}
 	}
 

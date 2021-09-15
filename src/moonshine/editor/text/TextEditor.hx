@@ -752,7 +752,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		if (!selectionChanged) {
 			return;
 		}
-		refreshSelectedLinesIfVisible();
+		refreshVisibleLines();
 		dispatchEvent(new TextEditorEvent(TextEditorEvent.SELECTION_CHANGE));
 	}
 
@@ -1013,21 +1013,20 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		return new TextLineRenderer();
 	}
 
-	private function updateTextLineRenderer(itemRenderer:TextLineRenderer, state:ListViewItemState):Void {
-		var lineModel = cast(state.data, TextLineModel);
+	private function updateTextLineRendererFromModel(itemRenderer:TextLineRenderer, lineModel:TextLineModel):Void {
 		itemRenderer.lineIndex = lineModel.lineIndex;
+		itemRenderer.text = lineModel.text;
 		if (lineModel.lineIndex == _caretLineIndex) {
 			itemRenderer.caretIndex = Std.int(Math.min(caretCharIndex, lineModel.text.length));
 		} else {
 			itemRenderer.caretIndex = -1;
 		}
+		itemRenderer.textEditorHasFocus = _hasFocus;
 		itemRenderer.minLineNumberCharacters = minLineNumberCharacters;
 		itemRenderer.numLines = _lines.length;
 		itemRenderer.tabWidth = _tabWidth;
-		itemRenderer.text = lineModel.text;
 		itemRenderer.scrollX = _listView.scrollX;
 		itemRenderer.breakpoint = lineModel.breakpoint;
-		itemRenderer.textEditorHasFocus = _hasFocus;
 		itemRenderer.allowToggleBreakpoints = allowToggleBreakpoints;
 		itemRenderer.debuggerStopped = _debuggerLineIndex == lineModel.lineIndex;
 		itemRenderer.styleRanges = lineModel.styleRanges;
@@ -1036,7 +1035,6 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		itemRenderer.showLineNumbers = _showLineNumbers;
 		itemRenderer.lineNumberWidth = lineNumberWidth;
 		itemRenderer.embedFonts = embedFonts;
-
 		if (_selectionStartLineIndex != _selectionEndLineIndex) {
 			if (lineModel.lineIndex == _selectionStartLineIndex) { // Beginning of selection (may be below or above current point)
 				if (_selectionStartLineIndex > _caretLineIndex) {
@@ -1075,6 +1073,11 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 				itemRenderer.selectionEndIndex = -1;
 			}
 		}
+	}
+
+	private function updateTextLineRenderer(itemRenderer:TextLineRenderer, state:ListViewItemState):Void {
+		var lineModel = cast(state.data, TextLineModel);
+		updateTextLineRendererFromModel(itemRenderer, lineModel);
 		itemRenderer.addEventListener(TextEditorLineEvent.TOGGLE_BREAKPOINT, textEditor_textLineRenderer_toggleBreakpointHandler);
 	}
 
@@ -1158,7 +1161,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		if (_listView == null || _listView.dataProvider == null) {
 			return;
 		}
-		refreshLineIfVisible(event.lineIndex);
+		refreshVisibleLine(event.lineIndex);
 	}
 
 	private function textEditor_listView_scrollHandler(event:ScrollEvent):Void {
@@ -1181,12 +1184,12 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 
 	private function textEditor_listView_focusInHandler(event:FocusEvent):Void {
 		_hasFocus = true;
-		refreshSelectedLinesIfVisible();
+		refreshVisibleLines();
 	}
 
 	private function textEditor_listView_focusOutHandler(event:FocusEvent):Void {
 		_hasFocus = false;
-		refreshSelectedLinesIfVisible();
+		refreshVisibleLines();
 	}
 
 	private function textEditor_textLineRenderer_toggleBreakpointHandler(event:TextEditorLineEvent):Void {
@@ -1196,25 +1199,27 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		var lineIndex = event.lineIndex;
 		var line = _lines.get(lineIndex);
 		line.breakpoint = !line.breakpoint;
-		refreshLineIfVisible(lineIndex);
+		var textLineRenderer = cast(_listView.indexToItemRenderer(lineIndex), TextLineRenderer);
+		if (textLineRenderer != null) {
+			textLineRenderer.breakpoint = line.breakpoint;
+		}
 		dispatchEvent(new TextEditorLineEvent(TextEditorLineEvent.TOGGLE_BREAKPOINT, lineIndex));
 	}
 
-	public function refreshLineIfVisible(lineIndex:Int):Void {
+	private function refreshVisibleLine(lineIndex:Int):Void {
 		if (lineIndex < _lineScrollY || lineIndex > (_lineScrollY + visibleLines + 1)) {
 			return;
 		}
 		// Line invalidation is required if the changed line is on-screen
-		_lines.updateAt(lineIndex);
+		var textLineRenderer = cast(_listView.indexToItemRenderer(lineIndex), TextLineRenderer);
+		if (textLineRenderer != null) {
+			updateTextLineRendererFromModel(textLineRenderer, _lines.get(lineIndex));
+		}
 	}
 
-	private function refreshSelectedLinesIfVisible():Void {
-		if (_caretLineIndex != -1) {
-			refreshLineIfVisible(_caretLineIndex);
-		} else if (_selectionStartLineIndex != -1 && _selectionEndLineIndex != -1) {
-			for (i in _selectionStartLineIndex...(_selectionEndLineIndex + 1)) {
-				refreshLineIfVisible(i);
-			}
+	private function refreshVisibleLines():Void {
+		for (i in lineScrollY...(lineScrollY + visibleLines + 1)) {
+			refreshVisibleLine(i);
 		}
 	}
 
