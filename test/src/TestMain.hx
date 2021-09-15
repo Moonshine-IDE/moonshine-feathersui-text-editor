@@ -17,6 +17,7 @@ class TestMain extends Sprite {
 		runner.addCase(new tests.TextEditorSelectionTestCase());
 		runner.addCase(new tests.TextEditorTextInputTestCase());
 		runner.addCase(new tests.TextEditorUndoRedoTestCase());
+		runner.addCase(new tests.TextEditorChangeEventTestCase());
 		runner.addCase(new tests.LspTextEditorCompletionTestCase());
 		runner.addCase(new tests.LspTextEditorSignatureHelpTestCase());
 		runner.addCase(new tests.LspTextEditorHoverTestCase());

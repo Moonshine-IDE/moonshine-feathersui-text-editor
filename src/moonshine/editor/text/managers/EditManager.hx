@@ -24,6 +24,7 @@ import moonshine.editor.text.lines.TextLineModel;
 import moonshine.editor.text.utils.TextUtil;
 import openfl.desktop.Clipboard;
 import openfl.desktop.ClipboardFormats;
+import openfl.errors.ArgumentError;
 import openfl.events.Event;
 import openfl.events.KeyboardEvent;
 import openfl.events.TextEvent;
@@ -206,24 +207,31 @@ class EditManager {
 
 			if (changes.length > 0) {
 				dispatchChanges(changes);
-
 				_textEditor.setSelection(startLine, 0, endLine + 1, 0);
 			}
 		} else if (reverse) {
 			var lineIndex = _textEditor.caretLineIndex;
-			var indent = TextUtil.getFirstIndentAtStartOfLine(_textEditor.lines.get(lineIndex).text, _textEditor.tabWidth);
-			if (indent.length > 0) {
+			var reverseChange = createDecreaseIndentTextEditorChange(lineIndex);
+			if (reverseChange != null) {
 				var caretIndex = _textEditor.caretCharIndex;
-				caretIndex -= indent.length;
+				caretIndex -= (reverseChange.endChar - reverseChange.startChar);
 				if (caretIndex < 0) {
 					caretIndex = 0;
 				}
-				dispatchChanges([new TextEditorChange(lineIndex, 0, lineIndex, indent.length)]);
+				dispatchChanges([reverseChange]);
 				_textEditor.setSelection(lineIndex, caretIndex, lineIndex, caretIndex);
 			}
 		} else {
 			insertText(getTabString());
 		}
+	}
+
+	private function createDecreaseIndentTextEditorChange(lineIndex:Int):TextEditorChange {
+		var indent = TextUtil.getFirstIndentAtStartOfLine(_textEditor.lines.get(lineIndex).text, _textEditor.tabWidth);
+		if (indent.length == 0) {
+			return null;
+		}
+		return new TextEditorChange(lineIndex, 0, lineIndex, indent.length);
 	}
 
 	private function findFullIndentForNewLine(currentLineIndex:Int):String {
@@ -277,16 +285,31 @@ class EditManager {
 			dispatchChanges([removeSelection(text)]);
 			return;
 		}
+		var decreaseIndent:TextEditorChange = null;
 		if (_textEditor.brackets != null) {
 			var trimmed = StringTools.trim(_textEditor.caretLine.text);
 			if (trimmed.length == 0) {
 				for (brackets in _textEditor.brackets) {
 					var close = brackets[1];
 					if (text == close) {
-						indent(true);
+						decreaseIndent = createDecreaseIndentTextEditorChange(_textEditor.caretLineIndex);
 					}
 				}
 			}
+		}
+		if (decreaseIndent != null) {
+			if (_textEditor.caretCharIndex == decreaseIndent.endChar) {
+				// if possible, merge the two changes into one
+				dispatchChanges([
+					new TextEditorChange(decreaseIndent.startLine, decreaseIndent.startChar, decreaseIndent.endLine, decreaseIndent.endChar, text)
+				]);
+				return;
+			}
+			// otherwise, do two separate changes. this isn't ideal for
+			// undo/redo, but we don't really have any choice. this should be
+			// relatively rare, though.
+			dispatchChanges([decreaseIndent]);
+			return;
 		}
 		var line = _textEditor.caretLineIndex;
 		var char = _textEditor.caretCharIndex;
@@ -516,10 +539,67 @@ class EditManager {
 		return 0;
 	}
 
+	private function mergeChanges(changes:Array<TextEditorChange>):Void {
+		var i = 0;
+		var prevChange:TextEditorChange = null;
+		while (i < changes.length) {
+			var change = changes[i];
+			if (prevChange == null) {
+				prevChange = change;
+				i++;
+				continue;
+			}
+
+			var changesOverlap = change.endLine > prevChange.startLine
+				|| (change.endLine == prevChange.startLine
+					&& (change.endChar > prevChange.startChar || change.startChar == prevChange.startChar));
+			if (changesOverlap) {
+				var prevIsInsertOnly = prevChange.startLine == prevChange.endLine
+					&& prevChange.startChar == prevChange.endChar
+					&& prevChange.newText != null;
+				var canMerge = prevIsInsertOnly && prevChange.startLine == change.startLine && prevChange.startChar == change.startChar;
+				if (canMerge) {
+					var combinedText = "";
+					if (prevChange.newText != null) {
+						combinedText += prevChange.newText;
+					}
+					if (change.newText != null) {
+						combinedText += change.newText;
+					}
+					prevChange = new TextEditorChange(change.startLine, change.startChar, change.endLine, change.endChar, combinedText);
+					changes[i - 1] = prevChange;
+					changes.splice(i, 1);
+					continue;
+				}
+				throw new ArgumentError('TextEditorChanges must not overlap. { startLine: ${prevChange.startLine}, startChar: ${prevChange.startChar}, endLine: ${prevChange.endLine}, endChar: ${prevChange.endChar} } overlaps with { startLine: ${change.startLine}, startChar: ${change.startChar}, endLine: ${change.endLine}, endChar: ${change.endChar}}.');
+			}
+			i++;
+		}
+	}
+
 	private function editManager_textEditor_textChangePriorityHandler(event:TextEditorChangeEvent):Void {
+		/*
+			we've designed the TextEditorChange behavior to match the behavior
+			of the language server protocol, which describes the following
+			restriction:
+
+			> Text edits ranges must never overlap, that means no part of the
+			> original document must be manipulated by more than one edit.
+			> However, it is possible that multiple edits have the same start
+			> position: multiple inserts, or any number of inserts followed by a
+			> single remove or replace edit. If multiple inserts have the same
+			> position, the order in the array defines the order in which the
+			> inserted strings appear in the resulting text.
+
+			Source: https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textEditArray
+		 */
+
 		// sort from end to start so that we don't have to handle any offsets
-		// since the changes will not overlap, it's okay to sort them
+		// since the changes will not overlap, it's okay to sort them.
+		// use ArraySort.sort() instead of changes.sort() because we don't want
+		// equal edits to be out of order.
 		ArraySort.sort(event.changes, sortTextChanges);
+		mergeChanges(event.changes);
 	}
 
 	private function editManager_textEditor_textChangeHandler(event:TextEditorChangeEvent):Void {
