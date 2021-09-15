@@ -42,9 +42,14 @@ class EditManager {
 		_textEditor.addEventListener(TextEvent.TEXT_INPUT, editManager_textEditor_textInputHandler, false, 0, true);
 		_textEditor.addEventListener(TextEditorChangeEvent.TEXT_CHANGE, editManager_textEditor_textChangePriorityHandler, false, 100, true);
 		_textEditor.addEventListener(TextEditorChangeEvent.TEXT_CHANGE, editManager_textEditor_textChangeHandler, false, 0, true);
+		_textEditor.addEventListener(TextEditorEvent.SELECTION_CHANGE, editManager_textEditor_selectionChangeHandler, false, 0, true);
 	}
 
 	private var _textEditor:TextEditor;
+	private var _activeAutoClosingPair:AutoClosingPair;
+	private var _activeAutoClosingPairLineIndex:Int = -1;
+	private var _activeAutoClosingPairStartCharIndex:Int = -1;
+	private var _activeAutoClosingPairEndCharIndex:Int = -1;
 
 	public function toggleLineComment():Void {
 		var lineComment = _textEditor.lineComment;
@@ -286,12 +291,16 @@ class EditManager {
 			for (autoClosingPair in _textEditor.autoClosingPairs) {
 				var needsClose = autoClosingPair.open == text;
 				if (needsClose) {
-					text += autoClosingPair.close;
 					var lineIndex = _textEditor.caretLineIndex;
 					var charIndex = _textEditor.caretCharIndex;
+					text += autoClosingPair.close;
 					dispatchChanges([new TextEditorChange(lineIndex, charIndex, lineIndex, charIndex, text)]);
-					charIndex += autoClosingPair.open.length;
-					_textEditor.setSelection(lineIndex, charIndex, lineIndex, charIndex);
+					var newCaretCharIndex = charIndex + autoClosingPair.open.length;
+					_textEditor.setSelection(lineIndex, newCaretCharIndex, lineIndex, newCaretCharIndex);
+					_activeAutoClosingPair = autoClosingPair;
+					_activeAutoClosingPairLineIndex = lineIndex;
+					_activeAutoClosingPairStartCharIndex = newCaretCharIndex;
+					_activeAutoClosingPairEndCharIndex = newCaretCharIndex;
 					return;
 				}
 			}
@@ -419,6 +428,12 @@ class EditManager {
 			case Keyboard.BACKSPACE:
 				var change = createRemoveAtCursorTextEditorChange(false, event.altKey);
 				if (change != null) {
+					if (_activeAutoClosingPair != null
+						&& change.startLine == _activeAutoClosingPairLineIndex
+						&& change.endChar == _activeAutoClosingPairEndCharIndex
+						&& _activeAutoClosingPairStartCharIndex == _activeAutoClosingPairEndCharIndex) {
+						change = new TextEditorChange(change.startLine, change.startChar, change.endLine, change.endChar + 1);
+					}
 					dispatchChanges([change]);
 				}
 			case Keyboard.DELETE:
@@ -496,8 +511,17 @@ class EditManager {
 		var startChar = change.startChar;
 		var endLine = change.endLine;
 		var endChar = change.endChar;
-
 		var newText = change.newText;
+
+		if (_activeAutoClosingPair != null) {
+			if (startChar <= _activeAutoClosingPairEndCharIndex && endChar <= _activeAutoClosingPairEndCharIndex) {
+				_activeAutoClosingPairEndCharIndex -= (endChar - startChar);
+				if (newText != null) {
+					_activeAutoClosingPairEndCharIndex += newText.length;
+				}
+			}
+		}
+
 		var insertedLines:Array<String> = null;
 		if (newText != null && newText.length > 0) {
 			insertedLines = ~/\r?\n|\r/g.split(newText);
@@ -636,6 +660,25 @@ class EditManager {
 	private function editManager_textEditor_textChangeHandler(event:TextEditorChangeEvent):Void {
 		for (change in event.changes) {
 			applyChange(change);
+		}
+	}
+
+	private function editManager_textEditor_selectionChangeHandler(event:TextEditorEvent):Void {
+		if (_activeAutoClosingPair != null) {
+			var clearActivePair = false;
+			var caretLineIndex = _textEditor.caretLineIndex;
+			var caretCharIndex = _textEditor.caretCharIndex;
+			if (caretLineIndex != _activeAutoClosingPairLineIndex) {
+				clearActivePair = true;
+			} else if (caretCharIndex < _activeAutoClosingPairStartCharIndex || caretCharIndex > _activeAutoClosingPairEndCharIndex) {
+				clearActivePair = true;
+			}
+			if (clearActivePair) {
+				_activeAutoClosingPair = null;
+				_activeAutoClosingPairLineIndex = -1;
+				_activeAutoClosingPairStartCharIndex = -1;
+				_activeAutoClosingPairEndCharIndex = -1;
+			}
 		}
 	}
 }
