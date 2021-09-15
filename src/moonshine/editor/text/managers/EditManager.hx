@@ -20,7 +20,9 @@ package moonshine.editor.text.managers;
 import haxe.ds.ArraySort;
 import moonshine.editor.text.changes.TextEditorChange;
 import moonshine.editor.text.events.TextEditorChangeEvent;
+import moonshine.editor.text.events.TextEditorEvent;
 import moonshine.editor.text.lines.TextLineModel;
+import moonshine.editor.text.utils.AutoClosingPair;
 import moonshine.editor.text.utils.TextUtil;
 import openfl.desktop.Clipboard;
 import openfl.desktop.ClipboardFormats;
@@ -284,6 +286,20 @@ class EditManager {
 		if (_textEditor.hasSelection) {
 			dispatchChanges([removeSelection(text)]);
 			return;
+		}
+		if (_textEditor.autoClosingPairs != null) {
+			for (autoClosingPair in _textEditor.autoClosingPairs) {
+				var needsClose = autoClosingPair.open == text;
+				if (needsClose) {
+					text += autoClosingPair.close;
+					var lineIndex = _textEditor.caretLineIndex;
+					var charIndex = _textEditor.caretCharIndex;
+					dispatchChanges([new TextEditorChange(lineIndex, charIndex, lineIndex, charIndex, text)]);
+					charIndex += autoClosingPair.open.length;
+					_textEditor.setSelection(lineIndex, charIndex, lineIndex, charIndex);
+					return;
+				}
+			}
 		}
 		var decreaseIndent:TextEditorChange = null;
 		if (_textEditor.brackets != null) {

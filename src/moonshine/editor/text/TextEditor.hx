@@ -40,7 +40,7 @@ import moonshine.editor.text.syntax.format.PlainTextFormatBuilder;
 import moonshine.editor.text.syntax.parser.ILineParser;
 import moonshine.editor.text.syntax.parser.PlainTextLineParser;
 import moonshine.editor.text.theme.TextEditorStyles;
-import moonshine.editor.text.utils.TextEditorUtil;
+import moonshine.editor.text.utils.AutoClosingPair;
 import moonshine.editor.text.utils.TextUtil;
 import openfl.Lib;
 import openfl.display.InteractiveObject;
@@ -622,6 +622,11 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		is the closing bracket.
 	**/
 	public var brackets:Array<Array<String>>;
+
+	/**
+		Defines sets of auto-closing character pairs for the current language.
+	**/
+	public var autoClosingPairs:Array<AutoClosingPair>;
 
 	/**
 		The string that defines the start of a line comment.
