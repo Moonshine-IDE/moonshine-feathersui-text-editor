@@ -299,7 +299,8 @@ class EditManager {
 					_textEditor.setSelection(lineIndex, newCaretCharIndex, lineIndex, newCaretCharIndex);
 					return;
 				}
-				var needsClose = autoClosingPair.open == text;
+				var lineText = _textEditor.caretLine.text;
+				var needsClose = autoClosingPair.open == text && !TextUtil.textEndsWithUnterminatedString(lineText.substr(0, charIndex));
 				if (needsClose) {
 					text += autoClosingPair.close;
 					dispatchChanges([new TextEditorChange(lineIndex, charIndex, lineIndex, charIndex, text)]);

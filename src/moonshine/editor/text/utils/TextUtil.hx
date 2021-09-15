@@ -24,6 +24,8 @@ class TextUtil {
 		" ", "\t", ".", ":", ";", ",", "?", "+", "-", "*", "/", "%", "=", "!", "&", "|", "(", ")", "[", "]", "{", "}", "<", ">"
 	];
 
+	private static final DEFAULT_STRING_TERMINATORS = ["'", "\""];
+
 	/**
 		Returns the character index of the beginning of the current word
 		(inclusive).
@@ -149,5 +151,24 @@ class TextUtil {
 			return indent;
 		}
 		return "";
+	}
+
+	public static function textEndsWithUnterminatedString(text:String, ?stringTerminators:Array<String>):Bool {
+		if (stringTerminators == null) {
+			stringTerminators = DEFAULT_STRING_TERMINATORS;
+		}
+		var stringStart = null;
+		for (i in 0...text.length) {
+			var char = text.charAt(i);
+			if (stringStart == null && stringTerminators.contains(char)) {
+				stringStart = char;
+				continue;
+			}
+			if (stringStart != null && char == stringStart) {
+				stringStart = null;
+				continue;
+			}
+		}
+		return stringStart != null;
 	}
 }
