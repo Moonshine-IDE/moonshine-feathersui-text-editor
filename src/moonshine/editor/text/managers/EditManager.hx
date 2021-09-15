@@ -354,8 +354,9 @@ class EditManager {
 		// Backspace remove line & append to line above it
 		if (startChar == 0 && !afterCaret) {
 			// Can't remove first line with backspace
-			if (startLine == 0)
+			if (startLine == 0) {
 				return null;
+			}
 
 			startLine--;
 			startChar = _textEditor.lines.get(startLine).text.length;
@@ -363,8 +364,9 @@ class EditManager {
 		}
 		// Delete remove linebreak & append to line below it
 		else if (startChar == _textEditor.lines.get(startLine).text.length && afterCaret) {
-			if (startLine == _textEditor.lines.length - 1)
+			if (startLine == _textEditor.lines.length - 1) {
 				return null;
+			}
 
 			endLine++;
 			startChar = _textEditor.lines.get(startLine).text.length;
