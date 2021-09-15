@@ -289,10 +289,15 @@ class EditManager {
 		}
 		if (_textEditor.autoClosingPairs != null) {
 			for (autoClosingPair in _textEditor.autoClosingPairs) {
+				var lineIndex = _textEditor.caretLineIndex;
+				var charIndex = _textEditor.caretCharIndex;
+				if (_activeAutoClosingPair != null && charIndex == _activeAutoClosingPairEndCharIndex && autoClosingPair.close == text) {
+					var newCaretCharIndex = charIndex + autoClosingPair.open.length;
+					_textEditor.setSelection(lineIndex, newCaretCharIndex, lineIndex, newCaretCharIndex);
+					return;
+				}
 				var needsClose = autoClosingPair.open == text;
 				if (needsClose) {
-					var lineIndex = _textEditor.caretLineIndex;
-					var charIndex = _textEditor.caretCharIndex;
 					text += autoClosingPair.close;
 					dispatchChanges([new TextEditorChange(lineIndex, charIndex, lineIndex, charIndex, text)]);
 					var newCaretCharIndex = charIndex + autoClosingPair.open.length;
