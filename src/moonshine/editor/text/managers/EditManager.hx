@@ -543,7 +543,10 @@ class EditManager {
 				indent(event.shiftKey);
 				event.preventDefault();
 			case Keyboard.SLASH:
-				if (event.ctrlKey) {
+				if (event.ctrlKey && event.altKey) {
+					toggleBlockComment();
+					event.preventDefault();
+				} else if (event.ctrlKey) {
 					toggleLineComment();
 					event.preventDefault();
 				}
