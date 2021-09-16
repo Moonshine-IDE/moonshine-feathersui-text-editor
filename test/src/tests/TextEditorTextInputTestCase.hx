@@ -301,6 +301,20 @@ class TextEditorTextInputTestCase extends Test {
 		Assert.equals(-1, _textEditor.selectionEndCharIndex);
 	}
 
+	public function testEnter():Void {
+		_textEditor.text = "hello";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 5, 0, 5);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.ENTER));
+		Assert.equals("hello\n", _textEditor.text);
+		Assert.equals(1, _textEditor.caretLineIndex);
+		Assert.equals(0, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
 	public function testTabWithCaretSelection():Void {
 		_textEditor.text = "\thello";
 		_textEditor.stage.focus = _textEditor;
@@ -315,7 +329,7 @@ class TextEditorTextInputTestCase extends Test {
 		Assert.equals(-1, _textEditor.selectionEndCharIndex);
 	}
 
-	public function testTabWithRangeSelection():Void {
+	public function testTabWithRangeSelectionOneLine():Void {
 		_textEditor.text = "\thello";
 		_textEditor.stage.focus = _textEditor;
 		_textEditor.setSelection(0, 2, 0, 3);
@@ -328,7 +342,22 @@ class TextEditorTextInputTestCase extends Test {
 		Assert.equals(-1, _textEditor.selectionEndLineIndex);
 		Assert.equals(-1, _textEditor.selectionEndCharIndex);
 	}
-	/*public function testShiftTabWithCaretSelection():Void {
+
+	public function testTabWithRangeSelectionMultipleLines():Void {
+		_textEditor.text = "\thello\n\tworld";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 2, 1, 2);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.TAB));
+		Assert.equals("\t\thello\n\t\tworld", _textEditor.text);
+		Assert.equals(1, _textEditor.caretLineIndex);
+		Assert.equals(3, _textEditor.caretCharIndex);
+		Assert.equals(0, _textEditor.selectionStartLineIndex);
+		Assert.equals(3, _textEditor.selectionStartCharIndex);
+		Assert.equals(1, _textEditor.selectionEndLineIndex);
+		Assert.equals(3, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testShiftTabWithCaretSelection():Void {
 		_textEditor.text = "\thello";
 		_textEditor.stage.focus = _textEditor;
 		_textEditor.setSelection(0, 3, 0, 3);
@@ -340,5 +369,168 @@ class TextEditorTextInputTestCase extends Test {
 		Assert.equals(-1, _textEditor.selectionStartCharIndex);
 		Assert.equals(-1, _textEditor.selectionEndLineIndex);
 		Assert.equals(-1, _textEditor.selectionEndCharIndex);
-	}*/
+	}
+
+	public function testShiftTabWithRangeSelectionOneLine():Void {
+		_textEditor.text = "\thello";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 2, 0, 4);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.TAB, null, false, false, true));
+		Assert.equals("hello", _textEditor.text);
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(3, _textEditor.caretCharIndex);
+		Assert.equals(0, _textEditor.selectionStartLineIndex);
+		Assert.equals(1, _textEditor.selectionStartCharIndex);
+		Assert.equals(0, _textEditor.selectionEndLineIndex);
+		Assert.equals(3, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testShiftTabWithRangeSelectionMultipleLines():Void {
+		_textEditor.text = "\t\thello\n\t\tworld";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 3, 1, 3);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.TAB, null, false, false, true));
+		Assert.equals("\thello\n\tworld", _textEditor.text);
+		Assert.equals(1, _textEditor.caretLineIndex);
+		Assert.equals(2, _textEditor.caretCharIndex);
+		Assert.equals(0, _textEditor.selectionStartLineIndex);
+		Assert.equals(2, _textEditor.selectionStartCharIndex);
+		Assert.equals(1, _textEditor.selectionEndLineIndex);
+		Assert.equals(2, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testNewLineAfterBracketOpenIncreasesIndent():Void {
+		_textEditor.brackets = [["{", "}"]];
+		_textEditor.text = "hello {";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 7, 0, 7);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.ENTER));
+		Assert.equals("hello {\n\t", _textEditor.text);
+		Assert.equals(1, _textEditor.caretLineIndex);
+		Assert.equals(1, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testBracketCloseAfterNewLineDecreasesIndent():Void {
+		_textEditor.brackets = [["{", "}"]];
+		_textEditor.text = "hello {\n\t";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(1, 1, 1, 1);
+		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, "}"));
+		Assert.equals("hello {\n}", _textEditor.text);
+		Assert.equals(1, _textEditor.caretLineIndex);
+		Assert.equals(1, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testToggleLineCommentOn():Void {
+		_textEditor.lineComment = "//";
+		_textEditor.text = "hello";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 2, 0, 2);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.SLASH, "/".charCodeAt(0), true));
+		Assert.equals("// hello", _textEditor.text);
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(5, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testToggleLineCommentOff():Void {
+		_textEditor.lineComment = "//";
+		_textEditor.text = "// hello";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 5, 0, 5);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.SLASH, "/".charCodeAt(0), true));
+		Assert.equals("hello", _textEditor.text);
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(2, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testToggleLineCommentOffWithoutSpace():Void {
+		_textEditor.lineComment = "//";
+		_textEditor.text = "//hello";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 4, 0, 4);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.SLASH, "/".charCodeAt(0), true));
+		Assert.equals("hello", _textEditor.text);
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(2, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testToggleBlockCommentOn():Void {
+		_textEditor.blockComment = ["/*", "*/"];
+		_textEditor.text = "hello";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 1, 0, 4);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.SLASH, "/".charCodeAt(0), true, true));
+		Assert.equals("h/* ell */o", _textEditor.text);
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(7, _textEditor.caretCharIndex);
+		Assert.equals(0, _textEditor.selectionStartLineIndex);
+		Assert.equals(4, _textEditor.selectionStartCharIndex);
+		Assert.equals(0, _textEditor.selectionEndLineIndex);
+		Assert.equals(7, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testToggleBlockCommentOff():Void {
+		_textEditor.blockComment = ["/*", "*/"];
+		_textEditor.text = "h/* ell */o";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 4, 0, 7);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.SLASH, "/".charCodeAt(0), true, true));
+		Assert.equals("hello", _textEditor.text);
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(4, _textEditor.caretCharIndex);
+		Assert.equals(0, _textEditor.selectionStartLineIndex);
+		Assert.equals(1, _textEditor.selectionStartCharIndex);
+		Assert.equals(0, _textEditor.selectionEndLineIndex);
+		Assert.equals(4, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testToggleBlockCommentOffWithoutSpaces():Void {
+		_textEditor.blockComment = ["/*", "*/"];
+		_textEditor.text = "h/*ell*/o";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 3, 0, 6);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.SLASH, "/".charCodeAt(0), true, true));
+		Assert.equals("hello", _textEditor.text);
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(4, _textEditor.caretCharIndex);
+		Assert.equals(0, _textEditor.selectionStartLineIndex);
+		Assert.equals(1, _textEditor.selectionStartCharIndex);
+		Assert.equals(0, _textEditor.selectionEndLineIndex);
+		Assert.equals(4, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testToggleBlockCommentOffWithCaretOnly():Void {
+		_textEditor.blockComment = ["/*", "*/"];
+		_textEditor.text = "h/* ell */o";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 5, 0, 5);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.SLASH, "/".charCodeAt(0), true, true));
+		Assert.equals("hello", _textEditor.text);
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(2, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
 }
