@@ -224,34 +224,59 @@ class EditManager {
 				endLine--;
 			}
 
+			var newSelectedStartCharIndex = _textEditor.selectionStartCharIndex;
+			var newSelectedEndCharIndex = _textEditor.selectionEndCharIndex;
 			var line = startLine;
 			while (line <= endLine) {
 				if (reverse) {
 					var indent = TextUtil.getFirstIndentAtStartOfLine(_textEditor.lines.get(line).text, _textEditor.tabWidth);
 					if (indent.length > 0) {
 						changes.push(new TextEditorChange(line, 0, line, indent.length));
+						if (line == startLine) {
+							newSelectedStartCharIndex -= indent.length;
+						}
+						if (line == endLine) {
+							newSelectedEndCharIndex -= indent.length;
+						}
 					}
 				} else {
-					changes.push(new TextEditorChange(line, 0, line, 0, getTabString()));
+					var indent = getTabString();
+					changes.push(new TextEditorChange(line, 0, line, 0, indent));
+					if (line == startLine) {
+						newSelectedStartCharIndex += indent.length;
+					}
+					if (line == endLine) {
+						newSelectedEndCharIndex += indent.length;
+					}
 				}
 				line++;
 			}
 
 			if (changes.length > 0) {
 				dispatchChanges(changes);
-				_textEditor.setSelection(startLine, 0, endLine + 1, 0);
+				_textEditor.setSelection(startLine, newSelectedStartCharIndex, endLine, newSelectedEndCharIndex);
 			}
 		} else if (reverse) {
 			var lineIndex = _textEditor.caretLineIndex;
+			var newSelectionStartCharIndex = _textEditor.selectionStartCharIndex;
+			var newSelectionEndCharIndex = _textEditor.selectionEndCharIndex;
+			if (newSelectionStartCharIndex == -1) {
+				newSelectionStartCharIndex = _textEditor.caretCharIndex;
+				newSelectionEndCharIndex = _textEditor.caretCharIndex;
+			}
 			var reverseChange = createDecreaseIndentTextEditorChange(lineIndex);
 			if (reverseChange != null) {
-				var caretIndex = _textEditor.caretCharIndex;
-				caretIndex -= (reverseChange.endChar - reverseChange.startChar);
-				if (caretIndex < 0) {
-					caretIndex = 0;
+				var difference = reverseChange.endChar - reverseChange.startChar;
+				newSelectionStartCharIndex -= difference;
+				newSelectionEndCharIndex -= difference;
+				if (newSelectionStartCharIndex < 0) {
+					newSelectionStartCharIndex = 0;
+				}
+				if (newSelectionEndCharIndex < 0) {
+					newSelectionEndCharIndex = 0;
 				}
 				dispatchChanges([reverseChange]);
-				_textEditor.setSelection(lineIndex, caretIndex, lineIndex, caretIndex);
+				_textEditor.setSelection(lineIndex, newSelectionStartCharIndex, lineIndex, newSelectionEndCharIndex);
 			}
 		} else {
 			insertText(getTabString());
