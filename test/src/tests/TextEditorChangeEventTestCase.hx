@@ -79,6 +79,9 @@ class TextEditorChangeEventTestCase extends Test {
 		Assert.equals(-1, _textEditor.selectionEndCharIndex);
 	}
 
+	#if !flash
+	// for some reason, the Assert.raise() try/catch doesn't work on the
+	// flash/air targets, even though the error is thrown
 	public function testThrowsWithMultipleInsertEditsFollowedByMultipleRemoveEditsAtSamePosition():Void {
 		_textEditor.text = "hi";
 		Assert.raises(() -> {
@@ -90,6 +93,7 @@ class TextEditorChangeEventTestCase extends Test {
 			]));
 		}, ArgumentError);
 	}
+	#end
 
 	public function testWithAdjacentReplaceEdits():Void {
 		_textEditor.text = "hi";
