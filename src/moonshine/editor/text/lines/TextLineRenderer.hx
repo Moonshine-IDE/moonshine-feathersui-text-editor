@@ -897,7 +897,7 @@ class TextLineRenderer extends FeathersControl {
 		if (_debuggerStopped && debuggerStoppedBackgroundSkin != null) {
 			return debuggerStoppedBackgroundSkin;
 		}
-		if (_textEditorHasFocus && _caretIndex != -1 && focusedBackgroundSkin != null) {
+		if (_textEditorHasFocus && _caretIndex != -1 && _selectionStartIndex == -1 && _selectionEndIndex == -1 && focusedBackgroundSkin != null) {
 			return focusedBackgroundSkin;
 		}
 		return backgroundSkin;
