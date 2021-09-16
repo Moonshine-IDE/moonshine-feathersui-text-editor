@@ -209,10 +209,6 @@ class LspTextEditor extends TextEditor {
 			return;
 		}
 
-		if (_linksPosition != null) {
-			refreshVisibleLine(_linksPosition.line);
-		}
-
 		_linksPosition = position;
 		_links = locations;
 
@@ -238,9 +234,7 @@ class LspTextEditor extends TextEditor {
 			}
 		}
 
-		if (_linksPosition != null) {
-			refreshVisibleLine(_linksPosition.line);
-		}
+		invalidateVisibleLines();
 	}
 
 	private function activateCodeAction(codeAction:CodeAction):Void {

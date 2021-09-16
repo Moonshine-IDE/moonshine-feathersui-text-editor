@@ -27,13 +27,15 @@ import openfl.events.Event;
 class ColorManager {
 	public static final CHUNK_TIMESPAN:Int = 16;
 
-	public function new(textEditor:TextEditor) {
+	public function new(textEditor:TextEditor, invalidateCallback:() -> Void) {
 		_textEditor = textEditor;
+		_invalidateCallback = invalidateCallback;
 
 		_textEditor.addEventListener(TextEditorChangeEvent.TEXT_CHANGE, colorManager_textEditor_textChangeHandler, false, 0, true);
 	}
 
 	private var _textEditor:TextEditor;
+	private var _invalidateCallback:() -> Void;
 
 	private var _parser:ILineParser;
 
@@ -120,7 +122,6 @@ class ColorManager {
 				// Notify the editor of change, to invalidate lines if needed
 				if (oldMeta == null || oldMeta.join(",") != newMeta.join(",")) {
 					line.styleRanges = newMeta;
-					_textEditor.dispatchEvent(new TextEditorLineEvent(TextEditorLineEvent.COLOR_CHANGE, i));
 				}
 
 				if (i == rangeEnd && i < (count - 1)) {
@@ -147,6 +148,7 @@ class ColorManager {
 			_ranges.shift();
 		}
 
+		_invalidateCallback();
 		stopListening();
 	}
 

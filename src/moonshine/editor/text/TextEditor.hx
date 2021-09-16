@@ -24,7 +24,7 @@ import feathers.core.IStageFocusDelegate;
 import feathers.data.ArrayCollection;
 import feathers.data.ListViewItemState;
 import feathers.events.ScrollEvent;
-import feathers.layout.VerticalListFixedRowLayout;
+import feathers.layout.VerticalListLayout;
 import feathers.utils.DisplayObjectRecycler;
 import moonshine.editor.text.events.TextEditorChangeEvent;
 import moonshine.editor.text.events.TextEditorEvent;
@@ -67,11 +67,10 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			_undoManager = new UndoManager(this);
 		}
 		_selectionMananger = new SelectionManager(this);
-		_colorManager = new ColorManager(this);
+		_colorManager = new ColorManager(this, invalidateVisibleLines);
 		_findReplaceManager = new FindReplaceManager(this);
 		this.text = text;
-		addEventListener(TextEditorChangeEvent.TEXT_CHANGE, textEditor_textChangeHandler, false, 1);
-		addEventListener(TextEditorLineEvent.COLOR_CHANGE, textEditor_colorChangeHandler);
+		addEventListener(TextEditorChangeEvent.TEXT_CHANGE, textEditor_textChangeHandler);
 		addEventListener(FocusEvent.FOCUS_IN, textEditor_focusInHandler);
 	}
 
@@ -752,7 +751,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		if (!selectionChanged) {
 			return;
 		}
-		refreshVisibleLines();
+		invalidateVisibleLines();
 		dispatchEvent(new TextEditorEvent(TextEditorEvent.SELECTION_CHANGE));
 	}
 
@@ -968,7 +967,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	override private function initialize():Void {
 		if (_listView == null) {
 			_listView = new TextEditorListView();
-			var layout = new VerticalListFixedRowLayout();
+			var layout = new VerticalListLayout();
 			layout.contentJustify = true;
 			_listView.layout = layout;
 			_listView.scrollY = _lineScrollY * _lineHeight;
@@ -1094,6 +1093,14 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 
 	private function destroyTextLineRenderer(itemRenderer:TextLineRenderer):Void {}
 
+	private function invalidateVisibleLines():Void {
+		if (_listView == null || _listView.dataProvider == null) {
+			return;
+		}
+		_listView.setInvalid(DATA);
+		_listView.setInvalid(LAYOUT);
+	}
+
 	override private function update():Void {
 		var dataInvalid = isInvalid(DATA);
 		var scrollInvalid = isInvalid(SCROLL);
@@ -1148,20 +1155,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		if (_readOnly) {
 			throw new IllegalOperationError("Read-only text editor must not dispatch text change event");
 		}
-		for (change in event.changes) {
-			var startLine = change.startLine;
-			var endLine = change.endLine;
-			for (i in startLine...(endLine + 1)) {
-				_lines.updateAt(i);
-			}
-		}
-	}
-
-	private function textEditor_colorChangeHandler(event:TextEditorLineEvent):Void {
-		if (_listView == null || _listView.dataProvider == null) {
-			return;
-		}
-		refreshVisibleLine(event.lineIndex);
+		invalidateVisibleLines();
 	}
 
 	private function textEditor_listView_scrollHandler(event:ScrollEvent):Void {
@@ -1184,12 +1178,12 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 
 	private function textEditor_listView_focusInHandler(event:FocusEvent):Void {
 		_hasFocus = true;
-		refreshVisibleLines();
+		invalidateVisibleLines();
 	}
 
 	private function textEditor_listView_focusOutHandler(event:FocusEvent):Void {
 		_hasFocus = false;
-		refreshVisibleLines();
+		invalidateVisibleLines();
 	}
 
 	private function textEditor_textLineRenderer_toggleBreakpointHandler(event:TextEditorLineEvent):Void {
@@ -1199,28 +1193,11 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		var lineIndex = event.lineIndex;
 		var line = _lines.get(lineIndex);
 		line.breakpoint = !line.breakpoint;
-		var textLineRenderer = cast(_listView.indexToItemRenderer(lineIndex), TextLineRenderer);
+		var textLineRenderer = cast(_listView.itemToItemRenderer(line), TextLineRenderer);
 		if (textLineRenderer != null) {
 			textLineRenderer.breakpoint = line.breakpoint;
 		}
 		dispatchEvent(new TextEditorLineEvent(TextEditorLineEvent.TOGGLE_BREAKPOINT, lineIndex));
-	}
-
-	private function refreshVisibleLine(lineIndex:Int):Void {
-		if (lineIndex < _lineScrollY || lineIndex > (_lineScrollY + visibleLines + 1)) {
-			return;
-		}
-		// Line invalidation is required if the changed line is on-screen
-		var textLineRenderer = cast(_listView.indexToItemRenderer(lineIndex), TextLineRenderer);
-		if (textLineRenderer != null) {
-			updateTextLineRendererFromModel(textLineRenderer, _lines.get(lineIndex));
-		}
-	}
-
-	private function refreshVisibleLines():Void {
-		for (i in lineScrollY...(lineScrollY + visibleLines + 1)) {
-			refreshVisibleLine(i);
-		}
 	}
 
 	private function textEditor_lines_changeHandler(event:Event):Void {

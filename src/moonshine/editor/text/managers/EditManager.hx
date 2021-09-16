@@ -618,6 +618,7 @@ class EditManager {
 		if (insertedLines == null) {
 			// remove only
 			targetStartLine.text = startTextToKeep + endTextToKeep;
+			_textEditor.lines.updateAt(startLine);
 		} else {
 			if (insertedLines.length > 1) {
 				updateLineIndices(_textEditor, startLine + 1, insertedLines.length - 1);

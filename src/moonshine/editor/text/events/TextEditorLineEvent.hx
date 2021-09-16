@@ -22,7 +22,6 @@ import openfl.events.EventType;
 
 class TextEditorLineEvent extends Event {
 	public static final TOGGLE_BREAKPOINT:EventType<TextEditorLineEvent> = "toggleBreakpoint";
-	public static final COLOR_CHANGE:EventType<TextEditorLineEvent> = "colorChange";
 
 	public function new(type:String, lineIndex:Int) {
 		super(type);
