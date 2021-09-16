@@ -33,18 +33,4 @@ class TextLineModel extends EventDispatcher {
 	public var debuggerStoppedAtLine:Bool;
 
 	public var styleRanges:Array<Int> = [0, 0];
-
-	@:flash.property
-	public var startContext(get, never):Int;
-
-	public function get_startContext():Int {
-		return (styleRanges != null) && styleRanges.length > 1 ? styleRanges[1] : 0;
-	}
-
-	@:flash.property
-	public var endContext(get, never):Int;
-
-	public function get_endContext():Int {
-		return (styleRanges != null) && styleRanges.length > 1 ? styleRanges[styleRanges.length - 1] : 0;
-	}
 }

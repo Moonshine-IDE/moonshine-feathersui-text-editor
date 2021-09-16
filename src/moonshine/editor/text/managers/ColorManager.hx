@@ -103,19 +103,13 @@ class ColorManager {
 			var rangeEnd = range.end;
 
 			if (_parser != null) {
-				_parser.setContext(rangeStart > 0 ? _textEditor.lines.get(rangeStart - 1).endContext : 0);
+				var prevLine = (rangeStart > 0) ? _textEditor.lines.get(rangeStart - 1) : null;
+				var prevEndContext = getEndContext((prevLine != null) ? prevLine.styleRanges : null);
+				_parser.setContext(prevEndContext);
 			}
 
 			for (i in rangeStart...(rangeEnd + 1)) {
 				var line = _textEditor.lines.get(i);
-
-				// Calculate line width
-				/*var oldWidth = line.width;
-					line.width = calculateWidth(line.text);
-
-						if (oldWidth != line.width) {
-							_textEditor.dispatchEvent(new LineEvent(LineEvent.WIDTH_CHANGE, i));
-				}*/
 
 				// Parse file for coloring
 				var oldMeta = line.styleRanges;
@@ -123,17 +117,18 @@ class ColorManager {
 				// affect the contents of the file
 				var newMeta = (_parser != null) ? _parser.parse(line.text + "\n") : [0, 0x0];
 
-				line.styleRanges = newMeta;
-
 				// Notify the editor of change, to invalidate lines if needed
 				if (oldMeta == null || oldMeta.join(",") != newMeta.join(",")) {
+					line.styleRanges = newMeta;
 					_textEditor.dispatchEvent(new TextEditorLineEvent(TextEditorLineEvent.COLOR_CHANGE, i));
 				}
 
-				if (i == rangeEnd && i < count - 1) {
+				if (i == rangeEnd && i < (count - 1)) {
 					// Invalidate next line if its start context doesn't match up with this one's end context
+					var endContext = getEndContext(line.styleRanges);
 					var nextLine = _textEditor.lines.get(i + 1);
-					if (line.endContext != nextLine.startContext) {
+					var startContext = getStartContext(nextLine.styleRanges);
+					if (endContext != startContext) {
 						invalidate(i + 1);
 					}
 				}
@@ -153,6 +148,26 @@ class ColorManager {
 		}
 
 		stopListening();
+	}
+
+	private function getStartContext(styleRanges:Array<Int>):Int {
+		if (styleRanges != null && styleRanges.length > 1) {
+			return styleRanges[1];
+		}
+		if (_parser != null) {
+			return _parser.defaultContext;
+		}
+		return 0;
+	}
+
+	private function getEndContext(styleRanges:Array<Int>):Int {
+		if (styleRanges != null && styleRanges.length > 1) {
+			return styleRanges[styleRanges.length - 1];
+		}
+		if (_parser != null) {
+			return _parser.defaultContext;
+		}
+		return 0;
 	}
 
 	private function applyChange(change:TextEditorChange):Void {
@@ -193,7 +208,7 @@ class ColorManager {
 			r--;
 		}
 
-		if (change.startChar > 0 || change.endChar > 0) {
+		if (change.startLine != change.endLine || change.startChar != change.endChar) {
 			invalidate(change.startLine, 0, true);
 		}
 	}
