@@ -77,6 +77,17 @@ class EditManager {
 				removeComment = false;
 			}
 		}
+
+		var newSelectionStartLineIndex = _textEditor.selectionStartLineIndex;
+		var newSelectionStartCharIndex = _textEditor.selectionStartCharIndex;
+		var newSelectionEndLineIndex = _textEditor.selectionEndLineIndex;
+		var newSelectionEndCharIndex = _textEditor.selectionEndCharIndex;
+		if (newSelectionStartCharIndex == -1) {
+			newSelectionStartLineIndex = _textEditor.caretLineIndex;
+			newSelectionStartCharIndex = _textEditor.caretCharIndex;
+			newSelectionEndLineIndex = newSelectionStartLineIndex;
+			newSelectionEndCharIndex = newSelectionStartCharIndex;
+		}
 		var changes:Array<TextEditorChange> = [];
 		for (i in startLine...(endLine + 1)) {
 			var startingWhitespace = ~/^\s*/;
@@ -91,11 +102,25 @@ class EditManager {
 					commentSize++;
 				}
 				changes.push(new TextEditorChange(i, whitespaceSize, i, whitespaceSize + commentSize));
+				if (i == newSelectionStartLineIndex) {
+					newSelectionStartCharIndex -= commentSize;
+				}
+				if (i == newSelectionEndLineIndex) {
+					newSelectionEndCharIndex -= commentSize;
+				}
 			} else {
 				changes.push(new TextEditorChange(i, whitespaceSize, i, whitespaceSize, lineComment + " "));
+				var commentSize = lineComment.length + 1;
+				if (i == newSelectionStartLineIndex) {
+					newSelectionStartCharIndex += commentSize;
+				}
+				if (i == newSelectionEndLineIndex) {
+					newSelectionEndCharIndex += commentSize;
+				}
 			}
 		}
 		dispatchChanges(changes);
+		_textEditor.setSelection(newSelectionStartLineIndex, newSelectionStartCharIndex, newSelectionEndLineIndex, newSelectionEndCharIndex);
 	}
 
 	public function toggleBlockComment():Void {
