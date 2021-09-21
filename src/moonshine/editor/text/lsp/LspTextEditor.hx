@@ -65,7 +65,47 @@ class LspTextEditor extends TextEditor {
 	public var completionTriggerCharacters:Array<String> = ["."];
 	public var signatureHelpTriggerCharacters:Array<String> = ["(", ","];
 
-	public var diagnostics:Array<Diagnostic> = [];
+	private var _diagnostics:Array<Diagnostic>;
+
+	@:flash.property
+	public var diagnostics(get, set):Array<Diagnostic>;
+
+	private function get_diagnostics():Array<Diagnostic> {
+		return _diagnostics;
+	}
+
+	private function set_diagnostics(value:Array<Diagnostic>):Array<Diagnostic> {
+		if (_diagnostics == value) {
+			return _diagnostics;
+		}
+		if (_diagnostics != null) {
+			for (diagnostic in _diagnostics) {
+				var start = diagnostic.range.start.line;
+				var end = diagnostic.range.end.line + 1;
+				if (end > _lines.length) {
+					end = _lines.length;
+				}
+				for (i in start...end) {
+					_lines.updateAt(i);
+				}
+			}
+		}
+		_diagnostics = value;
+		if (_diagnostics != null) {
+			for (diagnostic in _diagnostics) {
+				var start = diagnostic.range.start.line;
+				var end = diagnostic.range.end.line + 1;
+				if (end > _lines.length) {
+					end = _lines.length;
+				}
+				for (i in start...end) {
+					_lines.updateAt(i);
+				}
+			}
+		}
+		setInvalid(DATA);
+		return _diagnostics;
+	}
 
 	private var _textDocument:TextDocumentIdentifier;
 
@@ -185,7 +225,7 @@ class LspTextEditor extends TextEditor {
 		super.updateTextLineRendererFromModel(itemRenderer, lineModel);
 
 		var lspItemRenderer = cast(itemRenderer, LspTextLineRenderer);
-		lspItemRenderer.diagnostics = diagnostics;
+		lspItemRenderer.diagnostics = _diagnostics;
 
 		if (_linksPosition != null && _linksPosition.line == lineModel.lineIndex) {
 			itemRenderer.linkStartChar = _linkStartChar;

@@ -63,12 +63,12 @@ class LspTextLineRenderer extends TextLineRenderer {
 
 	private function drawDiagnostics():Void {
 		_diagnosticsShape.graphics.clear();
-		if (diagnostics == null || diagnostics.length == 0) {
+		if (_diagnostics == null || _diagnostics.length == 0) {
 			_diagnosticsShape.visible = false;
 			return;
 		}
 		var hasDiagnosticsOnLine = false;
-		for (diagnostic in diagnostics) {
+		for (diagnostic in _diagnostics) {
 			if (diagnostic.severity == Hint) {
 				// skip hints because they are not meant to be displayed
 				// to the user like regular problems. they're used
