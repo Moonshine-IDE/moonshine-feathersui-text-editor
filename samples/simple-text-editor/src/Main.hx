@@ -362,6 +362,14 @@ class Main extends Application {
 				formatBuilder.setColorSettings(_colorSettings);
 				formats = formatBuilder.build();
 				brackets = [["{", "}"], ["[", "]"], ["(", ")"]];
+				autoClosingPairs = [
+					new AutoClosingPair("{", "}"),
+					new AutoClosingPair("[", "]"),
+					new AutoClosingPair("(", ")"),
+					new AutoClosingPair("'", "'"),
+					new AutoClosingPair("\"", "\""),
+					new AutoClosingPair("`", "`"),
+				];
 				lineComment = "#";
 				blockComment = ["\"\"\"", "\"\"\""];
 			case "java":
