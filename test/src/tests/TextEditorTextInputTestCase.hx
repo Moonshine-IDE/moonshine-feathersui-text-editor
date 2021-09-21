@@ -648,4 +648,21 @@ class TextEditorTextInputTestCase extends Test {
 		Assert.equals(-1, _textEditor.selectionEndLineIndex);
 		Assert.equals(-1, _textEditor.selectionEndCharIndex);
 	}
+
+	public function testNewLineAfterBracketAsAutoClosingPair():Void {
+		_textEditor.brackets = [["{", "}"]];
+		_textEditor.autoClosingPairs = [new AutoClosingPair("{", "}")];
+		_textEditor.text = "hello ";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 6, 0, 6);
+		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, "{"));
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.ENTER));
+		Assert.equals("hello {\n\t\n}", _textEditor.text);
+		Assert.equals(1, _textEditor.caretLineIndex);
+		Assert.equals(1, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
 }

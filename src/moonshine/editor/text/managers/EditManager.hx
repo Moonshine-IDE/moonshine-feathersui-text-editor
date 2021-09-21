@@ -283,6 +283,27 @@ class EditManager {
 		}
 	}
 
+	private function isBetweenBrackets():Bool {
+		if (_textEditor.brackets == null) {
+			return false;
+		}
+		var line = _textEditor.lines.get(_textEditor.caretLineIndex);
+		var charIndex = _textEditor.caretCharIndex;
+		if (charIndex == 0 || charIndex >= line.text.length) {
+			return false;
+		}
+		var prevChar = line.text.charAt(charIndex - 1);
+		for (brackets in _textEditor.brackets) {
+			if (brackets[0] == prevChar) {
+				var nextChar = line.text.charAt(charIndex);
+				if (brackets[1] == nextChar) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	private function findFullIndentForNewLine(currentLineIndex:Int):String {
 		var findFullIndent = ~/^\s*/;
 		var i = currentLineIndex;
@@ -547,7 +568,15 @@ class EditManager {
 		switch (event.keyCode) {
 			case Keyboard.ENTER:
 				var indent = findFullIndentForNewLine(_textEditor.caretLineIndex);
-				insertText(_textEditor.lineDelimiter + indent);
+				if (isBetweenBrackets()) {
+					var extendedIndent = indent + getTabString();
+					var newCaretLineIndex = _textEditor.caretLineIndex + 1;
+					var newCaretCharIndex = extendedIndent.length;
+					insertText(_textEditor.lineDelimiter + extendedIndent + _textEditor.lineDelimiter + indent);
+					_textEditor.setSelection(newCaretLineIndex, newCaretCharIndex, newCaretLineIndex, newCaretCharIndex);
+				} else {
+					insertText(_textEditor.lineDelimiter + indent);
+				}
 			case Keyboard.BACKSPACE:
 				var change = createRemoveAtCursorTextEditorChange(false, event.altKey);
 				if (change != null) {
