@@ -869,6 +869,12 @@ class TextLineRenderer extends FeathersControl {
 				_mainTextField.setTextFormat(format, current, next);
 			}
 		} while (i < _styleRanges.length);
+		if (_text == null || _text.length == 0) {
+			// make sure that the fallback space character used for measurement
+			// has the proper formatting
+			var format = textStyles.get(_defaultTextStyleContext);
+			_mainTextField.setTextFormat(format);
+		}
 		_mainTextField.embedFonts = embedFonts;
 	}
 
