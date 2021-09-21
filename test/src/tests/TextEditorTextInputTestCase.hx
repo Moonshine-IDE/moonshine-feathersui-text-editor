@@ -1,6 +1,7 @@
 package tests;
 
 import moonshine.editor.text.TextEditor;
+import moonshine.editor.text.utils.AutoClosingPair;
 import openfl.Lib;
 import openfl.desktop.Clipboard;
 import openfl.desktop.ClipboardFormats;
@@ -528,6 +529,120 @@ class TextEditorTextInputTestCase extends Test {
 		Assert.equals("hello", _textEditor.text);
 		Assert.equals(0, _textEditor.caretLineIndex);
 		Assert.equals(2, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testAutoClosingPair():Void {
+		_textEditor.autoClosingPairs = [new AutoClosingPair("{", "}")];
+		_textEditor.text = "hello ";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 6, 0, 6);
+		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, "{"));
+		Assert.equals("hello {}", _textEditor.text);
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(7, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testSkipAutoClosingPairInsideString():Void {
+		_textEditor.autoClosingPairs = [new AutoClosingPair("{", "}")];
+		_textEditor.text = "hello \"";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 7, 0, 7);
+		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, "{"));
+		Assert.equals("hello \"{", _textEditor.text);
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(8, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testSkipAutoClosingPairInsideLineComment():Void {
+		_textEditor.lineComment = "//";
+		_textEditor.autoClosingPairs = [new AutoClosingPair("{", "}")];
+		_textEditor.text = "hello //";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 8, 0, 8);
+		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, "{"));
+		Assert.equals("hello //{", _textEditor.text);
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(9, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testSkipAutoClosingPairInsideBlockComment():Void {
+		_textEditor.blockComment = ["/*", "*/"];
+		_textEditor.autoClosingPairs = [new AutoClosingPair("{", "}")];
+		_textEditor.text = "hello /*";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 8, 0, 8);
+		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, "{"));
+		Assert.equals("hello /*{", _textEditor.text);
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(9, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testBackspaceWithAutoClosingPair():Void {
+		_textEditor.autoClosingPairs = [new AutoClosingPair("{", "}")];
+		_textEditor.text = "hello ";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 6, 0, 6);
+		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, "{"));
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.BACKSPACE));
+		Assert.equals("hello ", _textEditor.text);
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(6, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testTypingAndBackspaceWithAutoClosingPair():Void {
+		_textEditor.autoClosingPairs = [new AutoClosingPair("{", "}")];
+		_textEditor.text = "hello ";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 6, 0, 6);
+		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, "{"));
+		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, "a"));
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.BACKSPACE));
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.BACKSPACE));
+		Assert.equals("hello ", _textEditor.text);
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(6, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testBackspaceAfterSelectionMovedOutsideOfAutoClosingPair():Void {
+		_textEditor.autoClosingPairs = [new AutoClosingPair("{", "}")];
+		_textEditor.text = "hello ";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 6, 0, 6);
+		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, "{"));
+		_textEditor.setSelection(0, 0, 0, 0);
+		_textEditor.setSelection(0, 7, 0, 7);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.BACKSPACE));
+		Assert.equals("hello }", _textEditor.text);
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(6, _textEditor.caretCharIndex);
 		Assert.equals(-1, _textEditor.selectionStartLineIndex);
 		Assert.equals(-1, _textEditor.selectionStartCharIndex);
 		Assert.equals(-1, _textEditor.selectionEndLineIndex);
