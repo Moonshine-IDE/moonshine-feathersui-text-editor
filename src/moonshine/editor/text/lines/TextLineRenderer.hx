@@ -812,6 +812,14 @@ class TextLineRenderer extends FeathersControl {
 			return;
 		}
 		var lineTextLength = _text.length;
+		var linkStartChar = _linkStartChar;
+		if (linkStartChar > lineTextLength) {
+			linkStartChar = lineTextLength;
+		}
+		var linkEndChar = _linkEndChar;
+		if (linkEndChar > lineTextLength) {
+			linkEndChar = lineTextLength;
+		}
 		var i = 0;
 		do {
 			var current = 0;
@@ -844,19 +852,19 @@ class TextLineRenderer extends FeathersControl {
 				// TextField won't accept a null TextFormat, so use the default
 				format = textStyles.get(_defaultTextStyleContext);
 			}
-			if (_linkStartChar != -1 && _linkStartChar >= current && _linkStartChar < next) {
-				var linkStart = textIndexToRenderedIndex(_linkStartChar);
-				var linkEnd = textIndexToRenderedIndex(_linkEndChar);
-				current = textIndexToRenderedIndex(current);
-				next = textIndexToRenderedIndex(next);
+			if (linkStartChar != -1 && linkStartChar >= current && linkStartChar < next) {
+				var linkStartRendered = textIndexToRenderedIndex(linkStartChar);
+				var linkEndRendered = textIndexToRenderedIndex(linkEndChar);
+				var currentRendered = textIndexToRenderedIndex(current);
+				var nextRendered = textIndexToRenderedIndex(next);
 				var linkFormat = TextFormatUtil.clone(format);
 				linkFormat.underline = true;
-				if (linkStart > current) {
-					_mainTextField.setTextFormat(format, current, linkStart);
+				if (linkStartRendered > currentRendered) {
+					_mainTextField.setTextFormat(format, currentRendered, linkStartRendered);
 				}
-				_mainTextField.setTextFormat(linkFormat, linkStart, linkEnd);
-				if (linkEnd < next) {
-					_mainTextField.setTextFormat(format, linkEnd, next);
+				_mainTextField.setTextFormat(linkFormat, linkStartRendered, linkEndRendered);
+				if (linkEndRendered < nextRendered) {
+					_mainTextField.setTextFormat(format, linkEndRendered, nextRendered);
 				}
 			} else {
 				if (format.underline == null) {
