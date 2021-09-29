@@ -138,6 +138,10 @@ class LspTextEditor extends TextEditor {
 		list view.
 	**/
 	public function clearCompletion():Void {
+		if (_completionManager == null) {
+			// will be null when read-only
+			return;
+		}
 		_completionManager.clear();
 	}
 
@@ -146,6 +150,10 @@ class LspTextEditor extends TextEditor {
 		help view.
 	**/
 	public function clearSignatureHelp():Void {
+		if (_signatureHelpManager == null) {
+			// will be null when read-only
+			return;
+		}
 		_signatureHelpManager.clear();
 	}
 
@@ -161,6 +169,10 @@ class LspTextEditor extends TextEditor {
 		view.
 	**/
 	public function clearCodeActions():Void {
+		if (_codeActionsManager == null) {
+			// will be null when read-only
+			return;
+		}
 		_codeActionsManager.clear();
 	}
 

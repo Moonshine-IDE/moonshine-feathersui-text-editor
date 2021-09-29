@@ -43,4 +43,11 @@ class LspTextEditorCompletionTestCase extends Test {
 		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, " ".charCodeAt(0), Keyboard.SPACE, null, true));
 		Assert.isTrue(dispatchedCompletion);
 	}
+
+	public function testClearCompletionWhenReadOnly():Void {
+		var textEditor = new LspTextEditor(null, "", true);
+		// make sure that there are no exceptions
+		textEditor.clearCompletion();
+		Assert.pass();
+	}
 }

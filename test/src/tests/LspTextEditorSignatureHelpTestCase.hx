@@ -44,4 +44,11 @@ class LspTextEditorSignatureHelpTestCase extends Test {
 			true));
 		Assert.isTrue(dispatchedRequestSignatureHelp);
 	}
+
+	public function testClearSignatureHelpWhenReadOnly():Void {
+		var textEditor = new LspTextEditor(null, "", true);
+		// make sure that there are no exceptions
+		textEditor.clearSignatureHelp();
+		Assert.pass();
+	}
 }

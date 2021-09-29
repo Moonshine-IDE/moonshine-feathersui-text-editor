@@ -30,4 +30,11 @@ class LspTextEditorCodeActionTestCase extends Test {
 		_textEditor.codeActions();
 		Assert.isTrue(dispatchedCodeAction);
 	}
+
+	public function testClearCodeActionsWhenReadOnly():Void {
+		var textEditor = new LspTextEditor(null, "", true);
+		// make sure that there are no exceptions
+		textEditor.clearCodeActions();
+		Assert.pass();
+	}
 }
