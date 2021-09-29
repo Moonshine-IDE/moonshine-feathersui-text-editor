@@ -18,6 +18,7 @@
 package moonshine.editor.text.lsp.managers;
 
 import feathers.core.PopUpManager;
+import feathers.events.ScrollEvent;
 import moonshine.editor.text.events.TextEditorEvent;
 import moonshine.editor.text.lsp.events.LspTextEditorLanguageRequestEvent;
 import moonshine.editor.text.lsp.views.CodeActionsView;
@@ -45,6 +46,7 @@ class CodeActionsManager {
 		_textEditor.addEventListener(KeyboardEvent.KEY_DOWN, codeActionsManager_textEditor_keyDownHandler, false, 0, true);
 		_textEditor.addEventListener(TextEditorEvent.SELECTION_CHANGE, codeActionsManager_textEditor_selectionChangeHandler, false, 0, true);
 		_textEditor.addEventListener(FocusEvent.FOCUS_IN, codeActionsManager_textEditor_focusInHandler, false, 0, true);
+		_textEditor.addEventListener(ScrollEvent.SCROLL, codeActionsManager_textEditor_scrollHandler, false, 0, true);
 	}
 
 	public var shortcutRequiresCtrl:Bool = true;
@@ -115,6 +117,15 @@ class CodeActionsManager {
 		PopUpManager.addPopUp(_codeActionsView, _textEditor, false, false);
 		_codeActionsView.validateNow();
 
+		positionCodeActionsView();
+
+		if (_currentOpenOnResponse) {
+			_codeActionsView.openList();
+		}
+	}
+
+	private function positionCodeActionsView():Void {
+		var pos = _currentRequestParams.range.start;
 		var indexToProtect = pos.character;
 		var line = _textEditor.lines.get(pos.line);
 		var text = line.text;
@@ -161,10 +172,6 @@ class CodeActionsManager {
 		}
 		_codeActionsView.x = point.x;
 		_codeActionsView.y = point.y;
-
-		if (_currentOpenOnResponse) {
-			_codeActionsView.openList();
-		}
 	}
 
 	private function stopRequestTimer():Void {
@@ -268,5 +275,12 @@ class CodeActionsManager {
 		event.preventDefault();
 		var pos = new TextEditorPosition(_textEditor.caretLineIndex, _textEditor.caretCharIndex);
 		dispatchCodeActionsEventForPosition(pos, true);
+	}
+
+	private function codeActionsManager_textEditor_scrollHandler(event:ScrollEvent):Void {
+		if (!PopUpManager.isTopLevelPopUp(_codeActionsView)) {
+			return;
+		}
+		positionCodeActionsView();
 	}
 }
