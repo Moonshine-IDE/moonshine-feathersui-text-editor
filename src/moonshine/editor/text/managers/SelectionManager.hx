@@ -103,7 +103,7 @@ class SelectionManager {
 			startChar = _dragStartChar;
 		}
 
-		if (newCaretPosition > -1) {
+		if (newCaretPosition != -1) {
 			if (_clickCount == 1) {
 				endLine = textEditorPosition.line;
 				endChar = newCaretPosition;
@@ -128,9 +128,7 @@ class SelectionManager {
 			return;
 		}
 
-		if (startChar != endChar) {
-			_textEditor.setSelection(startLine, startChar, endLine, endChar);
-		}
+		_textEditor.setSelection(startLine, startChar, endLine, endChar);
 	}
 
 	private function startDragScroll():Void {
@@ -542,9 +540,18 @@ class SelectionManager {
 		if (pos == null) {
 			return;
 		}
-		var safeBreakpointHitAreaSize = _textEditor.gutterWidth - 4.0;
 		if (pos.character != -1) {
-			if (_clickCount == 1) {
+			var updateSelection = true;
+			if (localPoint.x < _textEditor.gutterWidth) {
+				if (_textEditor.selectionStartLineIndex != pos.line && _textEditor.selectionEndLineIndex != pos.line) {
+					return;
+				}
+				startLine = _textEditor.selectionStartLineIndex;
+				startChar = _textEditor.selectionStartCharIndex;
+				endLine = _textEditor.selectionEndLineIndex;
+				endChar = _textEditor.selectionEndCharIndex;
+				updateSelection = false;
+			} else if (_clickCount == 1) {
 				startLine = event.shiftKey ? _textEditor.hasSelection ? _textEditor.selectionStartLineIndex : _textEditor.caretLineIndex : pos.line;
 				startChar = event.shiftKey ? _textEditor.hasSelection ? _textEditor.selectionStartCharIndex : _textEditor.caretCharIndex : pos.character;
 
@@ -563,23 +570,16 @@ class SelectionManager {
 
 				startChar = 0;
 				endChar = _textEditor.lines.get(startLine).text.length;
+			} else {
+				return;
 			}
-		} else if (localPoint.x < safeBreakpointHitAreaSize && localPoint.x > 16.0) {
-			startLine = event.shiftKey ? _textEditor.hasSelection ? _textEditor.selectionStartLineIndex : _textEditor.caretLineIndex : pos.line;
-			startChar = event.shiftKey ? _textEditor.hasSelection ? _textEditor.selectionStartCharIndex : _textEditor.caretCharIndex : 0;
 
-			endLine = pos.line + (event.shiftKey && (startLine > pos.line || startLine == pos.line && startChar > 0) ? 0 : 1);
-			endChar = 0;
-
-			if (endLine >= _textEditor.lines.length) {
-				endLine = _textEditor.lines.length - 1;
-				endChar = _textEditor.lines.get(endLine).text.length;
+			if (updateSelection) {
+				_textEditor.setSelection(startLine, startChar, endLine, endChar);
 			}
 		} else {
 			return;
 		}
-
-		_textEditor.setSelection(startLine, startChar, endLine, endChar);
 
 		_dragStartLine = startLine;
 		_dragStartChar = startChar;
@@ -587,8 +587,6 @@ class SelectionManager {
 		_dragLocalPoint = localPoint;
 		_textEditor.stage.addEventListener(MouseEvent.MOUSE_MOVE, selectionManager_stage_mouseMoveHandler, false, 0, true);
 		_textEditor.stage.addEventListener(MouseEvent.MOUSE_UP, selectionManager_stage_mouseUpHandler, false, 0, true);
-		// editor.addEventListener(LayoutEvent.LAYOUT, handleEditorLayout);
-		// dispatcher.addEventListener(OpenFileEvent.OPEN_FILE, handleOpenFile);
 
 		_lastClickPos = localPoint;
 		_lastClickTime = Lib.getTimer();
@@ -620,8 +618,6 @@ class SelectionManager {
 		stage.removeEventListener(MouseEvent.MOUSE_UP, selectionManager_stage_mouseUpHandler);
 
 		stopDragScroll();
-		/*editor.removeEventListener(LayoutEvent.LAYOUT, handleEditorLayout);
-			dispatcher.removeEventListener(OpenFileEvent.OPEN_FILE, handleOpenFile); */
 		_dragStartLine = -1;
 		_dragStartChar = -1;
 		_dragEndChar = -1;
