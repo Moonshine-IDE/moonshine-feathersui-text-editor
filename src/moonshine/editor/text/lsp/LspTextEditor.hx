@@ -17,7 +17,7 @@
 
 package moonshine.editor.text.lsp;
 
-import feathers.data.ListViewItemState;
+import moonshine.editor.text.events.TextEditorChangeEvent;
 import moonshine.editor.text.lines.TextLineModel;
 import moonshine.editor.text.lines.TextLineRenderer;
 import moonshine.editor.text.lsp.events.LspTextEditorLanguageActionEvent;
@@ -27,6 +27,7 @@ import moonshine.editor.text.lsp.managers.CompletionManager;
 import moonshine.editor.text.lsp.managers.DefinitionManager;
 import moonshine.editor.text.lsp.managers.HoverManager;
 import moonshine.editor.text.lsp.managers.SignatureHelpManager;
+import moonshine.editor.text.utils.LspTextEditorUtil;
 import moonshine.editor.text.utils.TextUtil;
 import moonshine.lsp.CodeAction;
 import moonshine.lsp.Diagnostic;
@@ -34,6 +35,7 @@ import moonshine.lsp.LocationLink;
 import moonshine.lsp.Position;
 import moonshine.lsp.Range;
 import moonshine.lsp.TextDocumentIdentifier;
+import moonshine.lsp.TextEdit;
 import openfl.errors.IllegalOperationError;
 import openfl.events.MouseEvent;
 import openfl.geom.Point;
@@ -208,6 +210,11 @@ class LspTextEditor extends TextEditor {
 			// TODO: get diagnostics for line
 			context: {diagnostics: []},
 		});
+	}
+
+	public function applyTextEdits(textEdits:Array<TextEdit>):Void {
+		var changes = textEdits.map(textEdit -> LspTextEditorUtil.lspTextEditToTextEditorChange(textEdit));
+		dispatchEvent(new TextEditorChangeEvent(TextEditorChangeEvent.TEXT_CHANGE, changes, TextEditorChangeEvent.ORIGIN_LOCAL));
 	}
 
 	override private function createTextLineRenderer():TextLineRenderer {
