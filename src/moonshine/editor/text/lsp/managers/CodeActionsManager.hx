@@ -157,21 +157,28 @@ class CodeActionsManager {
 				// don't cover any text that appears at the beginning of
 				// the line. if it overlaps, move to previous line.
 				point.y -= charBounds.height;
+				if (point.y < 0.0) {
+					point.y += charBounds.height * 2.0;
+				}
 			}
 		}
 
-		point = _textEditor.localToGlobal(point);
+		var visible = true;
 		if (point.y < 0.0) {
-			point = _textEditor.globalToLocal(point);
-			point.y += charBounds.height * 2;
-			point = _textEditor.localToGlobal(point);
+			visible = point.y > -(charBounds.height / 2.0);
+			point.y = 0.0;
+		} else if ((point.y + _codeActionsView.height) > _textEditor.height) {
+			visible = point.y < (_textEditor.height - charBounds.height / 2.0);
+			point.y = _textEditor.height - _codeActionsView.height;
 		}
+		point = _textEditor.localToGlobal(point);
 		var popUpRoot = (_textEditor.stage != null) ? PopUpManager.forStage(_textEditor.stage).root : null;
 		if (popUpRoot != null) {
 			point = popUpRoot.globalToLocal(point);
 		}
 		_codeActionsView.x = point.x;
 		_codeActionsView.y = point.y;
+		_codeActionsView.visible = visible;
 	}
 
 	private function stopRequestTimer():Void {
