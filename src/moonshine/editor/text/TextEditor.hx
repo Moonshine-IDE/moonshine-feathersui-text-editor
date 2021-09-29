@@ -1086,6 +1086,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		var lineModel = cast(state.data, TextLineModel);
 		updateTextLineRendererFromModel(itemRenderer, lineModel);
 		itemRenderer.addEventListener(TextEditorLineEvent.TOGGLE_BREAKPOINT, textEditor_textLineRenderer_toggleBreakpointHandler);
+		itemRenderer.addEventListener(TextEditorLineEvent.SELECT_LINE, textEditor_textLineRenderer_selectLineHandler);
 	}
 
 	private function resetTextLineRenderer(itemRenderer:TextLineRenderer, state:ListViewItemState):Void {
@@ -1097,6 +1098,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		itemRenderer.selectionStartIndex = -1;
 		itemRenderer.selectionEndIndex = -1;
 		itemRenderer.removeEventListener(TextEditorLineEvent.TOGGLE_BREAKPOINT, textEditor_textLineRenderer_toggleBreakpointHandler);
+		itemRenderer.removeEventListener(TextEditorLineEvent.SELECT_LINE, textEditor_textLineRenderer_selectLineHandler);
 	}
 
 	private function destroyTextLineRenderer(itemRenderer:TextLineRenderer):Void {}
@@ -1212,6 +1214,12 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			textLineRenderer.breakpoint = line.breakpoint;
 		}
 		dispatchEvent(new TextEditorLineEvent(TextEditorLineEvent.TOGGLE_BREAKPOINT, lineIndex));
+	}
+
+	private function textEditor_textLineRenderer_selectLineHandler(event:TextEditorLineEvent):Void {
+		var lineIndex = event.lineIndex;
+		var line = _lines.get(lineIndex);
+		setSelection(lineIndex, 0, lineIndex, line.text.length);
 	}
 
 	private function textEditor_lines_changeHandler(event:Event):Void {

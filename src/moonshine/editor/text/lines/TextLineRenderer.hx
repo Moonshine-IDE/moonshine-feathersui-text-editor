@@ -44,8 +44,6 @@ class TextLineRenderer extends FeathersControl {
 		_caretTimer = new Timer(600.0);
 		_caretTimer.addEventListener(TimerEvent.TIMER, textLineRenderer_caretTimer_timerHandler);
 
-		addEventListener(MouseEvent.ROLL_OVER, textLineRenderer_rollOverHandler);
-		addEventListener(MouseEvent.ROLL_OUT, textLineRenderer_rollOutHandler);
 		addEventListener(MouseEvent.MOUSE_DOWN, textLineRenderer_mouseDownHandler);
 	}
 
@@ -602,16 +600,17 @@ class TextLineRenderer extends FeathersControl {
 			_mainTextField = new TextField();
 			_mainTextField.autoSize = LEFT;
 			_mainTextField.selectable = false;
-			_mainTextField.mouseEnabled = false;
 			_mainTextField.mouseWheelEnabled = false;
+			_mainTextField.addEventListener(MouseEvent.ROLL_OVER, textLineRenderer_mainTextField_rollOverHandler);
+			_mainTextField.addEventListener(MouseEvent.ROLL_OUT, textLineRenderer_mainTextField_rollOutHandler);
 			addChild(_mainTextField);
 		}
 		if (_lineNumberTextField == null) {
 			_lineNumberTextField = new TextField();
 			_lineNumberTextField.autoSize = LEFT;
 			_lineNumberTextField.selectable = false;
-			_lineNumberTextField.mouseEnabled = false;
 			_lineNumberTextField.mouseWheelEnabled = false;
+			_lineNumberTextField.addEventListener(MouseEvent.MOUSE_DOWN, textLineRenderer_lineNumberTextField_mouseDownHandler);
 			addChild(_lineNumberTextField);
 		}
 	}
@@ -1201,12 +1200,12 @@ class TextLineRenderer extends FeathersControl {
 		}
 	}
 
-	private function textLineRenderer_rollOverHandler(event:MouseEvent):Void {
+	private function textLineRenderer_mainTextField_rollOverHandler(event:MouseEvent):Void {
 		_oldMouseCursor = Mouse.cursor;
 		Mouse.cursor = MouseCursor.IBEAM;
 	}
 
-	private function textLineRenderer_rollOutHandler(event:MouseEvent):Void {
+	private function textLineRenderer_mainTextField_rollOutHandler(event:MouseEvent):Void {
 		Mouse.cursor = _oldMouseCursor;
 		_oldMouseCursor = null;
 	}
@@ -1215,7 +1214,7 @@ class TextLineRenderer extends FeathersControl {
 		if (!_allowToggleBreakpoints) {
 			return;
 		}
-		if (mouseX > _gutterWidth) {
+		if (mouseX > _lineNumberTextField.x) {
 			return;
 		}
 		dispatchEvent(new TextEditorLineEvent(TextEditorLineEvent.TOGGLE_BREAKPOINT, lineIndex));
@@ -1226,5 +1225,9 @@ class TextLineRenderer extends FeathersControl {
 			return;
 		}
 		_caretSkin.visible = !_caretSkin.visible;
+	}
+
+	private function textLineRenderer_lineNumberTextField_mouseDownHandler(event:MouseEvent):Void {
+		dispatchEvent(new TextEditorLineEvent(TextEditorLineEvent.SELECT_LINE, lineIndex));
 	}
 }
