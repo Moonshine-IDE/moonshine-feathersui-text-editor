@@ -106,7 +106,6 @@ class UndoManager {
 
 		var reversedRedoChanges = redoChanges.copy();
 		reversedRedoChanges.reverse();
-		var localOffsets = createLocalOffsets(redoChanges);
 		var undoChanges:Array<TextEditorChange> = reversedRedoChanges.map(change -> {
 			var oldText:String = null;
 			var oldLinesCount = 1;
@@ -124,13 +123,10 @@ class UndoManager {
 				}
 			}
 
-			var lineOffset = localOffsets.shift();
-			var charOffset = localOffsets.shift();
-
-			var startLine = change.startLine + lineOffset;
-			var startChar = change.startChar + charOffset;
-			var endLine = change.endLine + lineOffset;
-			var endChar = change.endChar + charOffset;
+			var startLine = change.startLine;
+			var startChar = change.startChar;
+			var endLine = change.endLine;
+			var endChar = change.endChar;
 
 			var newLines = (change.newText != null) ? ~/\r?\n|\r/g.split(change.newText) : [""];
 
@@ -157,36 +153,6 @@ class UndoManager {
 		}
 		_redoStack.resize(0);
 		_undoStack.push(new UndoRedoChanges(undoChanges, redoChanges));
-	}
-
-	private function createLocalOffsets(changes:Array<TextEditorChange>):Array<Int> {
-		var localOffsets:Array<Int> = [0, 0];
-		var prevStartLine = -1;
-		var offsetLine = 0;
-		var offsetChar = 0;
-		for (change in changes) {
-			if (prevStartLine != change.startLine) {
-				// the previous save char offset was on a different line, so
-				// it's not needed anymore
-				localOffsets[localOffsets.length - 1] = 0;
-				offsetChar = 0;
-				prevStartLine = change.startLine;
-			}
-
-			if (change.endLine == change.startLine) {
-				offsetChar -= (change.endChar - change.startChar);
-			} else {
-				offsetLine -= (change.endLine - change.startLine);
-			}
-			if (change.newText != null && change.newText.length > 0) {
-				var insertedLines = ~/\r?\n|\r/g.split(change.newText);
-				offsetLine += (insertedLines.length - 1);
-				offsetChar += insertedLines[insertedLines.length - 1].length;
-			}
-			localOffsets.push(offsetLine);
-			localOffsets.push(offsetChar);
-		}
-		return localOffsets;
 	}
 
 	public function undo():Void {
