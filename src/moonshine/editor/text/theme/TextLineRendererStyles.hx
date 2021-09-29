@@ -37,13 +37,9 @@ class TextLineRendererStyles {
 		var styleProvider = theme.styleProvider;
 		if (styleProvider.getStyleFunction(TextLineRenderer, null) == null) {
 			styleProvider.setStyleFunction(TextLineRenderer, null, function(view:TextLineRenderer):Void {
-				if (view.gutterBackgroundSkin == null) {
-					var gutterBackgroundSkin = new RectangleSkin(SolidColor(0xf9f9f9));
-					view.gutterBackgroundSkin = gutterBackgroundSkin;
-				}
-				view.gutterPaddingLeft = 2.0;
-				view.gutterPaddingRight = 2.0;
-				view.gutterGap = 1.0;
+				view.gutterPaddingLeft = 6.0;
+				view.gutterPaddingRight = 8.0;
+				view.gutterGap = 2.0;
 				if (view.backgroundSkin == null) {
 					var backgroundSkin = new RectangleSkin(SolidColor(0xfdfdfd));
 					backgroundSkin.height = 16.0;
