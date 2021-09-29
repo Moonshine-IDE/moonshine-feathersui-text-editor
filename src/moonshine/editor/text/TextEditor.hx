@@ -43,6 +43,7 @@ import moonshine.editor.text.theme.TextEditorStyles;
 import moonshine.editor.text.utils.AutoClosingPair;
 import moonshine.editor.text.utils.TextUtil;
 import openfl.Lib;
+import openfl.display.DisplayObject;
 import openfl.display.InteractiveObject;
 import openfl.errors.IllegalOperationError;
 import openfl.events.Event;
@@ -55,6 +56,7 @@ import openfl.text.TextFormat;
 	A multiline text editor for code.
 **/
 @:event(feathers.events.ScrollEvent.SCROLL)
+@:styleContext
 class TextEditor extends FeathersControl implements IFocusObject implements IStageFocusDelegate {
 	public static final CHILD_VARIANT_LIST_VIEW = "textEditor_listView";
 
@@ -640,6 +642,12 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	**/
 	public var blockComment:Array<String> = null;
 
+	@:style
+	public var backgroundSkin:DisplayObject = null;
+
+	@:style
+	public var disabledBackgroundSkin:DisplayObject = null;
+
 	/**
 		Updates the code parser used for syntax highlighting.
 	**/
@@ -1104,6 +1112,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	override private function update():Void {
 		var dataInvalid = isInvalid(DATA);
 		var scrollInvalid = isInvalid(SCROLL);
+		var stylesInvalid = isInvalid(STYLES);
 
 		if (_parser == null) {
 			_parser = new PlainTextLineParser();
@@ -1112,6 +1121,11 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 
 		if (dataInvalid) {
 			_listView.dataProvider = _lines;
+		}
+
+		if (stylesInvalid) {
+			_listView.backgroundSkin = backgroundSkin;
+			_listView.disabledBackgroundSkin = disabledBackgroundSkin;
 		}
 
 		layoutContent();
@@ -1210,6 +1224,8 @@ private class TextEditorListView extends ListView {
 		super();
 		selectable = false;
 		// scrollPixelSnapping = true;
+		backgroundSkin = null;
+		disabledBackgroundSkin = null;
 	}
 
 	@:getter(tabEnabled)

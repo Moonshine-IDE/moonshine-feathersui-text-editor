@@ -18,6 +18,7 @@
 package moonshine.editor.text.theme;
 
 import feathers.controls.ListView;
+import feathers.skins.RectangleSkin;
 import feathers.style.Theme;
 import feathers.themes.steel.BaseSteelTheme;
 
@@ -33,9 +34,16 @@ class TextEditorStyles {
 		}
 
 		var styleProvider = theme.styleProvider;
-		/*if (styleProvider.getStyleFunction(TextEditor, null) == null) {
-			styleProvider.setStyleFunction(TextEditor, null, function(textEditor:TextEditor):Void {});
-		}*/
+		if (styleProvider.getStyleFunction(TextEditor, null) == null) {
+			styleProvider.setStyleFunction(TextEditor, null, function(textEditor:TextEditor):Void {
+				if (textEditor.backgroundSkin == null) {
+					var backgroundSkin = new RectangleSkin(SolidColor(0xfdfdfd));
+					backgroundSkin.width = 10.0;
+					backgroundSkin.height = 10.0;
+					textEditor.backgroundSkin = backgroundSkin;
+				}
+			});
+		}
 		if (styleProvider.getStyleFunction(ListView, TextEditor.CHILD_VARIANT_LIST_VIEW) == null) {
 			styleProvider.setStyleFunction(ListView, TextEditor.CHILD_VARIANT_LIST_VIEW, function(listView:ListView):Void {
 				styleProvider.getStyleFunction(ListView, null)(listView);
