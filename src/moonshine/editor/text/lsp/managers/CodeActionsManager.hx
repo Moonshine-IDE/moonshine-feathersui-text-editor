@@ -46,6 +46,7 @@ class CodeActionsManager {
 		_textEditor.addEventListener(KeyboardEvent.KEY_DOWN, codeActionsManager_textEditor_keyDownHandler, false, 0, true);
 		_textEditor.addEventListener(TextEditorEvent.SELECTION_CHANGE, codeActionsManager_textEditor_selectionChangeHandler, false, 0, true);
 		_textEditor.addEventListener(FocusEvent.FOCUS_IN, codeActionsManager_textEditor_focusInHandler, false, 0, true);
+		_textEditor.addEventListener(FocusEvent.FOCUS_OUT, codeActionsManager_textEditor_focusOutHandler, false, 0, true);
 		_textEditor.addEventListener(ScrollEvent.SCROLL, codeActionsManager_textEditor_scrollHandler, false, 0, true);
 	}
 
@@ -262,6 +263,10 @@ class CodeActionsManager {
 
 	private function codeActionsManager_textEditor_focusInHandler(event:FocusEvent):Void {
 		newRequest();
+	}
+
+	private function codeActionsManager_textEditor_focusOutHandler(event:FocusEvent):Void {
+		closeCodeActionsView();
 	}
 
 	private function codeActionsManager_textEditor_keyDownHandler(event:KeyboardEvent):Void {
