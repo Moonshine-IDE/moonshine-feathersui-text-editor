@@ -430,13 +430,21 @@ class EditManager {
 					_textEditor.setSelection(lineIndex, newCaretCharIndex, lineIndex, newCaretCharIndex);
 					return;
 				}
-				if (autoClosingPair.open == text) {
+				var expandedText = text;
+				if (autoClosingPair.open.length > 1) {
+					var lineText = _textEditor.caretLine.text;
+					var numChars = autoClosingPair.open.length - expandedText.length;
+					if (numChars > 0 && charIndex >= numChars) {
+						expandedText = lineText.substr(charIndex - numChars, numChars) + expandedText;
+					}
+				}
+				if (autoClosingPair.open == expandedText) {
 					var startLineText = _textEditor.caretLine.text.substr(0, charIndex);
 					var needsClose = !textEndsInUnterminatedStringOrComment(startLineText);
 					if (needsClose) {
 						text += autoClosingPair.close;
 						dispatchChanges([new TextEditorChange(lineIndex, charIndex, lineIndex, charIndex, text)]);
-						var newCaretCharIndex = charIndex + autoClosingPair.open.length;
+						var newCaretCharIndex = charIndex + text.length - autoClosingPair.close.length;
 						_textEditor.setSelection(lineIndex, newCaretCharIndex, lineIndex, newCaretCharIndex);
 						_activeAutoClosingPair = autoClosingPair;
 						_activeAutoClosingPairLineIndex = lineIndex;
