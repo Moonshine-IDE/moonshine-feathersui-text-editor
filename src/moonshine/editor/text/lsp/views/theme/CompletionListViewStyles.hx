@@ -36,7 +36,7 @@ class CompletionListViewStyles {
 		}
 
 		var styleProvider = theme.styleProvider;
-		if (styleProvider.getStyleFunction(CompletionItemRenderer, null) == null) {
+		if (styleProvider.getStyleFunction(ListView, CompletionManager.VARIANT_COMPLETION_LIST_VIEW) == null) {
 			styleProvider.setStyleFunction(ListView, CompletionManager.VARIANT_COMPLETION_LIST_VIEW, function(listView:ListView):Void {
 				setCompletionListViewStyles(listView, theme);
 			});
