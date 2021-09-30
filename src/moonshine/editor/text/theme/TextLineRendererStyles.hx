@@ -57,6 +57,11 @@ class TextLineRendererStyles {
 				if (view.selectedTextUnfocusedBackgroundSkin == null) {
 					view.selectedTextUnfocusedBackgroundSkin = new RectangleSkin(SolidColor(0xd1d3d9));
 				}
+				if (view.gutterBackgroundSkin == null) {
+					var gutterBackgroundSkin = new RectangleSkin(SolidColor(0xfdfdfd));
+					gutterBackgroundSkin.height = 16.0;
+					view.gutterBackgroundSkin = gutterBackgroundSkin;
+				}
 				if (view.searchResultBackgroundSkinFactory == null) {
 					view.searchResultBackgroundSkinFactory = () -> {
 						return new RectangleSkin(SolidColor(0xffb2ff));
