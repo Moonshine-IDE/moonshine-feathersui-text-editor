@@ -562,9 +562,18 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	}
 
 	private function set_breakpoints(value:Array<Int>):Array<Int> {
+		var changed = false;
 		for (i in 0..._lines.length) {
 			var line = _lines.get(i);
+			var oldValue = line.breakpoint;
 			line.breakpoint = value.contains(i);
+			if (oldValue != line.breakpoint) {
+				changed = true;
+			}
+		}
+		if (changed) {
+			_lines.updateAll();
+			setInvalid(DATA);
 		}
 		return value;
 	}
