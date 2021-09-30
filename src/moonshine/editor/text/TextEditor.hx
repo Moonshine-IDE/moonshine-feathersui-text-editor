@@ -586,7 +586,13 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		if (_debuggerLineIndex == value) {
 			return _debuggerLineIndex;
 		}
+		if (_debuggerLineIndex != -1) {
+			_lines.updateAt(_debuggerLineIndex);
+		}
 		_debuggerLineIndex = value;
+		if (_debuggerLineIndex != -1) {
+			_lines.updateAt(_debuggerLineIndex);
+		}
 		setInvalid(DATA);
 		return _debuggerLineIndex;
 	}
