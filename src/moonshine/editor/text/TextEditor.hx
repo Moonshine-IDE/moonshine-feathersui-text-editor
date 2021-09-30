@@ -579,7 +579,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	public var debuggerLineIndex(get, set):Int;
 
 	private function get_debuggerLineIndex():Int {
-		return _caretLineIndex;
+		return _debuggerLineIndex;
 	}
 
 	private function set_debuggerLineIndex(value:Int):Int {
