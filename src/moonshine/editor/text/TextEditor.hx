@@ -835,6 +835,10 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		var textLineRenderer = cast(_listView.itemToItemRenderer(line), TextLineRenderer);
 		if (textLineRenderer != null) {
 			var bounds = textLineRenderer.getCharBoundaries(pos.character);
+			if (bounds == null) {
+				// we can't find the position
+				return null;
+			}
 			charX = bounds.x;
 			charWidth = bounds.width;
 		} else {
@@ -846,11 +850,17 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			Lib.current.stage.addChild(textLineRenderer);
 			textLineRenderer.validateNow();
 			var bounds = textLineRenderer.getCharBoundaries(pos.character);
-			charX = bounds.x;
-			charWidth = bounds.width;
+			if (bounds != null) {
+				charX = bounds.x;
+				charWidth = bounds.width;
+			}
 			resetTextLineRenderer(textLineRenderer, state);
 			Lib.current.stage.removeChild(textLineRenderer);
 			destroyTextLineRenderer(textLineRenderer);
+			if (bounds == null) {
+				// we can't find the position
+				return null;
+			}
 		}
 		var localX = _viewPortVisibleBounds.x + charX - _listView.scrollX;
 		var localY = _viewPortVisibleBounds.y + (lineHeight * lineIndex) - _listView.scrollY;
@@ -871,6 +881,10 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		var textLineRenderer = cast(_listView.itemToItemRenderer(line), TextLineRenderer);
 		if (textLineRenderer != null) {
 			var bounds = textLineRenderer.getCharBoundaries(pos.character);
+			if (bounds == null) {
+				// we can't find the position
+				return null;
+			}
 			charX = bounds.x;
 		} else {
 			var state = new ListViewItemState(line, lineIndex, false, line.text);
@@ -881,10 +895,16 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			Lib.current.stage.addChild(textLineRenderer);
 			textLineRenderer.validateNow();
 			var bounds = textLineRenderer.getCharBoundaries(pos.character);
-			charX = bounds.x;
+			if (bounds != null) {
+				charX = bounds.x;
+			}
 			resetTextLineRenderer(textLineRenderer, state);
 			Lib.current.stage.removeChild(textLineRenderer);
 			destroyTextLineRenderer(textLineRenderer);
+			if (bounds == null) {
+				// we can't find the position
+				return null;
+			}
 		}
 		var localX = _viewPortVisibleBounds.x + charX - _listView.scrollX;
 		var localY = _viewPortVisibleBounds.y + lineHeight * pos.line - _listView.scrollY;
