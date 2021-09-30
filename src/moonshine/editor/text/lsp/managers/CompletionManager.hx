@@ -109,6 +109,7 @@ class CompletionManager {
 	private var _initialFilterTextLength:Int = 0;
 	private var _isIncomplete:Bool = false;
 	private var _prevSelectedIndex:Int = -1;
+	private var _prevSelectedItem:Dynamic = null;
 	private var _sharedObject:SharedObject;
 	private var _ignoreCompletionListViewResize:Bool = false;
 	private var _ignoreCompletionDetailViewResize:Bool = false;
@@ -173,6 +174,7 @@ class CompletionManager {
 		_textEditor.stage.addEventListener(MouseEvent.MOUSE_DOWN, completionManager_textEditor_stage_mouseDownHandler, false, 0, true);
 		PopUpManager.addPopUp(_completionListView, _textEditor, false, false);
 		_prevSelectedIndex = -1;
+		_prevSelectedItem = null;
 		if (items.length > 0) {
 			_completionListView.selectedIndex = 0;
 		}
@@ -748,10 +750,12 @@ class CompletionManager {
 		if (selectedIndex == -1) {
 			return;
 		}
-		if (selectedIndex == _prevSelectedIndex) {
+		var selectedItem = _completionListView.selectedItem;
+		if (selectedIndex == _prevSelectedIndex && selectedItem == _prevSelectedItem) {
 			return;
 		}
 		_prevSelectedIndex = selectedIndex;
+		_prevSelectedItem = selectedItem;
 		var selectedItem = cast(_completionListView.selectedItem, CompletionItem);
 		var needsResolve = selectedItem != null && (selectedItem.documentation == null || selectedItem.detail == null);
 		if (!needsResolve) {
