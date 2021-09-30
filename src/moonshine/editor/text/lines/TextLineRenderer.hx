@@ -1169,11 +1169,12 @@ class TextLineRenderer extends FeathersControl {
 		}
 
 		if (_currentBackgroundSkin != null) {
-			_currentBackgroundSkin.width = actualWidth - _gutterWidth;
 			_currentBackgroundSkin.height = actualHeight;
 			if (_currentGutterBackgroundSkin != null) {
+				_currentBackgroundSkin.width = actualWidth - _gutterWidth;
 				_currentBackgroundSkin.x = _gutterWidth;
 			} else {
+				_currentBackgroundSkin.width = actualWidth;
 				_currentBackgroundSkin.x = 0.0;
 			}
 			_currentBackgroundSkin.y = 0.0;
