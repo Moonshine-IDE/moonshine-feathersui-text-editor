@@ -41,12 +41,12 @@ class SignatureHelpViewStyles {
 				setSignatureHelpViewStyles(view, theme);
 			});
 		}
-		if (styleProvider.getStyleFunction(Button, null) == null) {
+		if (styleProvider.getStyleFunction(Button, SignatureHelpView.CHILD_VARIANT_PREVIOUS_SIGNATURE_BUTTON) == null) {
 			styleProvider.setStyleFunction(Button, SignatureHelpView.CHILD_VARIANT_PREVIOUS_SIGNATURE_BUTTON, function(button:Button):Void {
 				setSignatureHelpViewPreviousSignatureButtonStyles(button, theme);
 			});
 		}
-		if (styleProvider.getStyleFunction(Button, null) == null) {
+		if (styleProvider.getStyleFunction(Button, SignatureHelpView.CHILD_VARIANT_NEXT_SIGNATURE_BUTTON) == null) {
 			styleProvider.setStyleFunction(Button, SignatureHelpView.CHILD_VARIANT_NEXT_SIGNATURE_BUTTON, function(button:Button):Void {
 				setSignatureHelpViewNextSignatureButtonStyles(button, theme);
 			});
