@@ -215,7 +215,9 @@ class HoverManager {
 			return markupContent.value;
 		}
 		// MarkedString
-		return Reflect.field(original, "value");
+		var language = Reflect.field(original, "language");
+		var value = Reflect.field(original, "value");
+		return '```$language\n$value\n```';
 	}
 
 	private function stopRequestTimer():Void {
