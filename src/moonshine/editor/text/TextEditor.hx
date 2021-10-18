@@ -1167,6 +1167,8 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 
 		if (_parser == null) {
 			_parser = new PlainTextLineParser();
+		}
+		if (_textStyles == null) {
 			_textStyles = new PlainTextFormatBuilder().build();
 		}
 
