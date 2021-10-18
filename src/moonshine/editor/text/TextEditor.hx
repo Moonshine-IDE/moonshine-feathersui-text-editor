@@ -674,6 +674,9 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	@:style
 	public var disabledBackgroundSkin:DisplayObject = null;
 
+	@:style
+	public var customTextLineRendererVariant:String = null;
+
 	/**
 		Updates the code parser used for syntax highlighting.
 	**/
@@ -1174,6 +1177,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		if (stylesInvalid) {
 			_listView.backgroundSkin = backgroundSkin;
 			_listView.disabledBackgroundSkin = disabledBackgroundSkin;
+			_listView.customItemRendererVariant = customTextLineRendererVariant;
 		}
 
 		layoutContent();
