@@ -36,6 +36,15 @@ class FindReplaceManager {
 		// Get string once (it's built dynamically)
 		var str = _textEditor.text;
 
+		#if flash
+		if ((search is flash.utils.RegExp)) {
+			var r = Std.string(search);
+			var endIndex = r.lastIndexOf("/");
+			var opt = r.substr(endIndex + 1);
+			r = r.substr(1, endIndex - 1);
+			search = new EReg(r, opt);
+		}
+		#end
 		var searchRegExp = (search is EReg) ? (search : EReg) : null;
 		if (searchRegExp == null && search != null) {
 			var searchStr = Std.string(search);
