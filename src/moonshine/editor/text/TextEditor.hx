@@ -547,35 +547,41 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 
 	public var allowToggleBreakpoints:Bool = false;
 
+	private var _breakpoints:Array<Int> = [];
+
 	@:flash.property
 	public var breakpoints(get, set):Array<Int>;
 
 	private function get_breakpoints():Array<Int> {
-		var result:Array<Int> = [];
-		for (i in 0..._lines.length) {
-			var line = _lines.get(i);
-			if (line.breakpoint) {
-				result.push(i);
-			}
-		}
-		return result;
+		return _breakpoints;
 	}
 
 	private function set_breakpoints(value:Array<Int>):Array<Int> {
-		var changed = false;
-		for (i in 0..._lines.length) {
-			var line = _lines.get(i);
-			var oldValue = line.breakpoint;
-			line.breakpoint = value.contains(i);
-			if (oldValue != line.breakpoint) {
-				changed = true;
+		if(value == null) {
+			value = [];
+		}
+		if (_breakpoints == value) {
+			return _breakpoints;
+		}
+		if (_breakpoints != null) {
+			for (breakpoint in _breakpoints) {
+				if (breakpoint < 0 || breakpoint >= _lines.length) {
+					continue;
+				}
+				_lines.updateAt(breakpoint);
 			}
 		}
-		if (changed) {
-			_lines.updateAll();
-			setInvalid(DATA);
+		_breakpoints = value;
+		if (_breakpoints != null) {
+			for (breakpoint in _breakpoints) {
+				if (breakpoint < 0 || breakpoint >= _lines.length) {
+					continue;
+				}
+				_lines.updateAt(breakpoint);
+			}
 		}
-		return value;
+		setInvalid(DATA);
+		return _breakpoints;
 	}
 
 	private var _debuggerLineIndex:Int = -1;
@@ -595,11 +601,11 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		if (_debuggerLineIndex == value) {
 			return _debuggerLineIndex;
 		}
-		if (_debuggerLineIndex != -1) {
+		if (_debuggerLineIndex >= 0 && _debuggerLineIndex < _lines.length) {
 			_lines.updateAt(_debuggerLineIndex);
 		}
 		_debuggerLineIndex = value;
-		if (_debuggerLineIndex != -1) {
+		if (_debuggerLineIndex >= 0 && _debuggerLineIndex < _lines.length) {
 			_lines.updateAt(_debuggerLineIndex);
 		}
 		setInvalid(DATA);
@@ -1068,7 +1074,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		itemRenderer.numLines = _lines.length;
 		itemRenderer.tabWidth = _tabWidth;
 		itemRenderer.scrollX = _listView.scrollX;
-		itemRenderer.breakpoint = lineModel.breakpoint;
+		itemRenderer.breakpoint = _breakpoints != null && _breakpoints.indexOf(lineModel.lineIndex) != -1;
 		itemRenderer.allowToggleBreakpoints = allowToggleBreakpoints;
 		itemRenderer.debuggerStopped = _debuggerLineIndex == lineModel.lineIndex;
 		itemRenderer.styleRanges = lineModel.styleRanges;
@@ -1242,12 +1248,19 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			return;
 		}
 		var lineIndex = event.lineIndex;
+		var newBreakpoints:Array<Int> = _breakpoints.copy();
+		var foundIndex = newBreakpoints.indexOf(lineIndex);
+		if (foundIndex == -1) {
+			newBreakpoints.push(lineIndex);
+		} else {
+			newBreakpoints.splice(foundIndex, 1);
+		}
 		var line = _lines.get(lineIndex);
-		line.breakpoint = !line.breakpoint;
 		var textLineRenderer = cast(_listView.itemToItemRenderer(line), TextLineRenderer);
 		if (textLineRenderer != null) {
-			textLineRenderer.breakpoint = line.breakpoint;
+			textLineRenderer.breakpoint = foundIndex == -1;
 		}
+		_breakpoints = newBreakpoints;
 		dispatchEvent(new TextEditorLineEvent(TextEditorLineEvent.TOGGLE_BREAKPOINT, lineIndex));
 	}
 

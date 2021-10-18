@@ -29,7 +29,6 @@ class TextLineModel extends EventDispatcher {
 	public var lineIndex:Int;
 	public var caretIndex:Int = -1;
 	public var text:String;
-	public var breakpoint:Bool;
 	public var debuggerStoppedAtLine:Bool;
 
 	public var styleRanges:Array<Int> = [0, 0];
