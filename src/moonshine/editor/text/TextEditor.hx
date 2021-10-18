@@ -23,6 +23,7 @@ import feathers.core.IFocusObject;
 import feathers.core.IStageFocusDelegate;
 import feathers.data.ArrayCollection;
 import feathers.data.ListViewItemState;
+import feathers.events.FlatCollectionEvent;
 import feathers.events.ScrollEvent;
 import feathers.layout.VerticalListLayout;
 import feathers.utils.DisplayObjectRecycler;
@@ -181,9 +182,13 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			lineModels[i] = new TextLineModel(lines[i], i);
 		}
 		if (_lines != null) {
+			_lines.removeEventListener(FlatCollectionEvent.ADD_ITEM, textEditor_lines_addItemHandler);
+			_lines.removeEventListener(FlatCollectionEvent.REMOVE_ITEM, textEditor_lines_removeItemHandler);
 			_lines.removeEventListener(Event.CHANGE, textEditor_lines_changeHandler);
 		}
 		_lines = new ArrayCollection(lineModels);
+		_lines.addEventListener(FlatCollectionEvent.ADD_ITEM, textEditor_lines_addItemHandler);
+		_lines.addEventListener(FlatCollectionEvent.REMOVE_ITEM, textEditor_lines_removeItemHandler);
 		_lines.addEventListener(Event.CHANGE, textEditor_lines_changeHandler);
 
 		_colorManager.reset();
@@ -557,7 +562,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	}
 
 	private function set_breakpoints(value:Array<Int>):Array<Int> {
-		if(value == null) {
+		if (value == null) {
 			value = [];
 		}
 		if (_breakpoints == value) {
@@ -1272,6 +1277,50 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 
 	private function textEditor_lines_changeHandler(event:Event):Void {
 		setInvalid(DATA);
+	}
+
+	private function textEditor_lines_addItemHandler(event:FlatCollectionEvent):Void {
+		var newBreakpoints = [];
+		var addedBreakpoints:Array<Int> = [];
+		for (breakpoint in _breakpoints) {
+			if (breakpoint < event.index) {
+				newBreakpoints.push(breakpoint);
+				continue;
+			}
+			dispatchEvent(new TextEditorLineEvent(TextEditorLineEvent.TOGGLE_BREAKPOINT, breakpoint));
+			var updatedBreakpoint = breakpoint + 1;
+			newBreakpoints.push(updatedBreakpoint);
+			addedBreakpoints.push(updatedBreakpoint);
+		}
+		_breakpoints = newBreakpoints;
+		for (breakpoint in addedBreakpoints) {
+			dispatchEvent(new TextEditorLineEvent(TextEditorLineEvent.TOGGLE_BREAKPOINT, breakpoint));
+		}
+	}
+
+	private function textEditor_lines_removeItemHandler(event:FlatCollectionEvent):Void {
+		var newBreakpoints = [];
+		var addedBreakpoints:Array<Int> = [];
+		for (breakpoint in _breakpoints) {
+			if (breakpoint < event.index) {
+				newBreakpoints.push(breakpoint);
+				continue;
+			}
+			dispatchEvent(new TextEditorLineEvent(TextEditorLineEvent.TOGGLE_BREAKPOINT, breakpoint));
+			if (breakpoint == event.index) {
+				continue;
+			}
+			var updatedBreakpoint = breakpoint - 1;
+			if (updatedBreakpoint < 0) {
+				continue;
+			}
+			newBreakpoints.push(updatedBreakpoint);
+			addedBreakpoints.push(updatedBreakpoint);
+		}
+		_breakpoints = newBreakpoints;
+		for (breakpoint in addedBreakpoints) {
+			dispatchEvent(new TextEditorLineEvent(TextEditorLineEvent.TOGGLE_BREAKPOINT, breakpoint));
+		}
 	}
 }
 
