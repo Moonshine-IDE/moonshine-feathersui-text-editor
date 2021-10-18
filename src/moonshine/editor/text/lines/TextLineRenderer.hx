@@ -968,7 +968,7 @@ class TextLineRenderer extends FeathersControl {
 	private function refreshCaretSkin():Void {
 		var caretColor = 0x000000;
 		if (textStyles != null) {
-			textStyles.get(_defaultTextStyleContext).color;
+			caretColor = textStyles.get(_defaultTextStyleContext).color;
 		}
 		if (_caretSkin == null) {
 			_caretSkin = new RectangleSkin(SolidColor(caretColor));
