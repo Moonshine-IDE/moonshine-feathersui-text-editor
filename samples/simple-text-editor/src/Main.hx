@@ -550,11 +550,13 @@ class Main extends Application {
 	private function findNextButton_triggerHandler(event:TriggerEvent):Void {
 		_findResult = _textEditor.findNext(false);
 		refreshStatus();
+		_textEditor.focusManager.focus = _textEditor;
 	}
 
 	private function findPrevButton_triggerHandler(event:TriggerEvent):Void {
 		_findResult = _textEditor.findNext(true);
 		refreshStatus();
+		_textEditor.focusManager.focus = _textEditor;
 	}
 
 	private function replaceInput_keyDownHandler(event:KeyboardEvent):Void {
@@ -568,11 +570,13 @@ class Main extends Application {
 	private function replaceOneButton_triggerHandler(event:TriggerEvent):Void {
 		_findResult = _textEditor.replaceOne(_replaceInput.text);
 		refreshStatus();
+		_textEditor.focusManager.focus = _textEditor;
 	}
 
 	private function replaceAllButton_triggerHandler(event:TriggerEvent):Void {
 		_findResult = _textEditor.replaceAll(_replaceInput.text);
 		refreshStatus();
+		_textEditor.focusManager.focus = _textEditor;
 	}
 
 	private function stage_keyDownHandler(event:KeyboardEvent):Void {
