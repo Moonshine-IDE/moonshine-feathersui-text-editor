@@ -435,8 +435,36 @@ class CompletionManager {
 		}));
 	}
 
+	private function resolveSnippet(text:String):Snippet {
+		var resolvedText = text;
+		var newCaretLineOffset = -1;
+		var newCaretCharOffset = -1;
+		var lines = resolvedText.split("\n");
+		for (i in 0...lines.length) {
+			var snippetMatcher = ~/\$(\d+)/g;
+			lines[i] = snippetMatcher.map(lines[i], f -> {
+				var matchedIndexString = snippetMatcher.matched(1);
+				var result = "";
+				if (matchedIndexString == null) {
+					matchedIndexString = snippetMatcher.matched(2);
+					result = snippetMatcher.matched(3);
+				}
+				var matchedIndex = Std.parseInt(matchedIndexString);
+				if (matchedIndex == 0) {
+					newCaretLineOffset = i;
+					newCaretCharOffset = snippetMatcher.matchedPos().pos;
+				}
+				return result;
+			});
+		}
+		resolvedText = lines.join("\n");
+		return new Snippet(resolvedText, newCaretLineOffset, newCaretCharOffset);
+	}
+
 	private function applyCompletionItem(item:CompletionItem):Void {
 		var change:TextEditorChange = null;
+		var newCaretLineIndex = -1;
+		var newCaretCharIndex = -1;
 		if (item.textEdit != null) {
 			change = LspTextEditorUtil.lspTextEditToTextEditorChange(item.textEdit);
 			if (change.endChar < _textEditor.caretCharIndex) {
@@ -452,11 +480,27 @@ class CompletionManager {
 			var pos = _currentRequestParams.position;
 			change = new TextEditorChange(pos.line, pos.character - _filterText.length, pos.line, pos.character, text);
 		}
+		if (item.insertTextFormat == Snippet) {
+			var snippet = resolveSnippet(change.newText);
+			if (snippet.newCaretLineOffset != -1 && snippet.newCaretCharOffset != -1) {
+				if (snippet.newCaretLineOffset > 0) {
+					newCaretLineIndex = change.startLine + snippet.newCaretLineOffset;
+					newCaretCharIndex = snippet.newCaretCharOffset;
+				} else {
+					newCaretLineIndex = change.startLine;
+					newCaretCharIndex = change.startChar + snippet.newCaretCharOffset;
+				}
+			}
+			change = new TextEditorChange(change.startLine, change.startChar, change.endLine, change.endChar, snippet.text);
+		}
 		var changes = [change];
 		if (item.additionalTextEdits != null) {
 			changes = changes.concat(item.additionalTextEdits.map(textEdit -> LspTextEditorUtil.lspTextEditToTextEditorChange(textEdit)));
 		}
 		_textEditor.dispatchEvent(new TextEditorChangeEvent(TextEditorChangeEvent.TEXT_CHANGE, changes));
+		if (newCaretLineIndex != -1 && newCaretCharIndex != -1) {
+			_textEditor.setSelection(newCaretLineIndex, newCaretCharIndex, newCaretLineIndex, newCaretCharIndex);
+		}
 		if (item.command != null) {
 			_textEditor.dispatchEvent(new LspTextEditorLanguageActionEvent(LspTextEditorLanguageActionEvent.RUN_COMMAND, item.command));
 		}
@@ -784,4 +828,16 @@ class CompletionManager {
 		_sharedObject.data.showDetail = false;
 		PopUpManager.removePopUp(_completionDetailView);
 	}
+}
+
+private class Snippet {
+	public function new(text:String, newCaretLineOffset:Int, newCaretCharOffset:Int) {
+		this.text = text;
+		this.newCaretLineOffset = newCaretLineOffset;
+		this.newCaretCharOffset = newCaretCharOffset;
+	}
+
+	public var text:String;
+	public var newCaretLineOffset:Int;
+	public var newCaretCharOffset:Int;
 }
