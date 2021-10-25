@@ -26,8 +26,29 @@ class CommandManager {
 	public function new(textEditor:LspTextEditor) {
 		_textEditor = textEditor;
 
+		registerCommand("editor.action.revealDefinition", () -> {
+			_textEditor.definition();
+		});
+		registerCommand("editor.action.selectAll", () -> {
+			_textEditor.selectAll();
+		});
+		registerCommand("editor.action.showHover", () -> {
+			_textEditor.hover();
+		});
 		registerCommand("editor.action.triggerParameterHints", () -> {
 			_textEditor.signatureHelp();
+		});
+		registerCommand("editor.action.triggerSuggest", () -> {
+			_textEditor.completion();
+		});
+		registerCommand("editor.action.commentLine", () -> {
+			_textEditor.toggleLineComment();
+		});
+		registerCommand("editor.action.blockComment", () -> {
+			_textEditor.toggleBlockComment();
+		});
+		registerCommand("editor.debug.action.toggleBreakpoint", () -> {
+			_textEditor.toggleBreakpoint();
 		});
 	}
 

@@ -550,10 +550,17 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	**/
 	public var insertSpacesForTabs:Bool = false;
 
+	/**
+		Indicates if the user is allowed to toggle breakpoints by clicking
+		inside a line's gutter.
+	**/
 	public var allowToggleBreakpoints:Bool = false;
 
 	private var _breakpoints:Array<Int> = [];
 
+	/**
+		The current set of breakpoints.
+	**/
 	@:flash.property
 	public var breakpoints(get, set):Array<Int>;
 
@@ -705,6 +712,30 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	}
 
 	/**
+		Toggles a breakpoint at the specified line index. If no line index is
+		specified, toggles a breakpoint at the current caret line index.
+	**/
+	public function toggleBreakpoint(?lineIndex:Int):Void {
+		if (lineIndex == null) {
+			lineIndex = _caretLineIndex;
+		}
+		var newBreakpoints:Array<Int> = _breakpoints.copy();
+		var foundIndex = newBreakpoints.indexOf(lineIndex);
+		if (foundIndex == -1) {
+			newBreakpoints.push(lineIndex);
+		} else {
+			newBreakpoints.splice(foundIndex, 1);
+		}
+		var line = _lines.get(lineIndex);
+		var textLineRenderer = cast(_listView.itemToItemRenderer(line), TextLineRenderer);
+		if (textLineRenderer != null) {
+			textLineRenderer.breakpoint = foundIndex == -1;
+		}
+		_breakpoints = newBreakpoints;
+		dispatchEvent(new TextEditorLineEvent(TextEditorLineEvent.TOGGLE_BREAKPOINT, lineIndex));
+	}
+
+	/**
 		Toggles line comments for the currently selected lines (or the line with
 		the caret, if no lines are selected).
 	**/
@@ -798,6 +829,13 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	**/
 	public function setSelection(startLine:Int, startChar:Int, endLine:Int, endChar:Int):Void {
 		setSelectionAdvanced(startLine, startChar, endLine, endChar, true);
+	}
+
+	/**
+		Selects the entire text.
+	**/
+	public function selectAll():Void {
+		setSelection(0, 0, _lines.length - 1, _lines.get(_lines.length - 1).text.length);
 	}
 
 	/**
@@ -1259,20 +1297,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			return;
 		}
 		var lineIndex = event.lineIndex;
-		var newBreakpoints:Array<Int> = _breakpoints.copy();
-		var foundIndex = newBreakpoints.indexOf(lineIndex);
-		if (foundIndex == -1) {
-			newBreakpoints.push(lineIndex);
-		} else {
-			newBreakpoints.splice(foundIndex, 1);
-		}
-		var line = _lines.get(lineIndex);
-		var textLineRenderer = cast(_listView.itemToItemRenderer(line), TextLineRenderer);
-		if (textLineRenderer != null) {
-			textLineRenderer.breakpoint = foundIndex == -1;
-		}
-		_breakpoints = newBreakpoints;
-		dispatchEvent(new TextEditorLineEvent(TextEditorLineEvent.TOGGLE_BREAKPOINT, lineIndex));
+		toggleBreakpoint(lineIndex);
 	}
 
 	private function textEditor_textLineRenderer_selectLineHandler(event:TextEditorLineEvent):Void {
