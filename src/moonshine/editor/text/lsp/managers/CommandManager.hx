@@ -17,10 +17,10 @@
 
 package moonshine.editor.text.lsp.managers;
 
-import openfl.errors.ArgumentError;
-import moonshine.lsp.Command;
-import openfl.utils.Promise;
 import haxe.Constraints.Function;
+import moonshine.lsp.Command;
+import openfl.errors.ArgumentError;
+import openfl.utils.Future;
 
 class CommandManager {
 	public function new(textEditor:LspTextEditor) {
@@ -69,8 +69,16 @@ class CommandManager {
 		if (callback == null) {
 			return;
 		}
-		if ((result is Promise)) {
-			(result : Promise<Dynamic>).future.onComplete(cast callback);
+		#if (openfl >= "9.0.0")
+		if ((result is openfl.utils.Promise)) {
+			var promise = cast(result, openfl.utils.Promise<Dynamic>);
+			promise.future.onComplete(cast callback);
+			return;
+		} else
+		#end
+		if ((result is Future)) {
+			var future = cast(result, Future<Dynamic>);
+			future.onComplete(cast callback);
 			return;
 		}
 		callback(result);
