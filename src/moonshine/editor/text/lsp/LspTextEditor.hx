@@ -23,6 +23,7 @@ import moonshine.editor.text.lines.TextLineRenderer;
 import moonshine.editor.text.lsp.events.LspTextEditorLanguageActionEvent;
 import moonshine.editor.text.lsp.lines.LspTextLineRenderer;
 import moonshine.editor.text.lsp.managers.CodeActionsManager;
+import moonshine.editor.text.lsp.managers.CommandManager;
 import moonshine.editor.text.lsp.managers.CompletionManager;
 import moonshine.editor.text.lsp.managers.DefinitionManager;
 import moonshine.editor.text.lsp.managers.HoverManager;
@@ -30,6 +31,7 @@ import moonshine.editor.text.lsp.managers.SignatureHelpManager;
 import moonshine.editor.text.utils.LspTextEditorUtil;
 import moonshine.editor.text.utils.TextUtil;
 import moonshine.lsp.CodeAction;
+import moonshine.lsp.Command;
 import moonshine.lsp.Diagnostic;
 import moonshine.lsp.LocationLink;
 import moonshine.lsp.Position;
@@ -48,6 +50,7 @@ class LspTextEditor extends TextEditor {
 			_completionManager = new CompletionManager(this);
 			_signatureHelpManager = new SignatureHelpManager(this);
 			_codeActionsManager = new CodeActionsManager(this, activateCodeAction);
+			_commandManager = new CommandManager(this);
 		}
 		_hoverManager = new HoverManager(this);
 		_definitionManager = new DefinitionManager(this, handleDefinition, handleDefinitionLink);
@@ -58,6 +61,7 @@ class LspTextEditor extends TextEditor {
 	private var _hoverManager:HoverManager;
 	private var _definitionManager:DefinitionManager;
 	private var _codeActionsManager:CodeActionsManager;
+	private var _commandManager:CommandManager;
 
 	private var _linksPosition:Position;
 	private var _linkStartChar:Int = -1;
@@ -178,7 +182,7 @@ class LspTextEditor extends TextEditor {
 
 	public function completion():Void {
 		if (_readOnly) {
-			throw new IllegalOperationError("Completion is not allowed in a read-only text editor editor");
+			throw new IllegalOperationError("Completion is not allowed in a read-only text editor");
 		}
 		_completionManager.dispatchCompletionEvent({
 			textDocument: _textDocument,
@@ -207,9 +211,20 @@ class LspTextEditor extends TextEditor {
 		});
 	}
 
+	public function runCommand(command:Command):Void {
+		if (_readOnly) {
+			throw new IllegalOperationError("Commands are not allowed in a read-only text editor");
+		}
+		if (_commandManager.hasCommand(command.command)) {
+			_commandManager.runCommand(command);
+			return;
+		}
+		dispatchEvent(new LspTextEditorLanguageActionEvent(LspTextEditorLanguageActionEvent.RUN_COMMAND, command));
+	}
+
 	public function codeActions():Void {
 		if (_readOnly) {
-			throw new IllegalOperationError("Code actions are not allowed in a read-only text editor editor");
+			throw new IllegalOperationError("Code actions are not allowed in a read-only text editor");
 		}
 		var range:Range = if (hasSelection) {
 			new Range(new Position(selectionStartLineIndex, selectionStartCharIndex), new Position(selectionEndLineIndex, selectionEndCharIndex));
@@ -301,7 +316,7 @@ class LspTextEditor extends TextEditor {
 			dispatchEvent(new LspTextEditorLanguageActionEvent(LspTextEditorLanguageActionEvent.APPLY_WORKSPACE_EDIT, codeAction.edit));
 		}
 		if (codeAction.command != null) {
-			dispatchEvent(new LspTextEditorLanguageActionEvent(LspTextEditorLanguageActionEvent.RUN_COMMAND, codeAction.command));
+			runCommand(codeAction.command);
 		}
 	}
 

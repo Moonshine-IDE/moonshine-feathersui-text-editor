@@ -502,7 +502,7 @@ class CompletionManager {
 			_textEditor.setSelection(newCaretLineIndex, newCaretCharIndex, newCaretLineIndex, newCaretCharIndex);
 		}
 		if (item.command != null) {
-			_textEditor.dispatchEvent(new LspTextEditorLanguageActionEvent(LspTextEditorLanguageActionEvent.RUN_COMMAND, item.command));
+			_textEditor.runCommand(item.command);
 		}
 		_filterText = "";
 		if (_textEditor.focusManager != null) {
