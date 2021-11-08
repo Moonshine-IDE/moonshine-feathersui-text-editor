@@ -6,4 +6,13 @@ The text editor UI component used by [Moonshine IDE](https://moonshine-ide.com/)
 
 - Haxe v4.1
 - OpenFL v8.9.7
-- Feathers UI v1.0.0-beta.5
+- Feathers UI v1.0.0-beta.7
+
+## Installation
+
+This library is not yet available on Haxelib. To install, run the following commands in a terminal:
+
+```sh
+haxelib git moonshine-openfl-language-client https://github.com/Moonshine-IDE/moonshine-openfl-language-client.git
+haxelib git moonshine-feathersui-text-editor https://github.com/Moonshine-IDE/moonshine-feathersui-text-editor.git
+```
