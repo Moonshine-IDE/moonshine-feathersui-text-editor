@@ -23,7 +23,7 @@ jobs:
           haxelib install openfl 8.9.7 --quiet
           haxelib install actuate --quiet
           haxelib install markdown-openfl-textfield --quiet
-          haxelib git feathersui https://github.com/feathersui/feathersui-openfl.git --quiet
+          haxelib install feathersui --quiet
           haxelib git moonshine-openfl-language-client https://github.com/Moonshine-IDE/moonshine-openfl-language-client.git --quiet
           haxelib dev moonshine-feathersui-text-editor $GITHUB_WORKSPACE
       - name: Build Flash .swc library
