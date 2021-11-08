@@ -1,6 +1,6 @@
 # Diagnostics sample for Text Editor
 
-Demonstrates how to display diagnostics when using the `LspTextEditor` component.
+Demonstrates how to display diagnostics (compiler errors, warnings, and info messages) when using the `LspTextEditor` component.
 
 ### Run Sample
 

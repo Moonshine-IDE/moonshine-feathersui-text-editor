@@ -1,6 +1,6 @@
 # Breakpoints sample for Text Editor
 
-Demonstrates how to enable diagnostics when using the `TextEditor` component.
+Demonstrates how to enable toggling of breakpoints when using the `TextEditor` component.
 
 ### Run Sample
 
