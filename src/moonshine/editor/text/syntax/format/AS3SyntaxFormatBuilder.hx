@@ -20,22 +20,39 @@ package moonshine.editor.text.syntax.format;
 import moonshine.editor.text.syntax.parser.AS3LineParser;
 import openfl.text.TextFormat;
 
+/**
+	Builds the set of text styles for the ActionScript 3.0 (AS3) language.
+**/
 class AS3SyntaxFormatBuilder {
 	private var _colorSettings:SyntaxColorSettings;
 	private var _fontSettings:SyntaxFontSettings;
 
+	/**
+		Creates a new `AS3SyntaxFormatBuilder` object.
+	**/
 	public function new() {}
 
+	/**
+		Specifies the `SyntaxColorSettings` to use when creating the
+		`TextFormat` objects.
+	**/
 	public function setColorSettings(settings:SyntaxColorSettings):AS3SyntaxFormatBuilder {
 		_colorSettings = settings;
 		return this;
 	}
 
+	/**
+		Specifies the `SyntaxFontSettings` to use when creating the
+		`TextFormat` objects.
+	**/
 	public function setFontSettings(settings:SyntaxFontSettings):AS3SyntaxFormatBuilder {
 		_fontSettings = settings;
 		return this;
 	}
 
+	/**
+		Creates a mapping of language text styles to `TextFormat` objects.
+	**/
 	public function build():Map<Int, TextFormat> {
 		var formats:Map<Int, TextFormat> = [];
 		formats.set(0 /* default, parser fault */, getTextFormat(_colorSettings.invalidColor));

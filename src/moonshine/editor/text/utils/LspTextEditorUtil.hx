@@ -17,20 +17,36 @@
 
 package moonshine.editor.text.utils;
 
+import moonshine.editor.text.changes.TextEditorChange;
 import moonshine.lsp.Position;
 import moonshine.lsp.TextEdit;
-import moonshine.editor.text.changes.TextEditorChange;
 
+/**
+	Utility functions for the `LspTextEditor` component.
+**/
 class LspTextEditorUtil {
+	/**
+		Converts a `TextEdit` value object from the language server protocol
+		to a `TextEditorChange` object used by the `TextEditor` component.
+	**/
 	public static function lspTextEditToTextEditorChange(textEdit:TextEdit):TextEditorChange {
 		return new TextEditorChange(textEdit.range.start.line, textEdit.range.start.character, textEdit.range.end.line, textEdit.range.end.character,
 			textEdit.newText);
 	}
 
+	/**
+		Converts a `TextEditorPosition` value object from the language server
+		protocol to a `Position` object used by the `TextEditor`
+		component.
+	**/
 	public static function textEditorPositionToLspPosition(pos:TextEditorPosition):Position {
 		return new Position(pos.line, pos.character);
 	}
 
+	/**
+		Converts a `Position` used by the `TextEditor` component to a
+		`TextEditorPosition` value object from the language server protocol.
+	**/
 	public static function lspPositionToTextEditorPosition(pos:Position):TextEditorPosition {
 		return new TextEditorPosition(pos.line, pos.character);
 	}

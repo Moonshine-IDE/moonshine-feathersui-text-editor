@@ -17,23 +17,45 @@
 
 package moonshine.editor.text.lsp.events;
 
-import moonshine.lsp.WorkspaceEdit;
-import moonshine.lsp.CodeAction;
 import moonshine.lsp.Command;
 import moonshine.lsp.LocationLink;
+import moonshine.lsp.WorkspaceEdit;
 import openfl.events.Event;
 import openfl.events.EventType;
 
+/**
+	Events dispatched by a `LspTextEditor` when it needs to perform a
+	language-related action.
+**/
 class LspTextEditorLanguageActionEvent<T> extends Event {
+	/**
+		Dispatched when the text editor needs to apply a workspace edit, which
+		may affect other files.
+	**/
 	public static final APPLY_WORKSPACE_EDIT:EventType<LspTextEditorLanguageActionEvent<WorkspaceEdit>> = "applyWorkspaceEdit";
+
+	/**
+		Dispatched when the text editor needs to run a command.
+	**/
 	public static final RUN_COMMAND:EventType<LspTextEditorLanguageActionEvent<Command>> = "runCommand";
+
+	/**
+		Dispatched when the text editor needs to open a link, either to another
+		file or to an external URL.
+	**/
 	public static final OPEN_LINK:EventType<LspTextEditorLanguageActionEvent<Array<LocationLink>>> = "openLink";
 
+	/**
+		Creates a new `LspTextEditorLanguageActionEvent` object.
+	**/
 	public function new(type:String, data:T) {
 		super(type);
 		this.data = data;
 	}
 
+	/**
+		The data associated with the event type.
+	**/
 	public var data:T;
 
 	override public function clone():Event {

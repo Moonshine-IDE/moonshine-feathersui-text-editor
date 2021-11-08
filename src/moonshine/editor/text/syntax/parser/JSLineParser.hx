@@ -17,6 +17,10 @@
 
 package moonshine.editor.text.syntax.parser;
 
+/**
+	Parses lines of JavaScript (JS) code to determine how the syntax is
+	highlighted.
+**/
 class JSLineParser extends LineParser {
 	public static final JS_CODE:Int = 0x1;
 	public static final JS_STRING1:Int = 0x2;
@@ -32,6 +36,9 @@ class JSLineParser extends LineParser {
 	public static final JS_FUNCTION_KEYWORD:Int = 0xC;
 	public static final JS_TYPE_KEYWORD:Int = 0xD;
 
+	/**
+		Creates a new `JSLineParser` object.
+	**/
 	public function new() {
 		super();
 

@@ -35,7 +35,13 @@ import openfl.events.KeyboardEvent;
 import openfl.geom.Rectangle;
 import openfl.ui.Keyboard;
 
+/**
+	Used internally by `LspTextEditor` to manage code action requests.
+**/
 class CodeActionsManager {
+	/**
+		Creates a new `CodeActionsManager` object.
+	**/
 	public function new(textEditor:LspTextEditor, codeActionCallback:(CodeAction) -> Void) {
 		_textEditor = textEditor;
 
@@ -50,11 +56,56 @@ class CodeActionsManager {
 		_textEditor.addEventListener(ScrollEvent.SCROLL, codeActionsManager_textEditor_scrollHandler, false, 0, true);
 	}
 
+	/**
+		Specifies the value of `KeyboardEvent.ctrlKey` that is required to
+		trigger code actions.
+
+		@see `CodeActionsManager.shortcutKey`
+	**/
 	public var shortcutRequiresCtrl:Bool = true;
+
+	/**
+		Specifies the value of `KeyboardEvent.altKey` that is required to
+		trigger code actions.
+
+		@see `CodeActionsManager.shortcutKey`
+	**/
 	public var shortcutRequiresAlt:Bool = false;
+
+	/**
+		Specifies the value of `KeyboardEvent.shiftKey` that is required to
+		trigger code actions.
+
+		@see `CodeActionsManager.shortcutKey`
+	**/
 	public var shortcutRequiresShift:Bool = false;
+
+	/**
+		Specifies the value of `KeyboardEvent.commandKey` that is required to
+		trigger code actions.
+
+		@see `CodeActionsManager.shortcutKey`
+	**/
 	public var shortcutRequiresCommand:Bool = false;
+
+	/**
+		Specifies the value of `KeyboardEvent.controlKey` that is required to
+		trigger code actions.
+
+		@see `CodeActionsManager.shortcutKey`
+	**/
 	public var shortcutRequiresControl:Bool = false;
+
+	/**
+		The key used to trigger code actions, along with the specified
+		modifiers.
+
+		@see `CodeActionsManager.shortcutRequiresCtrl`
+		@see `CodeActionsManager.shortcutRequiresAlt`
+		@see `CodeActionsManager.shortcutRequiresShift`
+		@see `CodeActionsManager.shortcutRequiresCommand`
+		@see `CodeActionsManager.shortcutRequiresControl`
+	**/
 	public var shortcutKey:UInt = Keyboard.PERIOD;
 
 	private var _textEditor:LspTextEditor;
@@ -64,9 +115,36 @@ class CodeActionsManager {
 	private var _requestTimeoutID:Int = -1;
 	private var _codeActionsView:CodeActionsView;
 
+	/**
+		Aborts current request, if any, and closes the code actions view.
+	**/
 	public function clear():Void {
 		_currentRequestID = -1;
 		closeCodeActionsView();
+	}
+
+	/**
+		Sends a code actions request.
+	**/
+	public function dispatchCodeActionsEvent(params:CodeActionParams, open:Bool = false):Void {
+		_requestTimeoutID = -1;
+		if (params == null) {
+			_currentRequestParams = null;
+			closeCodeActionsView();
+			return;
+		}
+		if (_currentRequestID == 10000) {
+			// we don't want the counter to overflow into negative numbers
+			// this should be a reasonable time to reset it
+			_currentRequestID = -1;
+		}
+		_currentRequestID++;
+		var requestID = _currentRequestID;
+		_currentRequestParams = params;
+		_currentOpenOnResponse = open;
+		_textEditor.dispatchEvent(new LspTextEditorLanguageRequestEvent(LspTextEditorLanguageRequestEvent.REQUEST_CODE_ACTIONS, params, result -> {
+			handleCodeActions(requestID, result);
+		}));
 	}
 
 	private function handleCodeActions(requestID:Int, result:Array<CodeAction>):Void {
@@ -211,27 +289,6 @@ class CodeActionsManager {
 			}
 		};
 		dispatchCodeActionsEvent(params, open);
-	}
-
-	public function dispatchCodeActionsEvent(params:CodeActionParams, open:Bool = false):Void {
-		_requestTimeoutID = -1;
-		if (params == null) {
-			_currentRequestParams = null;
-			closeCodeActionsView();
-			return;
-		}
-		if (_currentRequestID == 10000) {
-			// we don't want the counter to overflow into negative numbers
-			// this should be a reasonable time to reset it
-			_currentRequestID = -1;
-		}
-		_currentRequestID++;
-		var requestID = _currentRequestID;
-		_currentRequestParams = params;
-		_currentOpenOnResponse = open;
-		_textEditor.dispatchEvent(new LspTextEditorLanguageRequestEvent(LspTextEditorLanguageRequestEvent.REQUEST_CODE_ACTIONS, params, result -> {
-			handleCodeActions(requestID, result);
-		}));
 	}
 
 	private function closeCodeActionsView():Void {

@@ -18,11 +18,15 @@
 package moonshine.editor.text.utils;
 
 import moonshine.editor.text.changes.TextEditorChange;
-import openfl.Lib;
-import openfl.text.TextField;
-import openfl.text.TextFormat;
 
+/**
+	Utility functions for the `TextEditor` component.
+**/
 class TextEditorUtil {
+	/**
+		Applies a `TextEditorChange` to an array of strings representing a file
+		displayed by a `TextEditor`.
+	**/
 	public static function applyTextChangeToLines(lines:Array<String>, change:TextEditorChange):Array<String> {
 		var result = lines.copy();
 

@@ -35,7 +35,13 @@ import openfl.events.TextEvent;
 import openfl.geom.Point;
 import openfl.ui.Keyboard;
 
+/**
+	Used internally by `LspTextEditor` to manage signature help requests.
+**/
 class SignatureHelpManager {
+	/**
+		Creates a new `SignatureHelpManager` object.
+	**/
 	public function new(textEditor:LspTextEditor) {
 		_textEditor = textEditor;
 
@@ -49,11 +55,56 @@ class SignatureHelpManager {
 		_textEditor.addEventListener(FocusEvent.FOCUS_OUT, signatureHelpManager_textEditor_focusOutHandler, false, 0, true);
 	}
 
+	/**
+		Specifies the value of `KeyboardEvent.ctrlKey` is required to
+		trigger signature help.
+
+		@see `SignatureHelpManager.shortcutKey`
+	**/
 	public var shortcutRequiresCtrl:Bool = true;
+
+	/**
+		Specifies the value of `KeyboardEvent.altKey` is required to
+		trigger signature help.
+
+		@see `SignatureHelpManager.shortcutKey`
+	**/
 	public var shortcutRequiresAlt:Bool = false;
+
+	/**
+		Specifies the value of `KeyboardEvent.shiftKey` is required to
+		trigger signature help.
+
+		@see `SignatureHelpManager.shortcutKey`
+	**/
 	public var shortcutRequiresShift:Bool = true;
+
+	/**
+		Specifies the value of `KeyboardEvent.commandKey` is required to
+		trigger signature help.
+
+		@see `SignatureHelpManager.shortcutKey`
+	**/
 	public var shortcutRequiresCommand:Bool = false;
+
+	/**
+		Specifies the value of `KeyboardEvent.controlKey` that is required to
+		trigger signature help.
+
+		@see `SignatureHelpManager.shortcutKey`
+	**/
 	public var shortcutRequiresControl:Bool = false;
+
+	/**
+		The key used to trigger signature help, along with the specified
+		modifiers.
+
+		@see `SignatureHelpManager.shortcutRequiresCtrl`
+		@see `SignatureHelpManager.shortcutRequiresAlt`
+		@see `SignatureHelpManager.shortcutRequiresShift`
+		@see `SignatureHelpManager.shortcutRequiresCommand`
+		@see `SignatureHelpManager.shortcutRequiresControl`
+	**/
 	public var shortcutKey:UInt = Keyboard.SPACE;
 
 	private var _textEditor:LspTextEditor;
@@ -61,9 +112,29 @@ class SignatureHelpManager {
 	private var _currentRequestParams:SignatureHelpParams;
 	private var _signatureHelpView:SignatureHelpView;
 
+	/**
+		Aborts current request, if any, and closes the signature help view.
+	**/
 	public function clear():Void {
 		_currentRequestID = -1;
 		closeSignatureHelpView();
+	}
+
+	/**
+		Sends a signature help request.
+	**/
+	public function dispatchSignatureHelpEvent(params:SignatureHelpParams):Void {
+		if (_currentRequestID == 10000) {
+			// we don't want the counter to overflow into negative numbers
+			// this should be a reasonable time to reset it
+			_currentRequestID = -1;
+		}
+		_currentRequestID++;
+		var requestID = _currentRequestID;
+		_currentRequestParams = params;
+		_textEditor.dispatchEvent(new LspTextEditorLanguageRequestEvent(LspTextEditorLanguageRequestEvent.REQUEST_SIGNATURE_HELP, params, result -> {
+			handleSignatureHelp(requestID, result);
+		}));
 	}
 
 	private function handleSignatureHelp(requestID:Int, result:SignatureHelp):Void {
@@ -108,20 +179,6 @@ class SignatureHelpManager {
 			};
 		}
 		dispatchSignatureHelpEvent(params);
-	}
-
-	public function dispatchSignatureHelpEvent(params:SignatureHelpParams):Void {
-		if (_currentRequestID == 10000) {
-			// we don't want the counter to overflow into negative numbers
-			// this should be a reasonable time to reset it
-			_currentRequestID = -1;
-		}
-		_currentRequestID++;
-		var requestID = _currentRequestID;
-		_currentRequestParams = params;
-		_textEditor.dispatchEvent(new LspTextEditorLanguageRequestEvent(LspTextEditorLanguageRequestEvent.REQUEST_SIGNATURE_HELP, params, result -> {
-			handleSignatureHelp(requestID, result);
-		}));
 	}
 
 	private function positionSignatureHelpView():Void {

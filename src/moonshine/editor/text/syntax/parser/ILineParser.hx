@@ -17,10 +17,24 @@
 
 package moonshine.editor.text.syntax.parser;
 
+/**
+	Interface for line parsers.
+**/
 interface ILineParser {
+	/**
+		The default context that this line parser uses when a more specific
+		context isn't required.
+	**/
 	@:flash.property
 	public var defaultContext(get, never):Int;
 
+	/**
+		Sets the parser's current context.
+	**/
 	function setContext(newContext:Int):Void;
+
+	/**
+		Parses the source code and returns an array of positions and contexts.
+	**/
 	function parse(sourceCode:String):Array<Int>;
 }

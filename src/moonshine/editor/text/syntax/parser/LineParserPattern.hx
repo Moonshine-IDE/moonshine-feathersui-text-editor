@@ -15,12 +15,25 @@
 
 package moonshine.editor.text.syntax.parser;
 
+/**
+	Used by line parsers to register a syntax pattern.
+**/
 class LineParserPattern {
+	/**
+		Creates a new `LineParserPattern` object.
+	**/
 	public function new(type:Int, expression:EReg) {
 		this.type = type;
 		this.expression = expression;
 	}
 
+	/**
+		Syntax type.
+	**/
 	public var type:Int;
+
+	/**
+		The pattern for the specified syntax type.
+	**/
 	public var expression:EReg;
 }

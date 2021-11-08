@@ -17,12 +17,26 @@
 
 package moonshine.editor.text.utils;
 
+/**
+	Represents a pair of strings where typing the opening string automatically
+	inserts the closing string after.
+**/
 class AutoClosingPair {
+	/**
+		Creates a new `AutoClosingPair` object.
+	**/
 	public function new(open:String, close:String) {
 		this.open = open;
 		this.close = close;
 	}
 
+	/**
+		The opening string of the pair.
+	**/
 	public var open:String;
+
+	/**
+		The closing string of the pair.
+	**/
 	public var close:String;
 }

@@ -20,9 +20,24 @@ package moonshine.editor.text.events;
 import openfl.events.Event;
 import openfl.events.EventType;
 
+/**
+	Events dispatched by a `TextEditor`.
+**/
 class TextEditorEvent extends Event {
+	/**
+		Dispatched when the text editor's selection changes.
+
+		@see `TextEditor.hasSelection`
+		@see `TextEditor.selectionStartLineIndex`
+		@see `TextEditor.selectionStartCharIndex`
+		@see `TextEditor.selectionEndLineIndex`
+		@see `TextEditor.selectionEndCharIndex`
+	**/
 	public static final SELECTION_CHANGE:EventType<TextEditorEvent> = "selectionChange";
 
+	/**
+		Creates a new `TextEditorEvent` object.
+	**/
 	public function new(type:String) {
 		super(type);
 	}

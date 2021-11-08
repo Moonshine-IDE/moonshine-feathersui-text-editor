@@ -34,8 +34,14 @@ import openfl.ui.Mouse;
 import openfl.ui.MouseCursor;
 import openfl.utils.Timer;
 
+/**
+	Displays the text for a specific line within a `TextEditor`.
+**/
 @:styleContext
 class TextLineRenderer extends FeathersControl {
+	/**
+		Creates a new `TextLineRenderer` object.
+	**/
 	public function new() {
 		TextLineRendererStyles.initialize();
 
@@ -58,6 +64,9 @@ class TextLineRenderer extends FeathersControl {
 
 	private var _text:String;
 
+	/**
+		The line's text.
+	**/
 	@:flash.property
 	public var text(get, set):String;
 
@@ -78,6 +87,9 @@ class TextLineRenderer extends FeathersControl {
 
 	private var _lineIndex:Int = -1;
 
+	/**
+		The index of the line within the `TextEditor`.
+	**/
 	@:flash.property
 	public var lineIndex(get, set):Int;
 
@@ -96,6 +108,9 @@ class TextLineRenderer extends FeathersControl {
 
 	private var _minLineNumberCharacters:Int = 1;
 
+	/**
+		@see `TextEditor.minLineNumberCharacters`
+	**/
 	@:flash.property
 	public var minLineNumberCharacters(get, set):Int;
 
@@ -114,6 +129,9 @@ class TextLineRenderer extends FeathersControl {
 
 	private var _numLines:Int = -1;
 
+	/**
+		The total number of lines in the `TextEditor`.
+	**/
 	@:flash.property
 	public var numLines(get, set):Int;
 
@@ -132,6 +150,9 @@ class TextLineRenderer extends FeathersControl {
 
 	private var _tabWidth:Int = 4;
 
+	/**
+		@see `TextEditor.tabWidth`
+	**/
 	@:flash.property
 	public var tabWidth(get, set):Int;
 
@@ -150,6 +171,12 @@ class TextLineRenderer extends FeathersControl {
 
 	private var _styleRanges:Array<Int>;
 
+	/**
+		Alternating text index values and identifiers from the `textStyles` that
+		indicate ranges for syntax highlighting.
+
+		@see `TextLineRenderer.textStyles`
+	**/
 	@:flash.property
 	public var styleRanges(get, set):Array<Int>;
 
@@ -168,6 +195,12 @@ class TextLineRenderer extends FeathersControl {
 
 	private var _breakpoint:Bool;
 
+	/**
+		Determines if the current line has a breakpoint.
+
+		@see `TextLineRenderer.breakpointVerified`
+		@see `TextLineRenderer.breakpointSkin`
+	**/
 	@:flash.property
 	public var breakpoint(get, set):Bool;
 
@@ -186,6 +219,14 @@ class TextLineRenderer extends FeathersControl {
 
 	private var _breakpointVerified:Bool = true;
 
+	/**
+		Determines if the current line's breakpoint is considered to be
+		_verified_. If unverified, it may be displayed in a less prominent
+		visual style.
+
+		@see `TextLineRenderer.breakpoint`
+		@see `TextLineRenderer.unverifiedBreakpointSkin`
+	**/
 	@:flash.property
 	public var breakpointVerified(get, set):Bool;
 
@@ -206,6 +247,9 @@ class TextLineRenderer extends FeathersControl {
 
 	private var _debuggerStopped:Bool = false;
 
+	/**
+		Indicates if the debugger is currently stopped on this line.
+	**/
 	@:flash.property
 	public var debuggerStopped(get, set):Bool;
 
@@ -224,6 +268,10 @@ class TextLineRenderer extends FeathersControl {
 
 	private var _caretX:Float = 0.0;
 
+	/**
+		Returns the current `x` position of the caret, if it appears on this
+		line.
+	**/
 	@:flash.property
 	public var caretX(get, never):Float;
 
@@ -233,6 +281,9 @@ class TextLineRenderer extends FeathersControl {
 
 	private var _gutterWidth:Float = 0.0;
 
+	/**
+		Returns the width of the gutter.
+	**/
 	public var gutterWidth(get, never):Float;
 
 	private function get_gutterWidth():Float {
@@ -241,6 +292,9 @@ class TextLineRenderer extends FeathersControl {
 
 	private var _lineNumberWidth:Null<Float> = null;
 
+	/**
+		@see `TextEditor.lineNumberWidth`
+	**/
 	@:flash.property
 	public var lineNumberWidth(get, set):Null<Float>;
 
@@ -259,6 +313,9 @@ class TextLineRenderer extends FeathersControl {
 
 	private var _showLineNumbers:Bool = true;
 
+	/**
+		@see `TextEditor.showLineNumbers`
+	**/
 	@:flash.property
 	public var showLineNumbers(get, set):Bool;
 
@@ -277,6 +334,9 @@ class TextLineRenderer extends FeathersControl {
 
 	private var _allowToggleBreakpoints:Bool = false;
 
+	/**
+		@see `TextEditor.allowToggleBreakpoints`
+	**/
 	@:flash.property
 	public var allowToggleBreakpoints(get, set):Bool;
 
@@ -297,47 +357,91 @@ class TextLineRenderer extends FeathersControl {
 
 	private var _caretSkin:RectangleSkin;
 
+	/**
+		Determines if an embedded font is used for the text displayed by the
+		text line renderer.
+	**/
 	@:style
 	public var embedFonts:Bool = false;
 
+	/**
+		The text format used for line numbers.
+	**/
 	@:style
 	public var lineNumberTextFormat:TextFormat = null;
 
 	private var _currentGutterBackgroundSkin:DisplayObject;
 
+	/**
+		The optional background skin to display behind the gutter.
+	**/
 	@:style
 	public var gutterBackgroundSkin:DisplayObject = null;
 
+	/**
+		The optional background skin to display behind the gutter when a
+		breakpoint has been added to this line.
+	**/
 	@:style
 	public var breakpointGutterBackgroundSkin:DisplayObject = null;
 
 	private var _currentBackgroundSkin:DisplayObject;
 
+	/**
+		The default background skin to display behind the text line renderer's
+		content.
+	**/
 	@:style
 	public var backgroundSkin:DisplayObject = null;
 
+	/**
+		The background skin to display behind the text line renderer's content
+		when the line has focus.
+	**/
 	@:style
 	public var focusedBackgroundSkin:DisplayObject = null;
 
+	/**
+		The background skin to display behind the text line renderer's content
+		when the debugger is stopped at this line.
+	**/
 	@:style
 	public var debuggerStoppedBackgroundSkin:DisplayObject = null;
 
 	private var _currentSelectedTextBackgroundSkin:DisplayObject;
 
+	/**
+		The background skin to display behind selected text.
+	**/
 	@:style
 	public var selectedTextBackgroundSkin:DisplayObject = null;
 
+	/**
+		The background skin to display behind selected text when the text line
+		renderer is not focused.
+	**/
 	@:style
 	public var selectedTextUnfocusedBackgroundSkin:DisplayObject = null;
 
+	/**
+		Creates background skins for search results.
+	**/
 	@:style
 	public var searchResultBackgroundSkinFactory:() -> DisplayObject = null;
 
+	/**
+		Maps identifiers for syntax highlighting styles to `TextFormat` values.
+
+		@see `TextLineRenderer.styleRanges`
+	**/
 	@:style
 	public var textStyles:Map<Int, TextFormat> = null;
 
 	private var _defaultTextStyleContext:Int = 0x0;
 
+	/**
+		The default text style context for the current language.
+	**/
 	@:flash.property
 	public var defaultTextStyleContext(get, set):Int;
 
@@ -356,23 +460,58 @@ class TextLineRenderer extends FeathersControl {
 
 	private var _currentBreakpointSkin:DisplayObject;
 
+	/**
+		The skin to display a breakpoint in the renderer's gutter.
+
+		@see `TextLineRenderer.breakpoint`
+	**/
 	@:style
 	public var breakpointSkin:DisplayObject = null;
 
+	/**
+		The skin to display an unverified breakpoint in the renderer's gutter.
+
+		@see `TextLineRenderer.breakpoint`
+		@see `TextLineRenderer.unverifiedBreakpoint`
+	**/
 	@:style
 	public var unverifiedBreakpointSkin:DisplayObject = null;
 
+	/**
+		The space, measured in pixels, between items added to the renderer's
+		gutter.
+
+		@see `TextLineRenderer.gutterPaddingLeft`
+		@see `TextLineRenderer.gutterPaddingRight`
+	**/
 	@:style
 	public var gutterGap:Float = 0.0;
 
+	/**
+		The space, measured in pixels, that appears on the left side of the
+		gutter.
+
+		@see `TextLineRenderer.gutterPaddingRight`
+		@see `TextLineRenderer.gutterGap`
+	**/
 	@:style
 	public var gutterPaddingLeft:Float = 0.0;
 
+	/**
+		The space, measured in pixels, that appears on the right side of the
+		gutter.
+
+		@see `TextLineRenderer.gutterPaddingLeft`
+		@see `TextLineRenderer.gutterGap`
+	**/
 	@:style
 	public var gutterPaddingRight:Float = 0.0;
 
 	private var _scrollX:Float = 0.0;
 
+	/**
+		The current horizontal scroll position of the `TextEditor`.
+	**/
 	@:flash.property
 	public var scrollX(get, set):Float;
 
@@ -391,6 +530,10 @@ class TextLineRenderer extends FeathersControl {
 
 	private var _caretIndex:Int = -1;
 
+	/**
+		The character index of the caret on this line, or `-1`, if the caret is 
+		currently on a different line.
+	**/
 	@:flash.property
 	public var caretIndex(get, set):Int;
 
@@ -410,6 +553,9 @@ class TextLineRenderer extends FeathersControl {
 
 	private var _textEditorHasFocus:Bool = false;
 
+	/**
+		Indicates if the `TextEditor` currently has focus.
+	**/
 	@:flash.property
 	public var textEditorHasFocus(get, set):Bool;
 
@@ -429,6 +575,12 @@ class TextLineRenderer extends FeathersControl {
 
 	private var _selectionStartIndex:Int = -1;
 
+	/**
+		The start character index of this line's current selection, or `-1` if
+		there is no selection on this line.
+
+		@see `TextLineRenderer.selectionEndIndex`
+	**/
 	@:flash.property
 	public var selectionStartIndex(get, set):Int;
 
@@ -447,6 +599,12 @@ class TextLineRenderer extends FeathersControl {
 
 	private var _selectionEndIndex:Int = -1;
 
+	/**
+		The end character index of this line's current selection, or `-1` if
+		there is no selection on this line.
+
+		@see `TextLineRenderer.selectionStartIndex`
+	**/
 	@:flash.property
 	public var selectionEndIndex(get, set):Int;
 
@@ -465,6 +623,12 @@ class TextLineRenderer extends FeathersControl {
 
 	private var _linkStartChar:Int = -1;
 
+	/**
+		The start character index of a link on this line, or `-1` if
+		there is no link on this line.
+
+		@see `TextLineRenderer.linkEndChar`
+	**/
 	@:flash.property
 	public var linkStartChar(get, set):Int;
 
@@ -483,6 +647,12 @@ class TextLineRenderer extends FeathersControl {
 
 	private var _linkEndChar:Int = -1;
 
+	/**
+		The end character index of a link on this line, or `-1` if
+		there is no link on this line.
+
+		@see `TextLineRenderer.linkStartChar`
+	**/
 	@:flash.property
 	public var linkEndChar(get, set):Int;
 
@@ -503,6 +673,9 @@ class TextLineRenderer extends FeathersControl {
 
 	private var _searchResults:Array<TextEditorSearchResult> = null;
 
+	/**
+		The current search results displayed by this renderer.
+	**/
 	@:flash.property
 	public var searchResults(get, set):Array<TextEditorSearchResult>;
 

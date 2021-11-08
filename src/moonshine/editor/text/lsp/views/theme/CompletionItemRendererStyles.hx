@@ -26,6 +26,9 @@ import feathers.skins.UnderlineSkin;
 import feathers.style.Theme;
 import feathers.themes.steel.BaseSteelTheme;
 
+/**
+	The default styles for the `CompletionItemRenderer` component.
+**/
 @:dox(hide)
 @:access(feathers.themes.steel.BaseSteelTheme)
 class CompletionItemRendererStyles {

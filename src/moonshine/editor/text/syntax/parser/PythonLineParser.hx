@@ -17,6 +17,9 @@
 
 package moonshine.editor.text.syntax.parser;
 
+/**
+	Parses lines of Python code to determine how the syntax is highlighted.
+**/
 class PythonLineParser extends LineParser {
 	public static final PY_CODE:Int = 0x1;
 	public static final PY_STRING1:Int = 0x2;
@@ -27,6 +30,9 @@ class PythonLineParser extends LineParser {
 	public static final PY_FUNCTION_KEYWORD:Int = 0xA;
 	public static final PY_PACKAGE_CLASS_KEYWORDS:Int = 0xB;
 
+	/**
+		Creates a new `PythonLineParser` object.
+	**/
 	public function new() {
 		super();
 

@@ -21,6 +21,10 @@ import moonshine.editor.text.syntax.parser.context.ContextSwitch;
 import moonshine.editor.text.syntax.parser.context.ContextSwitchManager;
 import moonshine.editor.text.syntax.parser.context.ContextSwitchLineParser;
 
+/**
+	Parses lines of Cascading Style Sheets (CSS) to determine how the syntax is
+	highlighted.
+**/
 class CSSLineParser extends ContextSwitchLineParser {
 	public static final CSS_TEXT:Int = 0x0;
 	public static final CSS_PROPERTY:Int = 0x1;
@@ -41,6 +45,9 @@ class CSSLineParser extends ContextSwitchLineParser {
 	public static final CSS_COLOR:Int = 0x10;
 	public static final CSS_NUMBER:Int = 0x11;
 
+	/**
+		Creates a new `CSSLineParser` object.
+	**/
 	public function new() {
 		super();
 

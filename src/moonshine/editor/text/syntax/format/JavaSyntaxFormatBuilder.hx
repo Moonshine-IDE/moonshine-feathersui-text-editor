@@ -20,22 +20,39 @@ package moonshine.editor.text.syntax.format;
 import moonshine.editor.text.syntax.parser.JavaLineParser;
 import openfl.text.TextFormat;
 
+/**
+	Builds the set of text styles for the Java language.
+**/
 class JavaSyntaxFormatBuilder {
 	private var _colorSettings:SyntaxColorSettings;
 	private var _fontSettings:SyntaxFontSettings;
 
+	/**
+		Creates a new `JavaSyntaxFormatBuilder` object.
+	**/
 	public function new() {}
 
+	/**
+		Specifies the `SyntaxColorSettings` to use when creating the
+		`TextFormat` objects.
+	**/
 	public function setColorSettings(settings:SyntaxColorSettings):JavaSyntaxFormatBuilder {
 		_colorSettings = settings;
 		return this;
 	}
 
+	/**
+		Specifies the `SyntaxFontSettings` to use when creating the
+		`TextFormat` objects.
+	**/
 	public function setFontSettings(settings:SyntaxFontSettings):JavaSyntaxFormatBuilder {
 		_fontSettings = settings;
 		return this;
 	}
 
+	/**
+		Creates a mapping of language text styles to `TextFormat` objects.
+	**/
 	public function build():Map<Int, TextFormat> {
 		var formats:Map<Int, TextFormat> = [];
 		formats.set(0 /* default, parser fault */, getTextFormat(_colorSettings.invalidColor));

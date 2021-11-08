@@ -23,6 +23,9 @@ import feathers.style.Theme;
 import feathers.themes.steel.BaseSteelTheme;
 import moonshine.editor.text.lines.TextLineRenderer;
 
+/**
+	The default styles for the `TextLineRenderer` component.
+**/
 @:dox(hide)
 @:access(feathers.themes.steel.BaseSteelTheme)
 class TextLineRendererStyles {

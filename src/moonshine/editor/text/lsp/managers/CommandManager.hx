@@ -22,7 +22,13 @@ import moonshine.lsp.Command;
 import openfl.errors.ArgumentError;
 import openfl.utils.Future;
 
+/**
+	Used internally by `LspTextEditor` to manage command requests.
+**/
 class CommandManager {
+	/**
+		Creates a new `CommandManager` object.
+	**/
 	public function new(textEditor:LspTextEditor) {
 		_textEditor = textEditor;
 
@@ -56,10 +62,24 @@ class CommandManager {
 
 	private var _commands:Map<String, Function> = [];
 
+	/**
+		Registers a command with the specified identifier.
+	**/
+	public function registerCommand(id:String, command:Function):Void {
+		_commands.set(id, command);
+	}
+
+	/**
+		Returns `true` if a command has been registered.
+	**/
 	public function hasCommand(id:String):Bool {
 		return _commands.exists(id);
 	}
 
+	/**
+		Runs a command, and passes the result to the callback. If the command
+		has not been registered, throws an `ArgumentError`.
+	**/
 	public function runCommand(command:Command, ?callback:Function):Void {
 		var commandFunc = _commands.get(command.command);
 		if (commandFunc == null) {
@@ -82,9 +102,5 @@ class CommandManager {
 			return;
 		}
 		callback(result);
-	}
-
-	public function registerCommand(id:String, command:Function):Void {
-		_commands.set(id, command);
 	}
 }

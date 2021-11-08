@@ -22,6 +22,9 @@ import feathers.style.Theme;
 import feathers.themes.steel.BaseSteelTheme;
 import moonshine.lsp.CompletionItemKind;
 
+/**
+	The default styles for the `CompletionItemIcon` component.
+**/
 @:dox(hide)
 @:access(feathers.themes.steel.BaseSteelTheme)
 class CompletionItemIconStyles {

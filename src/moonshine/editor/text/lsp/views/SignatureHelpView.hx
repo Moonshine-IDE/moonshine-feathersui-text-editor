@@ -31,11 +31,28 @@ import moonshine.lsp.MarkupContent;
 import moonshine.lsp.SignatureHelp;
 import openfl.display.DisplayObject;
 
+/**
+	A view to display signature help data.
+
+	@see `moonshine.lsp.SignatureHelp`
+**/
 @:styleContext
 class SignatureHelpView extends ScrollContainer implements IFocusExtras {
+	/**
+		The variant used to style the "previous" button child component in a
+		theme. The component is a `Button`.
+	**/
 	public static final CHILD_VARIANT_PREVIOUS_SIGNATURE_BUTTON = "signatureHelpView_previousSignatureButton";
+
+	/**
+		The variant used to style the "next" button child component in a
+		theme. The component is a `Button`.
+	**/
 	public static final CHILD_VARIANT_NEXT_SIGNATURE_BUTTON = "signatureHelpView_nextSignatureButton";
 
+	/**
+		Creates a new `SignatureHelpView` object.
+	**/
 	public function new() {
 		SignatureHelpViewStyles.initialize();
 		super();
@@ -52,6 +69,9 @@ class SignatureHelpView extends ScrollContainer implements IFocusExtras {
 
 	private var _signatureHelp:SignatureHelp;
 
+	/**
+		The signature help data to display.
+	**/
 	@:flash.property
 	public var signatureHelp(get, set):SignatureHelp;
 
@@ -73,6 +93,9 @@ class SignatureHelpView extends ScrollContainer implements IFocusExtras {
 		return _signatureHelp;
 	}
 
+	/**
+		The font styles used to display the text.
+	**/
 	@:style
 	public var textFormat:TextFormat = null;
 

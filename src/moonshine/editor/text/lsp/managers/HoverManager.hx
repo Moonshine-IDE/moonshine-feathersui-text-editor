@@ -33,7 +33,13 @@ import openfl.events.Event;
 import openfl.events.MouseEvent;
 import openfl.geom.Point;
 
+/**
+	Used internally by `LspTextEditor` to manage hover detail requests.
+**/
 class HoverManager {
+	/**
+		Creates a new `HoverManager` object.
+	**/
 	public function new(textEditor:LspTextEditor) {
 		_textEditor = textEditor;
 
@@ -55,9 +61,38 @@ class HoverManager {
 	private var _hoverView:HoverView;
 	private var _isOver = false;
 
+	/**
+		Aborts current request and closes the hover view.
+	**/
 	public function clear():Void {
 		_currentRequestID = -1;
 		closeHoverView();
+	}
+
+	/**
+		Sends a hover request.
+	**/
+	public function dispatchHoverEvent(params:HoverParams):Void {
+		_requestTimeoutID = -1;
+		if (params == null) {
+			_currentRequestParams = null;
+			closeHoverView();
+			return;
+		}
+		if (_currentRequestID == 10000) {
+			// we don't want the counter to overflow into negative numbers
+			// this should be a reasonable time to reset it
+			_currentRequestID = -1;
+		}
+		_currentRequestID++;
+		var requestID = _currentRequestID;
+		_currentRequestParams = params;
+		// show hover immediately because there may be diagnostics, and we'll
+		// update it if we get a result later
+		showHoverWithResult(null);
+		_textEditor.dispatchEvent(new LspTextEditorLanguageRequestEvent(LspTextEditorLanguageRequestEvent.REQUEST_HOVER, params, result -> {
+			handleHover(requestID, result);
+		}));
 	}
 
 	private function handleHover(requestID:Int, result:Hover):Void {
@@ -238,29 +273,6 @@ class HoverManager {
 			};
 			dispatchHoverEvent(params);
 		}, 250);
-	}
-
-	public function dispatchHoverEvent(params:HoverParams):Void {
-		_requestTimeoutID = -1;
-		if (params == null) {
-			_currentRequestParams = null;
-			closeHoverView();
-			return;
-		}
-		if (_currentRequestID == 10000) {
-			// we don't want the counter to overflow into negative numbers
-			// this should be a reasonable time to reset it
-			_currentRequestID = -1;
-		}
-		_currentRequestID++;
-		var requestID = _currentRequestID;
-		_currentRequestParams = params;
-		// show hover immediately because there may be diagnostics, and we'll
-		// update it if we get a result later
-		showHoverWithResult(null);
-		_textEditor.dispatchEvent(new LspTextEditorLanguageRequestEvent(LspTextEditorLanguageRequestEvent.REQUEST_HOVER, params, result -> {
-			handleHover(requestID, result);
-		}));
 	}
 
 	private function closeHoverView():Void {

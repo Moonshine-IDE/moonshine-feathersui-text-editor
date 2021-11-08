@@ -28,11 +28,28 @@ import moonshine.editor.text.lsp.views.theme.CompletionItemRendererStyles;
 import moonshine.lsp.CompletionItem;
 import openfl.events.Event;
 
+/**
+	An item renderer to display items in a completion list.
+
+	@see `moonshine.lsp.CompletionItem`
+**/
 @:styleContext
 class CompletionItemRenderer extends ItemRenderer {
+	/**
+		The variant used to style the detail text child component in a
+		theme. The component is a `Label`.
+	**/
 	public static final CHILD_VARIANT_DETAIL_TEXT = "completionItemRenderer_detailText";
+
+	/**
+		The variant used to style the detail toggle button child component in a
+		theme. The component is a `ToggleButton`.
+	**/
 	public static final CHILD_VARIANT_DETAIL_TOGGLE_BUTTON = "completionItemRenderer_detailToggleButton";
 
+	/**
+		Creates a new `CompletionItemRenderer` object.
+	**/
 	public function new() {
 		CompletionItemRendererStyles.initialize();
 		super();
@@ -45,6 +62,10 @@ class CompletionItemRenderer extends ItemRenderer {
 	private var _ignoreDetailToggleChange:Bool = false;
 	private var _showDetailExternally:Bool = false;
 
+	/**
+		Indicates if the detail is shown externally or on the right side of the
+		item renderer.
+	**/
 	@:flash.property
 	public var showDetailExternally(get, set):Bool;
 

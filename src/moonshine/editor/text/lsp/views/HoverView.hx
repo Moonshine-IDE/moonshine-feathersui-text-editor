@@ -23,8 +23,16 @@ import feathers.layout.VerticalLayout;
 import feathers.text.TextFormat;
 import moonshine.editor.text.lsp.views.theme.HoverViewStyles;
 
+/**
+	A view to display hover data.
+
+	@see `moonshine.lsp.Hover`
+**/
 @:styleContext
 class HoverView extends ScrollContainer {
+	/**
+		Creates a new `HoverView` object.
+	**/
 	public function new() {
 		HoverViewStyles.initialize();
 		super();
@@ -36,6 +44,9 @@ class HoverView extends ScrollContainer {
 
 	private var _htmlText:String = null;
 
+	/**
+		The HTML-formatted text to display.
+	**/
 	@:flash.property
 	public var htmlText(get, set):String;
 
@@ -52,6 +63,9 @@ class HoverView extends ScrollContainer {
 		return _htmlText;
 	}
 
+	/**
+		The font styles used to display the text.
+	**/
 	@:style
 	public var textFormat:TextFormat = null;
 

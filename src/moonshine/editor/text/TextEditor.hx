@@ -59,8 +59,14 @@ import openfl.text.TextFormat;
 @:event(feathers.events.ScrollEvent.SCROLL)
 @:styleContext
 class TextEditor extends FeathersControl implements IFocusObject implements IStageFocusDelegate {
+	/**
+		The variant used to style the `ListView` child component in a theme.
+	**/
 	public static final CHILD_VARIANT_LIST_VIEW = "textEditor_listView";
 
+	/**
+		Creates a new `TextEditor` object.
+	**/
 	public function new(?text:String, readOnly:Bool = false) {
 		TextEditorStyles.initialize();
 		super();
@@ -97,6 +103,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 
 	private var _listView:ListView;
 
+	@:dox(hide)
 	@:flash.property
 	public var stageFocusTarget(get, never):InteractiveObject;
 
@@ -109,7 +116,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	**/
 	public var defaultLineDelimiter:String = "\n";
 
-	public var _lineDelimiter:String = null;
+	private var _lineDelimiter:String = null;
 
 	/**
 		The string used to indicate line breaks. May be `\n`, `\r`, or `\r\n`.
@@ -277,14 +284,26 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		return _gutterWidth;
 	}
 
+	/**
+		Allows the width of line numbers to be set to an exact value, instead
+		of being calculated dynamically.
+	**/
 	@:style
 	public var lineNumberWidth:Null<Float> = null;
 
+	/**
+		When the line number widths are calculated automatically, this is the
+		minimum number of characters required for the calculation. This value
+		is ignored if `lineNumberWidth` is set.
+	**/
 	@:style
 	public var minLineNumberCharacters:Int = 3;
 
 	private var _showLineNumbers:Bool = true;
 
+	/**
+		Determines if line numbers are displayed or not.
+	**/
 	@:flash.property
 	public var showLineNumbers(get, set):Bool;
 
@@ -314,6 +333,9 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		return _textStyles.get(id);
 	}
 
+	/**
+		Returns the `TextFormat` for the parser's default context.
+	**/
 	public function getDefaultTextStyle():TextFormat {
 		if (_parser == null) {
 			return _textStyles.get(0x0);
@@ -321,6 +343,10 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		return _textStyles.get(_parser.defaultContext);
 	}
 
+	/**
+		Determines if an embedded font is used for the text displayed by the
+		text editor.
+	**/
 	@:style
 	public var embedFonts:Bool = false;
 
@@ -351,6 +377,12 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 
 	/**
 		Indicates if there is currently a selected range.
+
+		@see `TextEditor.selectedText`
+		@see `TextEditor.selectionStartLineIndex`
+		@see `TextEditor.selectionStartCharIndex`
+		@see `TextEditor.selectionEndLineIndex`
+		@see `TextEditor.selectionEndCharIndex`
 	**/
 	@:flash.property
 	public var hasSelection(get, never):Bool;
@@ -359,6 +391,10 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		return _selectionStartLineIndex != -1;
 	}
 
+	/**
+		The currently selected text. If no text is selected, returns an empty
+		string.
+	**/
 	@:flash.property
 	public var selectedText(get, never):String;
 
@@ -455,6 +491,9 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		return _selectionEndCharIndex;
 	}
 
+	/**
+		The data displayed for the line where the caret is currently located.
+	**/
 	@:flash.property
 	public var caretLine(get, never):TextLineModel;
 
@@ -675,12 +714,22 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	**/
 	public var blockComment:Array<String> = null;
 
+	/**
+		The default background skin to display behind the text editor's content.
+	**/
 	@:style
 	public var backgroundSkin:DisplayObject = null;
 
+	/**
+		The background skin to display behind the text editor's content when the
+		text editor is disabled.
+	**/
 	@:style
 	public var disabledBackgroundSkin:DisplayObject = null;
 
+	/**
+		A custom variant to set on the text line renderers.
+	**/
 	@:style
 	public var customTextLineRendererVariant:String = null;
 

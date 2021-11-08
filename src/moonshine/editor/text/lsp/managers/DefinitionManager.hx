@@ -31,7 +31,13 @@ import openfl.events.MouseEvent;
 import openfl.geom.Point;
 import openfl.ui.Keyboard;
 
+/**
+	Used internally by `LspTextEditor` to manage definition requests.
+**/
 class DefinitionManager {
+	/**
+		Creates a new `DefinitionManager` object.
+	**/
 	public function new(textEditor:LspTextEditor, definitionCallback:(Position, Array<LocationLink>) -> Void,
 			definitionLinkCallback:(Position, Array<LocationLink>) -> Void) {
 		_textEditor = textEditor;
@@ -53,6 +59,29 @@ class DefinitionManager {
 	private var _definitionLinkCallback:(Position, Array<LocationLink>) -> Void;
 	private var _isOver = false;
 	private var _ctrlKey = false;
+
+	/**
+		Sends a definition request.
+	**/
+	public function dispatchDefinitionEvent(params:DefinitionParams, link:Bool = false):Void {
+		_requestTimeoutID = -1;
+		if (params == null) {
+			_currentRequestParams = null;
+			clearDefinition();
+			return;
+		}
+		if (_currentRequestID == 10000) {
+			// we don't want the counter to overflow into negative numbers
+			// this should be a reasonable time to reset it
+			_currentRequestID = -1;
+		}
+		_currentRequestID++;
+		var requestID = _currentRequestID;
+		_currentRequestParams = params;
+		_textEditor.dispatchEvent(new LspTextEditorLanguageRequestEvent(LspTextEditorLanguageRequestEvent.REQUEST_DEFINITION, params, result -> {
+			handleDefinition(requestID, result, link);
+		}));
+	}
 
 	private function handleDefinition(requestID:Int, result:Array<Any> /* Array<Location | LocationLink> */, link:Bool):Void {
 		if (requestID != _currentRequestID) {
@@ -115,26 +144,6 @@ class DefinitionManager {
 			};
 			dispatchDefinitionEvent(params, true);
 		}, timeout);
-	}
-
-	public function dispatchDefinitionEvent(params:DefinitionParams, link:Bool = false):Void {
-		_requestTimeoutID = -1;
-		if (params == null) {
-			_currentRequestParams = null;
-			clearDefinition();
-			return;
-		}
-		if (_currentRequestID == 10000) {
-			// we don't want the counter to overflow into negative numbers
-			// this should be a reasonable time to reset it
-			_currentRequestID = -1;
-		}
-		_currentRequestID++;
-		var requestID = _currentRequestID;
-		_currentRequestParams = params;
-		_textEditor.dispatchEvent(new LspTextEditorLanguageRequestEvent(LspTextEditorLanguageRequestEvent.REQUEST_DEFINITION, params, result -> {
-			handleDefinition(requestID, result, link);
-		}));
 	}
 
 	private function clearDefinition():Void {

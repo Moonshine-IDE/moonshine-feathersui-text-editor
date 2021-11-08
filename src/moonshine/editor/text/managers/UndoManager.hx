@@ -22,7 +22,13 @@ import moonshine.editor.text.events.TextEditorChangeEvent;
 import openfl.events.KeyboardEvent;
 import openfl.ui.Keyboard;
 
+/**
+	Used internally by `TextEditor` to manage the history of undo and redo actions.
+**/
 class UndoManager {
+	/**
+		Creates a new `UndoManager` object.
+	**/
 	public function new(textEditor:TextEditor) {
 		_textEditor = textEditor;
 		_textEditor.addEventListener(KeyboardEvent.KEY_DOWN, undoManager_textEditor_keyDownHandler, false, 0, true);
@@ -37,6 +43,9 @@ class UndoManager {
 
 	private var _savedAt:Int = 0;
 
+	/**
+		Indicates if the file is currently edited since it was last saved.
+	**/
 	@:flash.property
 	public var edited(get, never):Bool;
 
@@ -44,14 +53,44 @@ class UndoManager {
 		return _savedAt != _undoStack.length;
 	}
 
+	/**
+		Marks the position in the undo stack where the file was last saved.
+	**/
 	public function save():Void {
 		_savedAt = _undoStack.length;
 	}
 
+	/**
+		Clears all undo and redo actions.
+	**/
 	public function clear():Void {
 		_undoStack.resize(0);
 		_redoStack.resize(0);
 		_savedAt = 0;
+	}
+
+	/**
+		Performs an undo action, if any are available.
+	**/
+	public function undo():Void {
+		if (_undoStack.length == 0) {
+			return;
+		}
+		var changes = _undoStack.pop();
+		_redoStack.push(changes);
+		_textEditor.dispatchEvent(new TextEditorChangeEvent(TextEditorChangeEvent.TEXT_CHANGE, changes.undo, TextEditorChangeEvent.ORIGIN_UNDO));
+	}
+
+	/**
+		Performs a redo action, if any are available.
+	**/
+	public function redo():Void {
+		if (_redoStack.length == 0) {
+			return;
+		}
+		var changes = _redoStack.pop();
+		_undoStack.push(changes);
+		_textEditor.dispatchEvent(new TextEditorChangeEvent(TextEditorChangeEvent.TEXT_CHANGE, changes.redo, TextEditorChangeEvent.ORIGIN_UNDO));
 	}
 
 	private function isOneLineRemoveOnly(changes:Array<TextEditorChange>):Bool {
@@ -153,24 +192,6 @@ class UndoManager {
 		}
 		_redoStack.resize(0);
 		_undoStack.push(new UndoRedoChanges(undoChanges, redoChanges));
-	}
-
-	public function undo():Void {
-		if (_undoStack.length == 0) {
-			return;
-		}
-		var changes = _undoStack.pop();
-		_redoStack.push(changes);
-		_textEditor.dispatchEvent(new TextEditorChangeEvent(TextEditorChangeEvent.TEXT_CHANGE, changes.undo, TextEditorChangeEvent.ORIGIN_UNDO));
-	}
-
-	public function redo():Void {
-		if (_redoStack.length == 0) {
-			return;
-		}
-		var changes = _redoStack.pop();
-		_undoStack.push(changes);
-		_textEditor.dispatchEvent(new TextEditorChangeEvent(TextEditorChangeEvent.TEXT_CHANGE, changes.redo, TextEditorChangeEvent.ORIGIN_UNDO));
 	}
 
 	private function undoManager_textEditor_keyDownHandler(event:KeyboardEvent):Void {

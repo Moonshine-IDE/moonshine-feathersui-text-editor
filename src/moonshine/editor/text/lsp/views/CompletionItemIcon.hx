@@ -25,6 +25,9 @@ import moonshine.lsp.CompletionItem;
 import moonshine.lsp.CompletionItemKind;
 import openfl.text.TextField;
 
+/**
+	Displays an icon for the "kind" of a completion item.
+**/
 @:styleContext
 class CompletionItemIcon extends FeathersControl {
 	private static final TEXT_MAP:Map<CompletionItemKind, String> = [
@@ -39,6 +42,9 @@ class CompletionItemIcon extends FeathersControl {
 		CompletionItemKind.Method => "M",
 	];
 
+	/**
+		Creates a new `CompletionItemIcon` object.
+	**/
 	public function new() {
 		CompletionItemIconStyles.initialize();
 		super();
@@ -49,6 +55,9 @@ class CompletionItemIcon extends FeathersControl {
 
 	private var _data:CompletionItem;
 
+	/**
+		The completion item associated with this icon.
+	**/
 	@:flash.property
 	public var data(get, set):CompletionItem;
 
@@ -65,9 +74,15 @@ class CompletionItemIcon extends FeathersControl {
 		return _data;
 	}
 
+	/**
+		The text format of the icon character.
+	**/
 	@:style
 	public var textFormat:AbstractTextFormat = null;
 
+	/**
+		A mapping of completion item kinds to background colors.
+	**/
 	@:style
 	public var colorMap:Map<CompletionItemKind, UInt> = null;
 

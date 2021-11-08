@@ -50,9 +50,15 @@ import openfl.geom.Point;
 import openfl.net.SharedObject;
 import openfl.ui.Keyboard;
 
+/**
+	Used internally by `LspTextEditor` to manage completion requests.
+**/
 class CompletionManager {
 	public static final VARIANT_COMPLETION_LIST_VIEW:String = "completionManager_completionListView";
 
+	/**
+		Creates a new `CompletionManager` object.
+	**/
 	public function new(textEditor:LspTextEditor) {
 		CompletionListViewStyles.initialize();
 
@@ -93,11 +99,55 @@ class CompletionManager {
 		_sharedObject.flush();
 	}
 
+	/**
+		Specifies the value of `KeyboardEvent.ctrlKey` that is required to
+		trigger completion.
+
+		@see `CompletionManager.shortcutKey`
+	**/
 	public var shortcutRequiresCtrl:Bool = true;
+
+	/**
+		Specifies the value of `KeyboardEvent.altKey` that is required to
+		trigger completion.
+
+		@see `CompletionManager.shortcutKey`
+	**/
 	public var shortcutRequiresAlt:Bool = false;
+
+	/**
+		Specifies the value of `KeyboardEvent.shiftKey` that is required to
+		trigger completion.
+
+		@see `CompletionManager.shortcutKey`
+	**/
 	public var shortcutRequiresShift:Bool = false;
+
+	/**
+		Specifies the value of `KeyboardEvent.commandKey` that is required to
+		trigger completion.
+
+		@see `CompletionManager.shortcutKey`
+	**/
 	public var shortcutRequiresCommand:Bool = false;
+
+	/**
+		Specifies the value of `KeyboardEvent.controlKey` that is required to
+		trigger completion.
+
+		@see `CompletionManager.shortcutKey`
+	**/
 	public var shortcutRequiresControl:Bool = false;
+
+	/**
+		The key used to trigger completion, along with the specified modifiers.
+
+		@see `CompletionManager.shortcutRequiresCtrl`
+		@see `CompletionManager.shortcutRequiresAlt`
+		@see `CompletionManager.shortcutRequiresShift`
+		@see `CompletionManager.shortcutRequiresCommand`
+		@see `CompletionManager.shortcutRequiresControl`
+	**/
 	public var shortcutKey:UInt = Keyboard.SPACE;
 
 	private var _textEditor:LspTextEditor;
@@ -115,9 +165,50 @@ class CompletionManager {
 	private var _ignoreCompletionDetailViewResize:Bool = false;
 	private var _ignoreCompletionListViewChange:Bool = false;
 
+	/**
+		Aborts current request, if any, and closes the completion list view.
+	**/
 	public function clear():Void {
 		_currentRequestID = -1;
 		closeCompletionListView();
+	}
+
+	/**
+		Sends a completion request.
+	**/
+	public function dispatchCompletionEvent(params:CompletionParams):Void {
+		// if the completion list is already open, close it before making a new request
+		closeCompletionListView();
+
+		// make sure that the current caret position is visible
+		_textEditor.scrollViewIfNeeded();
+
+		if (params.context == null
+			|| params.context.triggerKind != CompletionTriggerKind.TriggerCharacter
+			|| params.context.triggerCharacter == null) {
+			var line = _textEditor.lines.get(_textEditor.caretLineIndex);
+			var startIndex = TextUtil.startOfWord(line.text, _textEditor.caretCharIndex);
+			if (startIndex >= 0) {
+				_filterText = line.text.substr(startIndex, Std.int(Math.max(0, _textEditor.caretCharIndex - startIndex))).toLowerCase();
+			} else {
+				_filterText = "";
+			}
+		} else {
+			_filterText = "";
+		}
+		_initialFilterTextLength = _filterText.length;
+		_isIncomplete = false;
+		if (_currentRequestID == 10000) {
+			// we don't want the counter to overflow into negative numbers
+			// this should be a reasonable time to reset it
+			_currentRequestID = -1;
+		}
+		_currentRequestID++;
+		var requestID = _currentRequestID;
+		_currentRequestParams = params;
+		_textEditor.dispatchEvent(new LspTextEditorLanguageRequestEvent(LspTextEditorLanguageRequestEvent.REQUEST_COMPLETION, params, result -> {
+			handleCompletion(requestID, result);
+		}));
 	}
 
 	private function handleResolveCompletion(requestID:Int, index:Int, result:CompletionItem):Void {
@@ -384,41 +475,6 @@ class CompletionManager {
 			};
 		}
 		dispatchCompletionEvent(params);
-	}
-
-	public function dispatchCompletionEvent(params:CompletionParams):Void {
-		// if the completion list is already open, close it before making a new request
-		closeCompletionListView();
-
-		// make sure that the current caret position is visible
-		_textEditor.scrollViewIfNeeded();
-
-		if (params.context == null
-			|| params.context.triggerKind != CompletionTriggerKind.TriggerCharacter
-			|| params.context.triggerCharacter == null) {
-			var line = _textEditor.lines.get(_textEditor.caretLineIndex);
-			var startIndex = TextUtil.startOfWord(line.text, _textEditor.caretCharIndex);
-			if (startIndex >= 0) {
-				_filterText = line.text.substr(startIndex, Std.int(Math.max(0, _textEditor.caretCharIndex - startIndex))).toLowerCase();
-			} else {
-				_filterText = "";
-			}
-		} else {
-			_filterText = "";
-		}
-		_initialFilterTextLength = _filterText.length;
-		_isIncomplete = false;
-		if (_currentRequestID == 10000) {
-			// we don't want the counter to overflow into negative numbers
-			// this should be a reasonable time to reset it
-			_currentRequestID = -1;
-		}
-		_currentRequestID++;
-		var requestID = _currentRequestID;
-		_currentRequestParams = params;
-		_textEditor.dispatchEvent(new LspTextEditorLanguageRequestEvent(LspTextEditorLanguageRequestEvent.REQUEST_COMPLETION, params, result -> {
-			handleCompletion(requestID, result);
-		}));
 	}
 
 	private function dispatchResolveCompletionEvent(index:Int):Void {

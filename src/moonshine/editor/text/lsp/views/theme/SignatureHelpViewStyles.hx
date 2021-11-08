@@ -24,6 +24,9 @@ import feathers.skins.RectangleSkin;
 import feathers.style.Theme;
 import feathers.themes.steel.BaseSteelTheme;
 
+/**
+	The default styles for the `SignatureHelpView` component.
+**/
 @:dox(hide)
 @:access(feathers.themes.steel.BaseSteelTheme)
 class SignatureHelpViewStyles {

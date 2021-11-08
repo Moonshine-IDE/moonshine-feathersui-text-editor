@@ -17,6 +17,10 @@
 
 package moonshine.editor.text.syntax.parser;
 
+/**
+	Parses lines of ActionScript 3.0 (AS3) code to determine how the syntax is
+	highlighted.
+**/
 class AS3LineParser extends LineParser {
 	public static final AS_CODE:Int = 0x1;
 	public static final AS_STRING1:Int = 0x2;
@@ -33,6 +37,9 @@ class AS3LineParser extends LineParser {
 	public static final AS_FIELD:Int = 0x10;
 	public static final AS_FUNCTIONS:Int = 0x11;
 
+	/**
+		Creates a new `AS3LineParser` object.
+	**/
 	public function new() {
 		super();
 

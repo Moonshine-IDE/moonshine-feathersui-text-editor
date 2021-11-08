@@ -28,8 +28,16 @@ import moonshine.lsp.CodeAction;
 import openfl.events.Event;
 import openfl.events.MouseEvent;
 
+/**
+	A view to display code actions data.
+
+	@see `moonshine.lsp.CodeAction`
+**/
 @:styleContext
 class CodeActionsView extends Button {
+	/**
+		Creates a new `CodeActionsView` object.
+	**/
 	public function new() {
 		CodeActionsViewStyles.initialize();
 		super();
@@ -42,6 +50,9 @@ class CodeActionsView extends Button {
 
 	private var _codeActions:Array<CodeAction>;
 
+	/**
+		The code actions to display.
+	**/
 	@:flash.property
 	public var codeActions(get, set):Array<CodeAction>;
 
@@ -58,8 +69,14 @@ class CodeActionsView extends Button {
 		return _codeActions;
 	}
 
+	/**
+		A function that is called when a code action is triggered.
+	**/
 	public var codeActionCallback:(CodeAction) -> Void;
 
+	/**
+		Opens the pop-up list.
+	**/
 	public function openList():Void {
 		if (_popUpAdapter.active) {
 			return;

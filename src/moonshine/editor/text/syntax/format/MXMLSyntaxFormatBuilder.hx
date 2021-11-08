@@ -21,6 +21,9 @@ import moonshine.editor.text.syntax.parser.MXMLLineParser;
 import moonshine.editor.text.syntax.parser.XMLLineParser;
 import openfl.text.TextFormat;
 
+/**
+	Builds the set of text styles for the MXML language.
+**/
 class MXMLSyntaxFormatBuilder {
 	private static final SCRIPT_MASKS:Array<Int> = [
 		MXMLLineParser.SCRIPT_MASK,
@@ -32,18 +35,32 @@ class MXMLSyntaxFormatBuilder {
 	private var _colorSettings:SyntaxColorSettings;
 	private var _fontSettings:SyntaxFontSettings;
 
+	/**
+		Creates a new `MXMLSyntaxFormatBuilder` object.
+	**/
 	public function new() {}
 
+	/**
+		Specifies the `SyntaxColorSettings` to use when creating the
+		`TextFormat` objects.
+	**/
 	public function setColorSettings(settings:SyntaxColorSettings):MXMLSyntaxFormatBuilder {
 		_colorSettings = settings;
 		return this;
 	}
 
+	/**
+		Specifies the `SyntaxFontSettings` to use when creating the
+		`TextFormat` objects.
+	**/
 	public function setFontSettings(settings:SyntaxFontSettings):MXMLSyntaxFormatBuilder {
 		_fontSettings = settings;
 		return this;
 	}
 
+	/**
+		Creates a mapping of language text styles to `TextFormat` objects.
+	**/
 	public function build():Map<Int, TextFormat> {
 		var formats:Map<Int, TextFormat> = [];
 		formats.set(XMLLineParser.XML_TEXT, getTextFormat(_colorSettings.foregroundColor));

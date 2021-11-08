@@ -21,7 +21,13 @@ import moonshine.editor.text.changes.TextEditorChange;
 import moonshine.editor.text.events.TextEditorChangeEvent;
 import moonshine.editor.text.utils.TextUtil;
 
+/**
+	Used internally by `TextEditor` to manage find and replace actions.
+**/
 class FindReplaceManager {
+	/**
+		Creates a new `FindReplaceManager` object.
+	**/
 	public function new(textEditor:TextEditor) {
 		_textEditor = textEditor;
 
@@ -32,6 +38,9 @@ class FindReplaceManager {
 
 	private var _findResult:TextEditorSearchResult;
 
+	/**
+		Performs a find action.
+	**/
 	public function find(search:Any /* EReg | String */, backwards:Bool = false, allowWrap:Bool = true, updateSelection:Bool = true):TextEditorSearchResult {
 		// Get string once (it's built dynamically)
 		var str = _textEditor.text;
@@ -69,6 +78,9 @@ class FindReplaceManager {
 		return _findResult;
 	}
 
+	/**
+		Performs a find next action. Must call `find()` first.
+	**/
 	public function findNext(backwards:Bool = false, allowWrap:Bool = true):TextEditorSearchResult {
 		if (_findResult == null) {
 			return new TextEditorSearchResult(null, backwards, allowWrap);
@@ -78,6 +90,9 @@ class FindReplaceManager {
 		return _findResult;
 	}
 
+	/**
+		Performs a replace (one or all) action. Must call `find()` first.
+	**/
 	public function replace(replaceText:String, all:Bool = false, backwards:Bool = false, allowWrap:Bool = true):TextEditorSearchResult {
 		if (_findResult == null) {
 			return new TextEditorSearchResult(null, backwards, allowWrap);

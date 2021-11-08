@@ -17,11 +17,20 @@
 
 package moonshine.editor.text.syntax.parser;
 
+/**
+	Parses lines of plain text to determine how the syntax is highlighted.
+**/
 class PlainTextLineParser implements ILineParser {
 	public static final TEXT:Int = 0x0;
 
+	/**
+		Creates a new `PlainTextLineParser` object.
+	**/
 	public function new() {}
 
+	/**
+		@see `ILineParser.defaultContext`
+	**/
 	@:flash.property
 	public var defaultContext(get, never):Int;
 
@@ -29,8 +38,14 @@ class PlainTextLineParser implements ILineParser {
 		return 0x0;
 	}
 
+	/**
+		@see `ILineParser.setContext()`
+	**/
 	public function setContext(newContext:Int):Void {}
 
+	/**
+		@see `ILineParser.parse()`
+	**/
 	public function parse(sourceCode:String):Array<Int> {
 		return [0, 0, sourceCode.length];
 	}

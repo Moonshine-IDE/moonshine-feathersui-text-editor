@@ -17,6 +17,9 @@
 
 package moonshine.editor.text.syntax.parser;
 
+/**
+	Parses lines of Java code to determine how the syntax is highlighted.
+**/
 class JavaLineParser extends LineParser {
 	public static final JAVA_CODE:Int = 0x1;
 	public static final JAVA_STRING1:Int = 0x2;
@@ -27,6 +30,9 @@ class JavaLineParser extends LineParser {
 	public static final JAVA_PACKAGE_CLASS_KEYWORDS:Int = 0xD;
 	public static final JAVA_ANNOTATION:Int = 0xE;
 
+	/**
+		Creates a new `JavaLineParser` object.
+	**/
 	public function new() {
 		super();
 

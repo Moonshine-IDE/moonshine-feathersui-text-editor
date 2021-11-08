@@ -17,6 +17,9 @@
 
 package moonshine.editor.text.syntax.parser;
 
+/**
+	Parses lines of Haxe code to determine how the syntax is highlighted.
+**/
 class HaxeLineParser extends LineParser {
 	public static final HX_CODE:Int = 0x1;
 	public static final HX_STRING1:Int = 0x2;
@@ -33,6 +36,9 @@ class HaxeLineParser extends LineParser {
 	public static final HX_FUNCTIONS:Int = 0x11;
 	public static final HX_CONDITIONAL:Int = 0x12;
 
+	/**
+		Creates a new `HaxeLineParser` object.
+	**/
 	public function new() {
 		super();
 

@@ -20,15 +20,31 @@ package moonshine.editor.text.events;
 import openfl.events.Event;
 import openfl.events.EventType;
 
+/**
+	Events dispatched by a `TextLineRenderer`.
+**/
 class TextEditorLineEvent extends Event {
+	/**
+		Dispatched when the user toggles a breakpoint.
+	**/
 	public static final TOGGLE_BREAKPOINT:EventType<TextEditorLineEvent> = "toggleBreakpoint";
+
+	/**
+		Dispatched when the user selects the entire text of a line.
+	**/
 	public static final SELECT_LINE:EventType<TextEditorLineEvent> = "selectLine";
 
+	/**
+		Creates a new `TextEditorLineEvent` object.
+	**/
 	public function new(type:String, lineIndex:Int) {
 		super(type);
 		this.lineIndex = lineIndex;
 	}
 
+	/**
+		The index of the line.
+	**/
 	public var lineIndex:Int;
 
 	override public function clone():Event {

@@ -42,7 +42,21 @@ import openfl.errors.IllegalOperationError;
 import openfl.events.MouseEvent;
 import openfl.geom.Point;
 
+/**
+	Adds language code intelligence features to the `TextEditor` component, such
+	as completion, signature help, hover tool tips, ctrl+click jump to
+	definition, etc.
+
+	This component uses value objects (VOs) that are based on the
+	_Language Server Protocol_ (which is where the name `LspTextEditor` comes
+	from). However, using this protocol is not mandatory. As long as objects are
+	translated into LSP VOs, any other provider of code intelligence data may be
+	used instead.
+**/
 class LspTextEditor extends TextEditor {
+	/**
+		Creates a new `LspTextEditor` object.
+	**/
 	public function new(?textDocument:TextDocumentIdentifier, ?text:String, readOnly:Bool = false) {
 		super(text, readOnly);
 		_textDocument = textDocument;
@@ -68,11 +82,24 @@ class LspTextEditor extends TextEditor {
 	private var _linkEndChar:Int = -1;
 	private var _links:Array<LocationLink> = null;
 
+	/**
+		A set of characters that, when typed by the user, will trigger a request
+		for completion.
+	**/
 	public var completionTriggerCharacters:Array<String> = ["."];
+
+	/**
+		A set of characters that, when typed by the user, will trigger a request
+		for signature help.
+	**/
 	public var signatureHelpTriggerCharacters:Array<String> = ["(", ","];
 
 	private var _diagnostics:Array<Diagnostic>;
 
+	/**
+		The diagnostics (compiler errors, warnings, and informational messages)
+		that are associated with the currently displayed file.
+	**/
 	@:flash.property
 	public var diagnostics(get, set):Array<Diagnostic>;
 
@@ -115,6 +142,9 @@ class LspTextEditor extends TextEditor {
 
 	private var _textDocument:TextDocumentIdentifier;
 
+	/**
+		The URI identifier associated with the currently displayed file.
+	**/
 	@:flash.property
 	public var textDocument(get, set):TextDocumentIdentifier;
 
@@ -180,6 +210,9 @@ class LspTextEditor extends TextEditor {
 		_codeActionsManager.clear();
 	}
 
+	/**
+		Requests completion for the current caret position.
+	**/
 	public function completion():Void {
 		if (_readOnly) {
 			throw new IllegalOperationError("Completion is not allowed in a read-only text editor");
@@ -190,6 +223,9 @@ class LspTextEditor extends TextEditor {
 		});
 	}
 
+	/**
+		Requests signature help for the current caret position.
+	**/
 	public function signatureHelp():Void {
 		_signatureHelpManager.dispatchSignatureHelpEvent({
 			textDocument: _textDocument,
@@ -197,6 +233,9 @@ class LspTextEditor extends TextEditor {
 		});
 	}
 
+	/**
+		Requests hover details for the current caret position.
+	**/
 	public function hover():Void {
 		_hoverManager.dispatchHoverEvent({
 			textDocument: _textDocument,
@@ -204,6 +243,9 @@ class LspTextEditor extends TextEditor {
 		});
 	}
 
+	/**
+		Requests the definition for the current caret position.
+	**/
 	public function definition():Void {
 		_definitionManager.dispatchDefinitionEvent({
 			textDocument: _textDocument,
@@ -211,6 +253,9 @@ class LspTextEditor extends TextEditor {
 		});
 	}
 
+	/**
+		Requests the running of a registered command.
+	**/
 	public function runCommand(command:Command):Void {
 		if (_readOnly) {
 			throw new IllegalOperationError("Commands are not allowed in a read-only text editor");
@@ -222,6 +267,10 @@ class LspTextEditor extends TextEditor {
 		dispatchEvent(new LspTextEditorLanguageActionEvent(LspTextEditorLanguageActionEvent.RUN_COMMAND, command));
 	}
 
+	/**
+		Requests code actions (such as quick fixes) for the current caret
+		position.
+	**/
 	public function codeActions():Void {
 		if (_readOnly) {
 			throw new IllegalOperationError("Code actions are not allowed in a read-only text editor");
@@ -239,6 +288,9 @@ class LspTextEditor extends TextEditor {
 		});
 	}
 
+	/**
+		Applies a set of text edits to the currently displayed text.
+	**/
 	public function applyTextEdits(textEdits:Array<TextEdit>):Void {
 		var changes = textEdits.map(textEdit -> LspTextEditorUtil.lspTextEditToTextEditorChange(textEdit));
 		dispatchEvent(new TextEditorChangeEvent(TextEditorChangeEvent.TEXT_CHANGE, changes, TextEditorChangeEvent.ORIGIN_LOCAL));

@@ -17,7 +17,13 @@
 
 package moonshine.editor.text.syntax.format;
 
+/**
+	Default colors to use for all languages.
+**/
 class SyntaxColorSettings {
+	/**
+		Creates a new `SyntaxColorSettings` object.
+	**/
 	public function new() {}
 
 	public var backgroundColor:UInt = 0xffffff;

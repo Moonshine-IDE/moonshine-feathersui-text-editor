@@ -17,9 +17,15 @@
 
 package moonshine.editor.text.syntax.parser.context;
 
+/**
+	A manager for context switches in a complex line parser.
+**/
 class ContextSwitchManager {
 	private var switches:Map<Int, Array<ContextSwitch>> = [];
 
+	/**
+		Creates a new `ContextSwitchManager` object.
+	**/
 	public function new(switches:Array<ContextSwitch>) {
 		for (swtch in switches) {
 			addSwitch(swtch);

@@ -24,6 +24,10 @@ import feathers.style.Theme;
 import feathers.themes.steel.BaseSteelTheme;
 import moonshine.editor.text.lsp.managers.CompletionManager;
 
+/**
+	The default styles for the `ListView` component with variant
+	`CompletionManager.VARIANT_COMPLETION_LIST_VIEW`.
+**/
 @:dox(hide)
 @:access(feathers.themes.steel.BaseSteelTheme)
 class CompletionListViewStyles {

@@ -17,12 +17,18 @@
 
 package moonshine.editor.text.syntax.parser.context;
 
+/**
+	Defines a context switch for a complex line parser.
+**/
 class ContextSwitch {
 	public var from:Array<Int>;
 	public var to:Int;
 	public var pattern:EReg;
 	public var post:Bool;
 
+	/**
+		Creates a new `ContextSwitch` object.
+	**/
 	public function new(from:Array<Int>, to:Int, pattern:EReg = null, post:Bool = false) {
 		this.from = from;
 		this.to = to;

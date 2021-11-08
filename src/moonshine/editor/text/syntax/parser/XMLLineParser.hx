@@ -21,6 +21,9 @@ import moonshine.editor.text.syntax.parser.context.ContextSwitch;
 import moonshine.editor.text.syntax.parser.context.ContextSwitchManager;
 import moonshine.editor.text.syntax.parser.context.ContextSwitchLineParser;
 
+/**
+	Parses lines of XML to determine how the syntax is highlighted.
+**/
 class XMLLineParser extends ContextSwitchLineParser {
 	public static final XML_TEXT:Int = 0x0;
 	public static final XML_TAG:Int = 0x1;
@@ -33,6 +36,9 @@ class XMLLineParser extends ContextSwitchLineParser {
 	public static final XML_BRACKETOPEN:Int = 0x8;
 	public static final XML_BRACKETCLOSE:Int = 0x9;
 
+	/**
+		Creates a new `XMLLineParser` object.
+	**/
 	public function new() {
 		super();
 

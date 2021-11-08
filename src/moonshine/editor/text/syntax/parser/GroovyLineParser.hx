@@ -17,6 +17,9 @@
 
 package moonshine.editor.text.syntax.parser;
 
+/**
+	Parses lines of Groovy code to determine how the syntax is highlighted.
+**/
 class GroovyLineParser extends LineParser {
 	public static final GROOVY_CODE:Int = 0x1;
 	public static final GROOVY_STRING1:Int = 0x2;
@@ -28,6 +31,9 @@ class GroovyLineParser extends LineParser {
 	public static final GROOVY_PACKAGE_CLASS_KEYWORDS:Int = 0xD;
 	public static final GROOVY_ANNOTATION:Int = 0xE;
 
+	/**
+		Creates a new `GroovyLineParser` object.
+	**/
 	public function new() {
 		super();
 

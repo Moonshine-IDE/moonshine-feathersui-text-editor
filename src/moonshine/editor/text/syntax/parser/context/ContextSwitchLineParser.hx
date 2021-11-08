@@ -19,6 +19,9 @@ package moonshine.editor.text.syntax.parser.context;
 
 import openfl.events.EventDispatcher;
 
+/**
+	A complex line parser with context switches.
+**/
 class ContextSwitchLineParser extends EventDispatcher implements ILineParser {
 	public var switchManager:ContextSwitchManager;
 	public var parserManager:InlineParserManager;
@@ -28,6 +31,9 @@ class ContextSwitchLineParser extends EventDispatcher implements ILineParser {
 	// If nothing is found this context is set
 	private var _defaultContext:Int = 0x0;
 
+	/**
+		@see `ILineParser.defaultContext`
+	**/
 	@:flash.property
 	public var defaultContext(get, never):Int;
 
@@ -35,14 +41,23 @@ class ContextSwitchLineParser extends EventDispatcher implements ILineParser {
 		return _defaultContext;
 	}
 
+	/**
+		Creates a new `ContextSwitchLineParser` object.
+	**/
 	public function new() {
 		super();
 	}
 
+	/**
+		@see `ILineParser.setContext()`
+	**/
 	public function setContext(newContext:Int):Void {
 		context = newContext;
 	}
 
+	/**
+		@see `ILineParser.parse()`
+	**/
 	public function parse(sourceCode:String):Array<Int> {
 		var result:Array<Int> = [];
 		var tail = sourceCode;

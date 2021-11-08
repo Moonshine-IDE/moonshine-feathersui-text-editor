@@ -20,22 +20,39 @@ package moonshine.editor.text.syntax.format;
 import moonshine.editor.text.syntax.parser.CSSLineParser;
 import openfl.text.TextFormat;
 
+/**
+	Builds the set of text styles for the Cascading Style Sheets (CSS) language.
+**/
 class CSSSyntaxFormatBuilder {
 	private var _colorSettings:SyntaxColorSettings;
 	private var _fontSettings:SyntaxFontSettings;
 
+	/**
+		Creates a new `CSSSyntaxFormatBuilder` object.
+	**/
 	public function new() {}
 
+	/**
+		Specifies the `SyntaxColorSettings` to use when creating the
+		`TextFormat` objects.
+	**/
 	public function setColorSettings(settings:SyntaxColorSettings):CSSSyntaxFormatBuilder {
 		_colorSettings = settings;
 		return this;
 	}
 
+	/**
+		Specifies the `SyntaxFontSettings` to use when creating the
+		`TextFormat` objects.
+	**/
 	public function setFontSettings(settings:SyntaxFontSettings):CSSSyntaxFormatBuilder {
 		_fontSettings = settings;
 		return this;
 	}
 
+	/**
+		Creates a mapping of language text styles to `TextFormat` objects.
+	**/
 	public function build():Map<Int, TextFormat> {
 		var formats:Map<Int, TextFormat> = [];
 		formats.set(CSSLineParser.CSS_TEXT, getTextFormat(_colorSettings.typeNameColor));

@@ -22,6 +22,9 @@ import feathers.skins.RectangleSkin;
 import feathers.style.Theme;
 import feathers.themes.steel.BaseSteelTheme;
 
+/**
+	The default styles for the `TextEditor` component.
+**/
 @:dox(hide)
 @:access(feathers.themes.steel.BaseSteelTheme)
 class TextEditorStyles {

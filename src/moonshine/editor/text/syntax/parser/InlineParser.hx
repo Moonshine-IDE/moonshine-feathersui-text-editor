@@ -17,10 +17,16 @@
 
 package moonshine.editor.text.syntax.parser;
 
+/**
+	An inline parser used for complex context switch parsers.
+**/
 class InlineParser {
 	public var contextMask:Int;
 	public var parser:ILineParser;
 
+	/**
+		Creates a new `InlineParser` object.
+	**/
 	public function new(contextMask:Int, parser:ILineParser) {
 		this.contextMask = contextMask;
 		this.parser = parser;

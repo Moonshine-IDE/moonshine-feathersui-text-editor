@@ -19,6 +19,9 @@ package moonshine.editor.text.syntax.parser;
 
 import openfl.events.EventDispatcher;
 
+/**
+	Base class for line parsers.
+**/
 class LineParser extends EventDispatcher implements ILineParser {
 	private var wordBoundaries:EReg;
 
@@ -35,6 +38,9 @@ class LineParser extends EventDispatcher implements ILineParser {
 	// If nothing is found this context is set
 	private var _defaultContext:Int = 0x1;
 
+	/**
+		@see `ILineParser.defaultContext`
+	**/
 	@:flash.property
 	public var defaultContext(get, never):Int;
 
@@ -44,14 +50,23 @@ class LineParser extends EventDispatcher implements ILineParser {
 
 	private var result:Array<Int>;
 
+	/**
+		Creates a new `LineParser` object.
+	**/
 	public function new() {
 		super();
 	}
 
+	/**
+		@see `ILineParser.setContext()`
+	**/
 	public function setContext(newContext:Int):Void {
 		context = newContext;
 	}
 
+	/**
+		@see `ILineParser.parse()`
+	**/
 	public function parse(sourceCode:String):Array<Int> {
 		initializeKeywordSet();
 		result = [];

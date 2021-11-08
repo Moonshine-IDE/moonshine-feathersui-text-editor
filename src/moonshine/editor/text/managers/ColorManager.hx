@@ -19,14 +19,20 @@ package moonshine.editor.text.managers;
 
 import moonshine.editor.text.changes.TextEditorChange;
 import moonshine.editor.text.events.TextEditorChangeEvent;
-import moonshine.editor.text.events.TextEditorLineEvent;
 import moonshine.editor.text.syntax.parser.ILineParser;
 import openfl.Lib;
 import openfl.events.Event;
 
+/**
+	Used internally by `TextEditor` to manage syntax highlighting for the
+	language of the currently displayed file.
+**/
 class ColorManager {
-	public static final CHUNK_TIMESPAN:Int = 16;
+	private static final CHUNK_TIMESPAN:Int = 16;
 
+	/**
+		Creates a new `ColorManager` object.
+	**/
 	public function new(textEditor:TextEditor, invalidateCallback:() -> Void) {
 		_textEditor = textEditor;
 		_invalidateCallback = invalidateCallback;
@@ -39,6 +45,9 @@ class ColorManager {
 
 	private var _parser:ILineParser;
 
+	/**
+		The parser used to determine text styles for the current file.
+	**/
 	@:flash.property
 	public var parser(get, set):ILineParser;
 
@@ -58,6 +67,9 @@ class ColorManager {
 	private var _ranges:Array<LineRange> = [];
 	private var _listening = false;
 
+	/**
+		Clears all syntax highlighting in the current file and recalculates.
+	**/
 	public function reset():Void {
 		_ranges.resize(0);
 		invalidate(0, _textEditor.lines.length - 1);

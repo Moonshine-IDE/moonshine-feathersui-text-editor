@@ -20,10 +20,25 @@ package moonshine.editor.text.lsp.views.events;
 import openfl.events.Event;
 import openfl.events.EventType;
 
+/**
+	Events dispatched by `CompletionItemRenderer`.
+**/
 class CompletionItemRendererEvent extends Event {
+	/**
+		Dispatched when the completion item renderer requests to show additional
+		detail about the item.
+	**/
 	public static final SHOW_DETAIL:EventType<CompletionItemRendererEvent> = "showDetail";
+
+	/**
+		Dispatched when the completion item renderer requests to hide additional
+		detail about the item.
+	**/
 	public static final HIDE_DETAIL:EventType<CompletionItemRendererEvent> = "hideDetail";
 
+	/**
+		Creates a new `CompletionItemRendererEvent` object.
+	**/
 	public function new(type:String) {
 		super(type);
 	}

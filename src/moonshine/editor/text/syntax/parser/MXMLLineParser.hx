@@ -21,6 +21,9 @@ import moonshine.editor.text.syntax.parser.XMLLineParser;
 import moonshine.editor.text.syntax.parser.context.InlineParserManager;
 import moonshine.editor.text.syntax.parser.context.ContextSwitch;
 
+/**
+	Parses lines of MXML code to determine how the syntax is highlighted.
+**/
 class MXMLLineParser extends XMLLineParser {
 	public static final SCRIPT_MASK:Int = 0x1000;
 	public static final BIND1_MASK:Int = 0x2000;
@@ -31,6 +34,9 @@ class MXMLLineParser extends XMLLineParser {
 	public static final STYLE_OPEN_TAG:Int = 0x11;
 	public static final STYLE_CLOSE_TAG:Int = 0x12;
 
+	/**
+		Creates a new `MXMLLineParser` object.
+	**/
 	public function new() {
 		super();
 		// Add inline parsers

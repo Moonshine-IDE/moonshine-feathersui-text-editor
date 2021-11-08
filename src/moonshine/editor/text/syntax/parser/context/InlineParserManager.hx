@@ -17,9 +17,15 @@
 
 package moonshine.editor.text.syntax.parser.context;
 
+/**
+	Manages the inline parsers used by a more complex context switch parser.
+**/
 class InlineParserManager {
 	private var parsers:Map<Int, InlineParser> = [];
 
+	/**
+		Creates a new `InlineParserManager` object.
+	**/
 	public function new(parsers:Array<InlineParser>) {
 		for (parser in parsers) {
 			addParser(parser);

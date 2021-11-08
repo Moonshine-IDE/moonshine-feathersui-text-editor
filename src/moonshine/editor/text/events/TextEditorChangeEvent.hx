@@ -21,20 +21,47 @@ import moonshine.editor.text.changes.TextEditorChange;
 import openfl.events.Event;
 import openfl.events.EventType;
 
+/**
+	Dispatched by a `TextEditor` when its text changes.
+**/
 class TextEditorChangeEvent extends Event {
+	/**
+		Dispatched when the text changes.
+	**/
 	public static final TEXT_CHANGE:EventType<TextEditorChangeEvent> = "textChange";
 
+	/**
+		The text change was initiated locally.
+	**/
 	public static final ORIGIN_LOCAL:String = "local";
+
+	/**
+		The text change was initiated by an undo action.
+	**/
 	public static final ORIGIN_UNDO:String = "undo";
+
+	/**
+		The text change was initiated remotely.
+	**/
 	public static final ORIGIN_REMOTE:String = "remote";
 
+	/**
+		Creates a new `TextEditorChangeEvent` object.
+	**/
 	public function new(type:String, changes:Array<TextEditorChange>, ?origin:String) {
 		super(type);
 		this.changes = changes;
 		this.origin = origin != null ? origin : ORIGIN_LOCAL;
 	}
 
+	/**
+		The set of changes to apply.
+	**/
 	public var changes:Array<TextEditorChange>;
+
+	/**
+		The origin of the changes.
+	**/
 	public var origin:String;
 
 	override public function clone():Event {

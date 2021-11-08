@@ -1,0 +1,4 @@
+-cmd haxelib run openfl build ../project.xml html5 -xml -clean
+
+--next
+-cmd haxelib run dox -o ../bin/api -i ../bin/html5/types.xml -in moonshine.editor --title "Text Editor API Reference (Haxe/OpenFL)" --toplevel-package moonshine -D website "https://moonshine-ide.com" -D source-path "https://github.com/Moonshine-IDE/moonshine-feathersui-text-editor/tree/master/src/"

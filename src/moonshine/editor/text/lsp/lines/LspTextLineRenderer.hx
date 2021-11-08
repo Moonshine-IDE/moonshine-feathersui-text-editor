@@ -21,7 +21,13 @@ import moonshine.editor.text.lines.TextLineRenderer;
 import moonshine.lsp.Diagnostic;
 import openfl.display.Shape;
 
+/**
+	A specialized text line renderer used by `LspTextEditor`.
+**/
 class LspTextLineRenderer extends TextLineRenderer {
+	/**
+		Creates a new `LspTextLineRenderer` object.
+	**/
 	public function new() {
 		super();
 	}
@@ -30,6 +36,10 @@ class LspTextLineRenderer extends TextLineRenderer {
 
 	private var _diagnostics:Array<Diagnostic>;
 
+	/**
+		The diagnostics (compiler errors, warnings, and informational messages)
+		to display on the current line.
+	**/
 	@:flash.property
 	public var diagnostics(get, set):Array<Diagnostic>;
 

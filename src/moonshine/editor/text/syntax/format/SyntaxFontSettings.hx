@@ -17,15 +17,31 @@
 
 package moonshine.editor.text.syntax.format;
 
+/**
+	Default font styles to use for all languages.
+**/
 class SyntaxFontSettings {
+	/**
+		Creates a new `SyntaxFontSettings` object.
+	**/
 	public function new(fontFamily:String = "_typewriter", fontSize:Int = 14) {
 		this.fontFamily = fontFamily;
 		this.fontSize = fontSize;
 	}
 
+	/**
+		The default font family.
+	**/
 	public var fontFamily:String;
+
+	/**
+		The default font size.
+	**/
 	public var fontSize:Int;
 
+	/**
+		The default tab stops.
+	**/
 	public var tabStops:Array<Int> = {
 		var stops:Array<Int> = [];
 		var value = 0;

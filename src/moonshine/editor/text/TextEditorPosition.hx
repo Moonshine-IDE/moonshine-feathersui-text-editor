@@ -17,12 +17,26 @@
 
 package moonshine.editor.text;
 
+/**
+	A set of line and character indices that represents a position within a
+	`TextEditor`.
+**/
 class TextEditorPosition {
+	/**
+		Creates a new `TextEditorPosition` object.
+	**/
 	public function new(line:Int = 0, character:Int = 0) {
 		this.line = line;
 		this.character = character;
 	}
 
+	/**
+		A line index within the text editor's content.
+	**/
 	public var line:Int;
+
+	/**
+		A character index within a line.
+	**/
 	public var character:Int;
 }

@@ -32,7 +32,13 @@ import openfl.events.KeyboardEvent;
 import openfl.events.TextEvent;
 import openfl.ui.Keyboard;
 
+/**
+	Used internally by `TextEditor` to manage text edits.
+**/
 class EditManager {
+	/**
+		Creates a new `EditManager` object.
+	**/
 	public function new(textEditor:TextEditor) {
 		_textEditor = textEditor;
 		_textEditor.addEventListener(Event.CUT, editManager_textEditor_cutHandler, false, 0, true);
@@ -51,6 +57,9 @@ class EditManager {
 	private var _activeAutoClosingPairStartCharIndex:Int = -1;
 	private var _activeAutoClosingPairEndCharIndex:Int = -1;
 
+	/**
+		Toggles a line comment at the current caret position.
+	**/
 	public function toggleLineComment():Void {
 		var lineComment = _textEditor.lineComment;
 		if (lineComment == null || lineComment.length == 0) {
@@ -123,6 +132,9 @@ class EditManager {
 		_textEditor.setSelection(newSelectionStartLineIndex, newSelectionStartCharIndex, newSelectionEndLineIndex, newSelectionEndCharIndex);
 	}
 
+	/**
+		Toggles a block comment at the current caret position.
+	**/
 	public function toggleBlockComment():Void {
 		var blockComment = _textEditor.blockComment;
 		if (blockComment == null || blockComment.length < 2) {

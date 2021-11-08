@@ -17,25 +17,81 @@
 
 package moonshine.editor.text;
 
+/**
+	The result returned by find and replace actions on a `TextEditor` component.
+
+	@see `TextEditor.find()`
+	@see `TextEditor.findNext()`
+	@see `TextEditor.replace()`
+	@see `TextEditor.replaceAll()`
+**/
 class TextEditorSearchResult {
-	// Which occurance is selected now?
+	/**
+		The result that is currently selected.
+	**/
 	public var selectedIndex:Int = -1;
 
+	/**
+		The start line index of the result that is currently selected.
+
+		@see `TextEditorSearchResult.selectedIndex`
+	**/
 	public var startLineIndex:Int = -1;
+
+	/**
+		The start character index of the result that is currently selected.
+
+		@see `TextEditorSearchResult.selectedIndex`
+	**/
 	public var startCharIndex:Int = -1;
 
+	/**
+		The end line index of the result that is currently selected.
+
+		@see `TextEditorSearchResult.selectedIndex`
+	**/
 	public var endLineIndex:Int = -1;
+
+	/**
+		The end character index of the result that is currently selected.
+
+		@see `TextEditorSearchResult.selectedIndex`
+	**/
 	public var endCharIndex:Int = -1;
 
+	/**
+		Indicates if the search wrapped around to restart at the beginning.
+	**/
 	public var didWrap:Bool = false;
 
+	/**
+		All results of the search.
+	**/
 	public var results:Array<{pos:Int, len:Int}>;
+
+	/**
+		The replaced ranges of the search.
+	**/
 	public var replaced:Array<{pos:Int, len:Int}>;
 
+	/**
+		The search performed.
+	**/
 	public var search:EReg;
+
+	/**
+		Indicates if the search was backwards or forwards.
+	**/
 	public var backwards:Bool;
+
+	/**
+		Indicates if wrapping was allowed.
+	**/
 	public var allowWrap:Bool;
 
+	/**
+		Creates a new `TextEditorSearchResult` object.
+	**/
 	public function new(search:EReg, backwards:Bool, allowWrap:Bool, ?results:Array<{pos:Int, len:Int}>, ?replaced:Array<{pos:Int, len:Int}>) {
 		this.search = search;
 		this.backwards = backwards;

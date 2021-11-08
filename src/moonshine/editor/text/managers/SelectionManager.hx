@@ -19,10 +19,8 @@ package moonshine.editor.text.managers;
 
 import moonshine.editor.text.changes.TextEditorChange;
 import moonshine.editor.text.events.TextEditorChangeEvent;
-import moonshine.editor.text.lines.TextLineRenderer;
 import moonshine.editor.text.utils.TextUtil;
 import openfl.Lib;
-import openfl.display.DisplayObject;
 import openfl.display.Stage;
 import openfl.events.Event;
 import openfl.events.KeyboardEvent;
@@ -32,10 +30,16 @@ import openfl.geom.Point;
 import openfl.ui.Keyboard;
 import openfl.utils.Timer;
 
+/**
+	Used internally by `TextEditor` to manage selection.
+**/
 class SelectionManager {
 	private static final SCROLL_THRESHOLD:Int = 10;
 	private static final SCROLL_INTERVAL:Int = 60;
 
+	/**
+		Creates a new `SelectionManager` object.
+	**/
 	public function new(textEditor:TextEditor) {
 		_textEditor = textEditor;
 

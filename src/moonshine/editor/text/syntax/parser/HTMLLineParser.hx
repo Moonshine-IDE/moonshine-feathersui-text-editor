@@ -20,6 +20,10 @@ package moonshine.editor.text.syntax.parser;
 import moonshine.editor.text.syntax.parser.context.ContextSwitch;
 import moonshine.editor.text.syntax.parser.context.InlineParserManager;
 
+/**
+	Parses lines of Hyper Text Markup Langugage (HTML) to determine how the
+	syntax is highlighted.
+**/
 class HTMLLineParser extends XMLLineParser {
 	public static final SCRIPT_MASK:Int = 0x1000;
 	public static final SCRIPT_OPEN_TAG:Int = 0x11;
@@ -29,6 +33,9 @@ class HTMLLineParser extends XMLLineParser {
 	public static final STYLE_OPEN_TAG:Int = 0x21;
 	public static final STYLE_CLOSE_TAG:Int = 0x22;
 
+	/**
+		Creates a new `HTMLLineParser` object.
+	**/
 	public function new() {
 		super();
 
