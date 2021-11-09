@@ -169,7 +169,7 @@ class CompletionManager {
 		Aborts current request, if any, and closes the completion list view.
 	**/
 	public function clear():Void {
-		_currentRequestID = -1;
+		incrementRequestID();
 		closeCompletionListView();
 	}
 
@@ -198,17 +198,21 @@ class CompletionManager {
 		}
 		_initialFilterTextLength = _filterText.length;
 		_isIncomplete = false;
+		incrementRequestID();
+		var requestID = _currentRequestID;
+		_currentRequestParams = params;
+		_textEditor.dispatchEvent(new LspTextEditorLanguageRequestEvent(LspTextEditorLanguageRequestEvent.REQUEST_COMPLETION, params, result -> {
+			handleCompletion(requestID, result);
+		}));
+	}
+
+	private function incrementRequestID():Void {
 		if (_currentRequestID == 10000) {
 			// we don't want the counter to overflow into negative numbers
 			// this should be a reasonable time to reset it
 			_currentRequestID = -1;
 		}
 		_currentRequestID++;
-		var requestID = _currentRequestID;
-		_currentRequestParams = params;
-		_textEditor.dispatchEvent(new LspTextEditorLanguageRequestEvent(LspTextEditorLanguageRequestEvent.REQUEST_COMPLETION, params, result -> {
-			handleCompletion(requestID, result);
-		}));
 	}
 
 	private function handleResolveCompletion(requestID:Int, index:Int, result:CompletionItem):Void {
@@ -298,9 +302,9 @@ class CompletionManager {
 	}
 
 	private function refreshAfterFilterUpdate():Void {
-		// clear any active requests because completion resolve responses may
+		// ignore any active requests because completion resolve responses may
 		// not be accurate anymore
-		_currentRequestID = -1;
+		incrementRequestID();
 		_completionListView.dataProvider.refresh();
 		_completionListView.scrollY = 0.0;
 		if (_completionListView.dataProvider.length > 0) {
@@ -481,12 +485,7 @@ class CompletionManager {
 	}
 
 	private function dispatchResolveCompletionEvent(index:Int):Void {
-		if (_currentRequestID == 10000) {
-			// we don't want the counter to overflow into negative numbers
-			// this should be a reasonable time to reset it
-			_currentRequestID = -1;
-		}
-		_currentRequestID++;
+		incrementRequestID();
 		var requestID = _currentRequestID;
 		var item = cast(_completionListView.dataProvider.get(index), CompletionItem);
 		_textEditor.dispatchEvent(new LspTextEditorLanguageRequestEvent(LspTextEditorLanguageRequestEvent.REQUEST_RESOLVE_COMPLETION, item, result -> {

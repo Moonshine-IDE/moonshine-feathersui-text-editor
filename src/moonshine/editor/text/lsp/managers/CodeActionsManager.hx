@@ -119,7 +119,7 @@ class CodeActionsManager {
 		Aborts current request, if any, and closes the code actions view.
 	**/
 	public function clear():Void {
-		_currentRequestID = -1;
+		incrementRequestID();
 		closeCodeActionsView();
 	}
 
@@ -133,18 +133,22 @@ class CodeActionsManager {
 			closeCodeActionsView();
 			return;
 		}
-		if (_currentRequestID == 10000) {
-			// we don't want the counter to overflow into negative numbers
-			// this should be a reasonable time to reset it
-			_currentRequestID = -1;
-		}
-		_currentRequestID++;
+		incrementRequestID();
 		var requestID = _currentRequestID;
 		_currentRequestParams = params;
 		_currentOpenOnResponse = open;
 		_textEditor.dispatchEvent(new LspTextEditorLanguageRequestEvent(LspTextEditorLanguageRequestEvent.REQUEST_CODE_ACTIONS, params, result -> {
 			handleCodeActions(requestID, result);
 		}));
+	}
+
+	private function incrementRequestID():Void {
+		if (_currentRequestID == 10000) {
+			// we don't want the counter to overflow into negative numbers
+			// this should be a reasonable time to reset it
+			_currentRequestID = -1;
+		}
+		_currentRequestID++;
 	}
 
 	private function handleCodeActions(requestID:Int, result:Array<CodeAction>):Void {

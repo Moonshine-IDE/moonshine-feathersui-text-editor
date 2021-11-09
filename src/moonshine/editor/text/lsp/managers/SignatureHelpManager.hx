@@ -116,7 +116,7 @@ class SignatureHelpManager {
 		Aborts current request, if any, and closes the signature help view.
 	**/
 	public function clear():Void {
-		_currentRequestID = -1;
+		incrementRequestID();
 		closeSignatureHelpView();
 	}
 
@@ -124,17 +124,21 @@ class SignatureHelpManager {
 		Sends a signature help request.
 	**/
 	public function dispatchSignatureHelpEvent(params:SignatureHelpParams):Void {
+		incrementRequestID();
+		var requestID = _currentRequestID;
+		_currentRequestParams = params;
+		_textEditor.dispatchEvent(new LspTextEditorLanguageRequestEvent(LspTextEditorLanguageRequestEvent.REQUEST_SIGNATURE_HELP, params, result -> {
+			handleSignatureHelp(requestID, result);
+		}));
+	}
+
+	private function incrementRequestID():Void {
 		if (_currentRequestID == 10000) {
 			// we don't want the counter to overflow into negative numbers
 			// this should be a reasonable time to reset it
 			_currentRequestID = -1;
 		}
 		_currentRequestID++;
-		var requestID = _currentRequestID;
-		_currentRequestParams = params;
-		_textEditor.dispatchEvent(new LspTextEditorLanguageRequestEvent(LspTextEditorLanguageRequestEvent.REQUEST_SIGNATURE_HELP, params, result -> {
-			handleSignatureHelp(requestID, result);
-		}));
 	}
 
 	private function handleSignatureHelp(requestID:Int, result:SignatureHelp):Void {

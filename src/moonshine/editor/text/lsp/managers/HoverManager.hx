@@ -65,7 +65,7 @@ class HoverManager {
 		Aborts current request and closes the hover view.
 	**/
 	public function clear():Void {
-		_currentRequestID = -1;
+		incrementRequestID();
 		closeHoverView();
 	}
 
@@ -79,12 +79,7 @@ class HoverManager {
 			closeHoverView();
 			return;
 		}
-		if (_currentRequestID == 10000) {
-			// we don't want the counter to overflow into negative numbers
-			// this should be a reasonable time to reset it
-			_currentRequestID = -1;
-		}
-		_currentRequestID++;
+		incrementRequestID();
 		var requestID = _currentRequestID;
 		_currentRequestParams = params;
 		// show hover immediately because there may be diagnostics, and we'll
@@ -93,6 +88,15 @@ class HoverManager {
 		_textEditor.dispatchEvent(new LspTextEditorLanguageRequestEvent(LspTextEditorLanguageRequestEvent.REQUEST_HOVER, params, result -> {
 			handleHover(requestID, result);
 		}));
+	}
+
+	private function incrementRequestID():Void {
+		if (_currentRequestID == 10000) {
+			// we don't want the counter to overflow into negative numbers
+			// this should be a reasonable time to reset it
+			_currentRequestID = -1;
+		}
+		_currentRequestID++;
 	}
 
 	private function handleHover(requestID:Int, result:Hover):Void {

@@ -70,17 +70,21 @@ class DefinitionManager {
 			clearDefinition();
 			return;
 		}
+		incrementRequestID();
+		var requestID = _currentRequestID;
+		_currentRequestParams = params;
+		_textEditor.dispatchEvent(new LspTextEditorLanguageRequestEvent(LspTextEditorLanguageRequestEvent.REQUEST_DEFINITION, params, result -> {
+			handleDefinition(requestID, result, link);
+		}));
+	}
+
+	private function incrementRequestID():Void {
 		if (_currentRequestID == 10000) {
 			// we don't want the counter to overflow into negative numbers
 			// this should be a reasonable time to reset it
 			_currentRequestID = -1;
 		}
 		_currentRequestID++;
-		var requestID = _currentRequestID;
-		_currentRequestParams = params;
-		_textEditor.dispatchEvent(new LspTextEditorLanguageRequestEvent(LspTextEditorLanguageRequestEvent.REQUEST_DEFINITION, params, result -> {
-			handleDefinition(requestID, result, link);
-		}));
 	}
 
 	private function handleDefinition(requestID:Int, result:Array<Any> /* Array<Location | LocationLink> */, link:Bool):Void {
