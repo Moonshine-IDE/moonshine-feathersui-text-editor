@@ -298,6 +298,9 @@ class CompletionManager {
 	}
 
 	private function refreshAfterFilterUpdate():Void {
+		// clear any active requests because completion resolve responses may
+		// not be accurate anymore
+		_currentRequestID = -1;
 		_completionListView.dataProvider.refresh();
 		_completionListView.scrollY = 0.0;
 		if (_completionListView.dataProvider.length > 0) {
