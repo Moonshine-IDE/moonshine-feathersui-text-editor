@@ -699,7 +699,12 @@ class EditManager {
 		var prevChange:TextEditorChange = null;
 		while (i < changes.length) {
 			var change = changes[i];
-			if (change.startLine < 0 || change.startChar < 0 || change.endLine < 0 || change.endChar < 0) {
+			if (change.startLine < 0
+				|| change.startChar < 0
+				|| change.endLine < 0
+				|| change.endChar < 0
+				|| change.startLine > change.endLine
+				|| (change.startLine == change.endLine && change.startChar > change.endChar)) {
 				throw new RangeError('Invalid text editor change. Start: (${change.startLine}, ${change.startChar}), End: (${change.endLine}, ${change.endChar})');
 			}
 			if (prevChange == null) {
