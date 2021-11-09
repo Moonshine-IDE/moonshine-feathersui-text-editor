@@ -111,7 +111,14 @@ class CompletionItemRenderer extends ItemRenderer {
 			var item = cast(data, CompletionItem);
 			if (item != null) {
 				text = item.label;
-				_detailText.text = item.detail;
+				var detail = item.detail;
+				if (detail != null) {
+					var newLineIndex = detail.indexOf("\n");
+					if (newLineIndex != -1) {
+						detail = detail.substr(0, newLineIndex);
+					}
+				}
+				_detailText.text = detail;
 			} else {
 				text = null;
 				_detailText.text = null;
