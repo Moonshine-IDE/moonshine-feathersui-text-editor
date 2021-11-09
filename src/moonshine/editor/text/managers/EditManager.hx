@@ -25,9 +25,8 @@ import moonshine.editor.text.lines.TextLineModel;
 import moonshine.editor.text.utils.AutoClosingPair;
 import moonshine.editor.text.utils.TextEditorUtil;
 import moonshine.editor.text.utils.TextUtil;
-import openfl.desktop.Clipboard;
-import openfl.desktop.ClipboardFormats;
 import openfl.errors.ArgumentError;
+import openfl.errors.RangeError;
 import openfl.events.KeyboardEvent;
 import openfl.events.TextEvent;
 import openfl.ui.Keyboard;
@@ -700,6 +699,9 @@ class EditManager {
 		var prevChange:TextEditorChange = null;
 		while (i < changes.length) {
 			var change = changes[i];
+			if (change.startLine < 0 || change.startChar < 0 || change.endLine < 0 || change.endChar < 0) {
+				throw new RangeError('Invalid text editor change. Start: (${change.startLine}, ${change.startChar}), End: (${change.endLine}, ${change.endChar})');
+			}
 			if (prevChange == null) {
 				prevChange = change;
 				i++;
