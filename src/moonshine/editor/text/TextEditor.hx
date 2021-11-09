@@ -1159,7 +1159,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	private function updateTextLineRendererFromModel(itemRenderer:TextLineRenderer, lineModel:TextLineModel):Void {
 		itemRenderer.lineIndex = lineModel.lineIndex;
 		itemRenderer.text = lineModel.text;
-		if (lineModel.lineIndex == _caretLineIndex) {
+		if (!_readOnly && lineModel.lineIndex == _caretLineIndex) {
 			itemRenderer.caretIndex = Std.int(Math.min(caretCharIndex, lineModel.text.length));
 		} else {
 			itemRenderer.caretIndex = -1;
