@@ -24,6 +24,41 @@ import moonshine.editor.text.changes.TextEditorChange;
 **/
 class TextEditorUtil {
 	/**
+		Deletes the current selection and optionally replaces it with new text.
+	**/
+	public static function deleteSelection(textEditor:TextEditor, ?newText:String):Null<TextEditorChange> {
+		if (!textEditor.hasSelection && (newText == null || newText.length == 0)) {
+			return null;
+		}
+
+		var startChar:Int;
+		var endChar:Int;
+		var startLine:Int;
+		var endLine:Int;
+
+		if (textEditor.hasSelection && textEditor.selectionStartLineIndex != textEditor.selectionEndLineIndex) {
+			if (textEditor.selectionStartLineIndex < textEditor.caretLineIndex) {
+				startLine = textEditor.selectionStartLineIndex;
+				startChar = textEditor.selectionStartCharIndex;
+				endLine = textEditor.caretLineIndex;
+				endChar = textEditor.caretCharIndex;
+			} else {
+				startLine = textEditor.caretLineIndex;
+				startChar = textEditor.caretCharIndex;
+				endLine = textEditor.selectionStartLineIndex;
+				endChar = textEditor.selectionStartCharIndex;
+			}
+		} else {
+			startLine = textEditor.caretLineIndex;
+			endLine = startLine;
+			startChar = Std.int(Math.min(textEditor.selectionStartCharIndex, textEditor.caretCharIndex));
+			endChar = Std.int(Math.max(textEditor.selectionStartCharIndex, textEditor.caretCharIndex));
+		}
+
+		return new TextEditorChange(startLine, startChar, endLine, endChar, newText);
+	}
+
+	/**
 		Applies a `TextEditorChange` to an array of strings representing a file
 		displayed by a `TextEditor`.
 	**/

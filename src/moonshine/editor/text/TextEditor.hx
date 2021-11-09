@@ -32,6 +32,7 @@ import moonshine.editor.text.events.TextEditorEvent;
 import moonshine.editor.text.events.TextEditorLineEvent;
 import moonshine.editor.text.lines.TextLineModel;
 import moonshine.editor.text.lines.TextLineRenderer;
+import moonshine.editor.text.managers.ClipboardManager;
 import moonshine.editor.text.managers.ColorManager;
 import moonshine.editor.text.managers.EditManager;
 import moonshine.editor.text.managers.FindReplaceManager;
@@ -75,6 +76,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			_editMananger = new EditManager(this);
 			_undoManager = new UndoManager(this);
 		}
+		_clipboardMananger = new ClipboardManager(this);
 		_selectionMananger = new SelectionManager(this);
 		_colorManager = new ColorManager(this, invalidateVisibleLines);
 		_findReplaceManager = new FindReplaceManager(this);
@@ -98,6 +100,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	private var _editMananger:EditManager;
 	private var _undoManager:UndoManager;
 	private var _selectionMananger:SelectionManager;
+	private var _clipboardMananger:ClipboardManager;
 	private var _colorManager:ColorManager;
 	private var _findReplaceManager:FindReplaceManager;
 

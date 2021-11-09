@@ -23,11 +23,11 @@ import moonshine.editor.text.events.TextEditorChangeEvent;
 import moonshine.editor.text.events.TextEditorEvent;
 import moonshine.editor.text.lines.TextLineModel;
 import moonshine.editor.text.utils.AutoClosingPair;
+import moonshine.editor.text.utils.TextEditorUtil;
 import moonshine.editor.text.utils.TextUtil;
 import openfl.desktop.Clipboard;
 import openfl.desktop.ClipboardFormats;
 import openfl.errors.ArgumentError;
-import openfl.events.Event;
 import openfl.events.KeyboardEvent;
 import openfl.events.TextEvent;
 import openfl.ui.Keyboard;
@@ -41,9 +41,6 @@ class EditManager {
 	**/
 	public function new(textEditor:TextEditor) {
 		_textEditor = textEditor;
-		_textEditor.addEventListener(Event.CUT, editManager_textEditor_cutHandler, false, 0, true);
-		_textEditor.addEventListener(Event.COPY, editManager_textEditor_copyHandler, false, 0, true);
-		_textEditor.addEventListener(Event.PASTE, editManager_textEditor_pasteHandler, false, 0, true);
 		_textEditor.addEventListener(KeyboardEvent.KEY_DOWN, editManager_textEditor_keyDownHandler, false, 0, true);
 		_textEditor.addEventListener(TextEvent.TEXT_INPUT, editManager_textEditor_textInputHandler, false, 0, true);
 		_textEditor.addEventListener(TextEditorChangeEvent.TEXT_CHANGE, editManager_textEditor_textChangePriorityHandler, false, 100, true);
@@ -424,7 +421,7 @@ class EditManager {
 
 	private function insertText(text:String):Void {
 		if (_textEditor.hasSelection) {
-			var change = createRemoveSelectionTextEditorChange(text);
+			var change = TextEditorUtil.deleteSelection(_textEditor, text);
 			if (change != null) {
 				dispatchChanges([change]);
 			}
@@ -500,7 +497,7 @@ class EditManager {
 
 	private function createRemoveAtCursorTextEditorChange(afterCaret:Bool, isWord:Bool):Null<TextEditorChange> {
 		if (_textEditor.hasSelection) {
-			return createRemoveSelectionTextEditorChange();
+			return TextEditorUtil.deleteSelection(_textEditor);
 		}
 
 		var startLine = _textEditor.caretLineIndex;
@@ -535,38 +532,6 @@ class EditManager {
 		}
 
 		return new TextEditorChange(startLine, startChar, endLine, endChar);
-	}
-
-	private function createRemoveSelectionTextEditorChange(?newText:String):Null<TextEditorChange> {
-		if (!_textEditor.hasSelection && (newText == null || newText.length == 0)) {
-			return null;
-		}
-
-		var startChar:Int;
-		var endChar:Int;
-		var startLine:Int;
-		var endLine:Int;
-
-		if (_textEditor.hasSelection && _textEditor.selectionStartLineIndex != _textEditor.selectionEndLineIndex) {
-			if (_textEditor.selectionStartLineIndex < _textEditor.caretLineIndex) {
-				startLine = _textEditor.selectionStartLineIndex;
-				startChar = _textEditor.selectionStartCharIndex;
-				endLine = _textEditor.caretLineIndex;
-				endChar = _textEditor.caretCharIndex;
-			} else {
-				startLine = _textEditor.caretLineIndex;
-				startChar = _textEditor.caretCharIndex;
-				endLine = _textEditor.selectionStartLineIndex;
-				endChar = _textEditor.selectionStartCharIndex;
-			}
-		} else {
-			startLine = _textEditor.caretLineIndex;
-			endLine = startLine;
-			startChar = Std.int(Math.min(_textEditor.selectionStartCharIndex, _textEditor.caretCharIndex));
-			endChar = Std.int(Math.max(_textEditor.selectionStartCharIndex, _textEditor.caretCharIndex));
-		}
-
-		return new TextEditorChange(startLine, startChar, endLine, endChar, newText);
 	}
 
 	private function createDecreaseIndentTextEditorChange(lineIndex:Int):Null<TextEditorChange> {
@@ -638,46 +603,6 @@ class EditManager {
 		if (!~/[^\x00-\x1F\x7F\x80-\x9F]/.match(newText)) {
 			return;
 		}
-		insertText(newText);
-	}
-
-	private function copy():Void {
-		if (!_textEditor.hasSelection) {
-			// don't update the clipboard if nothing is selected
-			return;
-		}
-		Clipboard.generalClipboard.setData(ClipboardFormats.TEXT_FORMAT, _textEditor.selectedText, false);
-	}
-
-	private function editManager_textEditor_cutHandler(event:Event):Void {
-		if (event.isDefaultPrevented()) {
-			return;
-		}
-		copy();
-		if (_textEditor.hasSelection) {
-			// don't remove anything if nothing is selected
-			var change = createRemoveSelectionTextEditorChange();
-			if (change != null) {
-				dispatchChanges([change]);
-			}
-		}
-	}
-
-	private function editManager_textEditor_copyHandler(event:Event):Void {
-		if (event.isDefaultPrevented()) {
-			return;
-		}
-		copy();
-	}
-
-	private function editManager_textEditor_pasteHandler(event:Event):Void {
-		if (event.isDefaultPrevented()) {
-			return;
-		}
-		if (!Clipboard.generalClipboard.hasFormat(ClipboardFormats.TEXT_FORMAT)) {
-			return;
-		}
-		var newText = Clipboard.generalClipboard.getData(ClipboardFormats.TEXT_FORMAT);
 		insertText(newText);
 	}
 
