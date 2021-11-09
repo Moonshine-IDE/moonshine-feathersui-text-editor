@@ -28,31 +28,20 @@ class TextEditorUtil {
 	**/
 	public static function deleteSelection(textEditor:TextEditor, ?newText:String):Null<TextEditorChange> {
 		if (!textEditor.hasSelection && (newText == null || newText.length == 0)) {
+			// no change necessary because there's no selection and no new text
 			return null;
 		}
 
-		var startChar:Int;
-		var endChar:Int;
-		var startLine:Int;
-		var endLine:Int;
+		var startLine:Int = textEditor.selectionStartLineIndex;
+		var startChar:Int = textEditor.selectionStartCharIndex;
+		var endLine:Int = textEditor.selectionEndLineIndex;
+		var endChar:Int = textEditor.selectionEndCharIndex;
 
-		if (textEditor.hasSelection && textEditor.selectionStartLineIndex != textEditor.selectionEndLineIndex) {
-			if (textEditor.selectionStartLineIndex < textEditor.caretLineIndex) {
-				startLine = textEditor.selectionStartLineIndex;
-				startChar = textEditor.selectionStartCharIndex;
-				endLine = textEditor.caretLineIndex;
-				endChar = textEditor.caretCharIndex;
-			} else {
-				startLine = textEditor.caretLineIndex;
-				startChar = textEditor.caretCharIndex;
-				endLine = textEditor.selectionStartLineIndex;
-				endChar = textEditor.selectionStartCharIndex;
-			}
-		} else {
+		if (!textEditor.hasSelection) {
 			startLine = textEditor.caretLineIndex;
+			startChar = textEditor.caretCharIndex;
 			endLine = startLine;
-			startChar = Std.int(Math.min(textEditor.selectionStartCharIndex, textEditor.caretCharIndex));
-			endChar = Std.int(Math.max(textEditor.selectionStartCharIndex, textEditor.caretCharIndex));
+			endChar = startChar;
 		}
 
 		return new TextEditorChange(startLine, startChar, endLine, endChar, newText);
