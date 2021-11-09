@@ -32,16 +32,23 @@ class TextEditorUtil {
 			return null;
 		}
 
-		var startLine:Int = textEditor.selectionStartLineIndex;
-		var startChar:Int = textEditor.selectionStartCharIndex;
-		var endLine:Int = textEditor.selectionEndLineIndex;
-		var endChar:Int = textEditor.selectionEndCharIndex;
+		var startLine = textEditor.caretLineIndex;
+		var startChar = textEditor.caretCharIndex;
+		var endLine = startLine;
+		var endChar = startChar;
 
-		if (!textEditor.hasSelection) {
-			startLine = textEditor.caretLineIndex;
-			startChar = textEditor.caretCharIndex;
-			endLine = startLine;
-			endChar = startChar;
+		if (textEditor.hasSelection) {
+			startLine = textEditor.selectionStartLineIndex;
+			startChar = textEditor.selectionStartCharIndex;
+			endLine = textEditor.selectionEndLineIndex;
+			endChar = textEditor.selectionEndCharIndex;
+			if (startLine > endLine || (startLine == endLine && startChar > endChar)) {
+				// text edits require start and end positions to be in order
+				startLine = textEditor.selectionEndLineIndex;
+				startChar = textEditor.selectionEndCharIndex;
+				endLine = textEditor.selectionStartLineIndex;
+				endChar = textEditor.selectionStartCharIndex;
+			}
 		}
 
 		return new TextEditorChange(startLine, startChar, endLine, endChar, newText);
