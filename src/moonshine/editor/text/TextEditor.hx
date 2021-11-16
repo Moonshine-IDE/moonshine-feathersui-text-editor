@@ -592,11 +592,26 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	**/
 	public var insertSpacesForTabs:Bool = false;
 
+	private var _allowToggleBreakpoints:Bool = false;
+
 	/**
 		Indicates if the user is allowed to toggle breakpoints by clicking
 		inside a line's gutter.
 	**/
-	public var allowToggleBreakpoints:Bool = false;
+	public var allowToggleBreakpoints(get, set):Bool;
+
+	private function get_allowToggleBreakpoints():Bool {
+		return _allowToggleBreakpoints;
+	}
+
+	private function set_allowToggleBreakpoints(value:Bool):Bool {
+		if (_allowToggleBreakpoints == value) {
+			return _allowToggleBreakpoints;
+		}
+		_allowToggleBreakpoints = value;
+		setInvalid(DATA);
+		return _allowToggleBreakpoints;
+	}
 
 	private var _breakpoints:Array<Int> = [];
 
@@ -1173,7 +1188,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		itemRenderer.tabWidth = _tabWidth;
 		itemRenderer.scrollX = _listView.scrollX;
 		itemRenderer.breakpoint = _breakpoints != null && _breakpoints.indexOf(lineModel.lineIndex) != -1;
-		itemRenderer.allowToggleBreakpoints = allowToggleBreakpoints;
+		itemRenderer.allowToggleBreakpoints = _allowToggleBreakpoints;
 		itemRenderer.debuggerStopped = _debuggerLineIndex == lineModel.lineIndex;
 		itemRenderer.styleRanges = lineModel.styleRanges;
 		itemRenderer.textStyles = _textStyles;
@@ -1345,7 +1360,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	}
 
 	private function textEditor_textLineRenderer_toggleBreakpointHandler(event:TextEditorLineEvent):Void {
-		if (!allowToggleBreakpoints) {
+		if (!_allowToggleBreakpoints) {
 			return;
 		}
 		var lineIndex = event.lineIndex;
