@@ -598,6 +598,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		Indicates if the user is allowed to toggle breakpoints by clicking
 		inside a line's gutter.
 	**/
+	@:flash.property
 	public var allowToggleBreakpoints(get, set):Bool;
 
 	private function get_allowToggleBreakpoints():Bool {

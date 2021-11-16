@@ -284,6 +284,7 @@ class TextLineRenderer extends FeathersControl {
 	/**
 		Returns the width of the gutter.
 	**/
+	@:flash.property
 	public var gutterWidth(get, never):Float;
 
 	private function get_gutterWidth():Float {
