@@ -697,7 +697,7 @@ class EditManager {
 			return -1;
 		}
 		if (change2InsertOnly && !change1InsertOnly) {
-			return -1;
+			return 1;
 		}
 		return 0;
 	}
