@@ -691,6 +691,14 @@ class EditManager {
 		if (change2.startChar < change1.startChar) {
 			return -1;
 		}
+		var change1InsertOnly = change1.startLine == change1.endLine && change1.startChar == change1.endChar;
+		var change2InsertOnly = change2.startLine == change2.endLine && change2.startChar == change2.endChar;
+		if (change1InsertOnly && !change2InsertOnly) {
+			return -1;
+		}
+		if (change2InsertOnly && !change1InsertOnly) {
+			return -1;
+		}
 		return 0;
 	}
 
