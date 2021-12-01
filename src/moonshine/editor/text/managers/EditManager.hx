@@ -691,17 +691,6 @@ class EditManager {
 		if (change2.startChar < change1.startChar) {
 			return -1;
 		}
-<<<<<<< HEAD
-		var change1InsertOnly = change1.startLine == change1.endLine && change1.startChar == change1.endChar;
-		var change2InsertOnly = change2.startLine == change2.endLine && change2.startChar == change2.endChar;
-		if (change1InsertOnly && !change2InsertOnly) {
-			return -1;
-		}
-		if (change2InsertOnly && !change1InsertOnly) {
-			return 1;
-		}
-=======
->>>>>>> parent of bd35f18 (EditManager: improve sorting of multiple text edits so that insert only edits appear before removal edits, if the start position is the same (closes #4))
 		return 0;
 	}
 
@@ -710,6 +699,13 @@ class EditManager {
 		var prevChange:TextEditorChange = null;
 		while (i < changes.length) {
 			var change = changes[i];
+			if (change.startLine == change.endLine
+				&& change.startChar == change.endChar
+				&& (change.newText == null || change.newText.length == 0)) {
+				// there is no actual change, so skip it
+				changes.splice(i, 1);
+				continue;
+			}
 			if (change.startLine < 0
 				|| change.startChar < 0
 				|| change.endLine < 0
