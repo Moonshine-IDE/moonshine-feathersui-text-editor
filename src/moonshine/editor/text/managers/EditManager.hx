@@ -768,8 +768,11 @@ class EditManager {
 		// since the changes will not overlap, it's okay to sort them.
 		// use ArraySort.sort() instead of changes.sort() because we don't want
 		// equal edits to be out of order.
-		ArraySort.sort(event.changes, sortTextChanges);
-		mergeChanges(event.changes);
+
+		if (event.origin != TextEditorChangeEvent.ORIGIN_UNDO) {
+			ArraySort.sort(event.changes, sortTextChanges);
+			mergeChanges(event.changes);
+		}
 	}
 
 	private function editManager_textEditor_textChangeHandler(event:TextEditorChangeEvent):Void {
