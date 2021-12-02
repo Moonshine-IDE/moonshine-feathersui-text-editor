@@ -187,7 +187,10 @@ class CompletionManager {
 			|| params.context.triggerKind != CompletionTriggerKind.TriggerCharacter
 			|| params.context.triggerCharacter == null) {
 			var line = _textEditor.lines.get(_textEditor.caretLineIndex);
-			var startIndex = TextUtil.startOfWord(line.text, _textEditor.caretCharIndex);
+			var startIndex = _textEditor.caretCharIndex - 1;
+			if (startIndex >= 0) {
+				startIndex = TextUtil.startOfWord(line.text, startIndex);
+			}
 			if (startIndex >= 0) {
 				_filterText = line.text.substr(startIndex, Std.int(Math.max(0, _textEditor.caretCharIndex - startIndex))).toLowerCase();
 			} else {
