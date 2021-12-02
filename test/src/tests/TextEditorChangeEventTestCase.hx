@@ -110,4 +110,20 @@ class TextEditorChangeEventTestCase extends Test {
 		Assert.equals(-1, _textEditor.selectionEndLineIndex);
 		Assert.equals(-1, _textEditor.selectionEndCharIndex);
 	}
+
+	public function testImportStyleEdits():Void {
+		_textEditor.text = "import openfl.display.Sprite;\n\nvar event:";
+		_textEditor.setSelection(2, 10, 2, 10);
+		_textEditor.dispatchEvent(new TextEditorChangeEvent(TextEditorChangeEvent.TEXT_CHANGE, [
+			new TextEditorChange(2, 10, 2, 10, "Event"),
+			new TextEditorChange(1, 0, 1, 0, "import openfl.events.Event;\n")
+		]));
+		Assert.equals("import openfl.display.Sprite;\nimport openfl.events.Event;\n\nvar event:Event", _textEditor.text);
+		Assert.equals(3, _textEditor.caretLineIndex);
+		Assert.equals(15, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
 }

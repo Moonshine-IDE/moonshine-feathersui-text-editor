@@ -62,17 +62,43 @@ class SelectionManager {
 	private var _dragScrollTimer:Timer;
 
 	private function applyChanges(changes:Array<TextEditorChange>):Void {
+		var line = _textEditor.caretLineIndex;
+		var char = _textEditor.caretCharIndex;
+
 		for (change in changes) {
-			var newLineIndex = change.startLine;
-			var newCharIndex = change.startChar;
-			if (change.newText != null) {
-				var insertedLines = ~/\r?\n|\r/g.split(change.newText);
-				// set caret to the end of the text change
-				newLineIndex = change.startLine + insertedLines.length - 1;
-				newCharIndex = (insertedLines.length == 1 ? change.startChar : 0) + insertedLines[insertedLines.length - 1].length;
+			if ((line > change.startLine && line < change.endLine)
+				|| (line == change.startLine && char >= change.startChar)
+				|| (line == change.endLine && char <= change.endChar)) {
+				line = change.endLine;
+				char = change.endChar;
 			}
-			_textEditor.setSelection(newLineIndex, newCharIndex, newLineIndex, newCharIndex);
+
+			if (change.endLine == line && change.endChar <= char) {
+				char -= change.endChar;
+			}
+
+			if (line >= change.endLine) {
+				line -= (change.endLine - change.startLine);
+				if (line == change.startLine) {
+					char += change.startChar;
+				}
+			}
+
+			var newText:String = change.newText;
+			if (newText != null && newText.length > 0) {
+				var insertedLines = ~/\r?\n|\r/g.split(newText);
+				if (line == change.startLine && char >= change.startChar) {
+					if (insertedLines.length > 1) {
+						char -= change.startChar;
+					}
+					char += insertedLines[insertedLines.length - 1].length;
+				}
+				if (line >= change.startLine) {
+					line += (insertedLines.length - 1);
+				}
+			}
 		}
+		_textEditor.setSelection(line, char, line, char);
 	}
 
 	private function focusSelectionStart():Void {
