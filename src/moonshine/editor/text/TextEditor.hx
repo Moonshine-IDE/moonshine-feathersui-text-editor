@@ -532,7 +532,10 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	public var caretCharIndex(get, never):Int;
 
 	private function get_caretCharIndex():Int {
-		var caretLine = _lines.get(_caretLineIndex);
+		var caretLine:TextLineModel = null;
+		if (_caretLineIndex < _lines.length) {
+			caretLine = _lines.get(_caretLineIndex);
+		}
 		if (caretLine == null) {
 			return 0;
 		}
