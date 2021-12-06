@@ -301,7 +301,11 @@ class CompletionManager {
 		if (_filterText == null || _filterText.length == 0) {
 			return true;
 		}
-		return StringTools.startsWith(item.label.toLowerCase(), _filterText);
+		var itemText = item.label;
+		if (item.filterText != null) {
+			itemText = item.filterText;
+		}
+		return StringTools.startsWith(itemText.toLowerCase(), _filterText);
 	}
 
 	private function refreshAfterFilterUpdate():Void {
