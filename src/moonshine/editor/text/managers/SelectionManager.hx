@@ -70,8 +70,8 @@ class SelectionManager {
 
 		for (change in changes) {
 			if ((line > change.startLine && line < change.endLine)
-				|| (line == change.startLine && char >= change.startChar)
-				|| (line == change.endLine && char <= change.endChar)) {
+				|| (line == change.startLine && line < change.endLine && char >= change.startChar)
+				|| (line > change.startLine && line == change.endLine && char <= change.endChar)) {
 				line = change.endLine;
 				char = change.endChar;
 			}
