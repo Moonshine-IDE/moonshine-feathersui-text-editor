@@ -487,7 +487,6 @@ class EditManager {
 			// undo/redo, but we don't really have any choice. this should be
 			// relatively rare, though.
 			dispatchChanges([decreaseIndent]);
-			return;
 		}
 		var line = _textEditor.caretLineIndex;
 		var char = _textEditor.caretCharIndex;
