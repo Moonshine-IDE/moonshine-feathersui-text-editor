@@ -47,6 +47,7 @@ class SelectionManager {
 		// need to use capture for the navigation keys because the internal
 		// container might try to cancel them before our listener is called
 		_textEditor.addEventListener(KeyboardEvent.KEY_DOWN, selectionManager_textEditor_keyDownCaptureHandler, true, 0, true);
+		_textEditor.addEventListener(TextEditorChangeEvent.TEXT_CHANGE, selectionManager_textEditor_textChangePriorityHandler, false, 100, true);
 		_textEditor.addEventListener(TextEditorChangeEvent.TEXT_CHANGE, selectionManager_textEditor_textChangeHandler, false, 0, true);
 		_textEditor.addEventListener(Event.SELECT_ALL, selectionManager_textEditor_selectAllHandler, false, 0, true);
 		_textEditor.addEventListener(MouseEvent.MOUSE_DOWN, selectionManager_textEditor_mouseDownHandler, false, 0, true);
@@ -54,6 +55,8 @@ class SelectionManager {
 
 	private var _textEditor:TextEditor;
 
+	private var _savedCaretLineIndex:Int = -1;
+	private var _savedCaretCharIndex:Int = -1;
 	private var _dragStartLine:Int = -1;
 	private var _dragStartChar:Int = -1;
 	private var _dragEndChar:Int = -1;
@@ -62,8 +65,8 @@ class SelectionManager {
 	private var _dragScrollTimer:Timer;
 
 	private function applyChanges(changes:Array<TextEditorChange>):Void {
-		var line = _textEditor.caretLineIndex;
-		var char = _textEditor.caretCharIndex;
+		var line = _savedCaretLineIndex;
+		var char = _savedCaretCharIndex;
 
 		for (change in changes) {
 			if ((line > change.startLine && line < change.endLine)
@@ -522,6 +525,14 @@ class SelectionManager {
 			event.preventDefault();
 			_textEditor.scrollViewIfNeeded();
 		}
+	}
+
+	private function selectionManager_textEditor_textChangePriorityHandler(event:TextEditorChangeEvent):Void {
+		if (event.origin == TextEditorChangeEvent.ORIGIN_REMOTE) {
+			return;
+		}
+		_savedCaretLineIndex = _textEditor.caretLineIndex;
+		_savedCaretCharIndex = _textEditor.caretCharIndex;
 	}
 
 	private function selectionManager_textEditor_textChangeHandler(event:TextEditorChangeEvent):Void {
