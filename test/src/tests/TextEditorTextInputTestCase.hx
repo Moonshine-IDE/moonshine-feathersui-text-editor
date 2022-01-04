@@ -430,6 +430,36 @@ class TextEditorTextInputTestCase extends Test {
 		Assert.equals(-1, _textEditor.selectionEndCharIndex);
 	}
 
+	public function testNewLineAfterNestedBracketOpenIncreasesIndent():Void {
+		_textEditor.brackets = [["{", "}"]];
+		_textEditor.text = "hello {\n\tworld {";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(1, 8, 1, 8);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.ENTER));
+		Assert.equals("hello {\n\tworld {\n\t\t", _textEditor.text);
+		Assert.equals(2, _textEditor.caretLineIndex);
+		Assert.equals(2, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testNestedBracketCloseAfterNewLineDecreasesIndent():Void {
+		_textEditor.brackets = [["{", "}"]];
+		_textEditor.text = "hello {\n\tworld {\n\t\t";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(2, 2, 2, 2);
+		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, "}"));
+		Assert.equals("hello {\n\tworld {\n\t}", _textEditor.text);
+		Assert.equals(2, _textEditor.caretLineIndex);
+		Assert.equals(2, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
 	public function testToggleLineCommentOn():Void {
 		_textEditor.lineComment = "//";
 		_textEditor.text = "hello";
