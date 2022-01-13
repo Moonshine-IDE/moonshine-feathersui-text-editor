@@ -80,6 +80,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		_selectionMananger = new SelectionManager(this);
 		_colorManager = new ColorManager(this, invalidateVisibleLines);
 		_findReplaceManager = new FindReplaceManager(this);
+		createContextMenu();
 		this.text = text;
 		addEventListener(TextEditorChangeEvent.TEXT_CHANGE, textEditor_textChangeHandler);
 		addEventListener(FocusEvent.FOCUS_IN, textEditor_focusInHandler);
@@ -1319,6 +1320,23 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			_maxLineScrollY = Std.int(Math.max(_visibleLines, _lines.length)) - _visibleLines;
 			_gutterWidth = firstLine.gutterWidth;
 		}
+	}
+
+	private function createContextMenu():Void {
+		#if flash
+		if (flash.ui.ContextMenu.isSupported) {
+			var contextMenu = new flash.ui.ContextMenu();
+			contextMenu.hideBuiltInItems();
+			var clipboardItems = new flash.ui.ContextMenuClipboardItems();
+			clipboardItems.clear = true;
+			clipboardItems.copy = true;
+			clipboardItems.cut = true;
+			clipboardItems.paste = true;
+			contextMenu.clipboardItems = clipboardItems;
+			contextMenu.clipboardMenu = true;
+			this.contextMenu = contextMenu;
+		}
+		#end
 	}
 
 	private function textEditor_focusInHandler(event:FocusEvent):Void {
