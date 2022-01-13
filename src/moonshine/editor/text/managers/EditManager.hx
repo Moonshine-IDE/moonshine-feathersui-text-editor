@@ -27,6 +27,7 @@ import moonshine.editor.text.utils.TextEditorUtil;
 import moonshine.editor.text.utils.TextUtil;
 import openfl.errors.ArgumentError;
 import openfl.errors.RangeError;
+import openfl.events.Event;
 import openfl.events.KeyboardEvent;
 import openfl.events.TextEvent;
 import openfl.ui.Keyboard;
@@ -45,6 +46,7 @@ class EditManager {
 		_textEditor.addEventListener(TextEditorChangeEvent.TEXT_CHANGE, editManager_textEditor_textChangePriorityHandler, false, 100, true);
 		_textEditor.addEventListener(TextEditorChangeEvent.TEXT_CHANGE, editManager_textEditor_textChangeHandler, false, 0, true);
 		_textEditor.addEventListener(TextEditorEvent.SELECTION_CHANGE, editManager_textEditor_selectionChangeHandler, false, 0, true);
+		_textEditor.addEventListener(Event.CLEAR, editManager_textEditor_clearHandler, false, 0, true);
 	}
 
 	private var _textEditor:TextEditor;
@@ -796,6 +798,13 @@ class EditManager {
 				_activeAutoClosingPairStartCharIndex = -1;
 				_activeAutoClosingPairEndCharIndex = -1;
 			}
+		}
+	}
+
+	private function editManager_textEditor_clearHandler(event:Event):Void {
+		var change = TextEditorUtil.deleteSelection(_textEditor);
+		if (change != null) {
+			_textEditor.dispatchEvent(new TextEditorChangeEvent(TextEditorChangeEvent.TEXT_CHANGE, [change]));
 		}
 	}
 }
