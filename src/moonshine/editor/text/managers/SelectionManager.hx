@@ -70,19 +70,26 @@ class SelectionManager {
 
 		for (change in changes) {
 			if ((line > change.startLine && line < change.endLine)
+				|| (line == change.startLine && line == change.endLine && char > change.startChar && char < change.endChar)
 				|| (line == change.startLine && line < change.endLine && char >= change.startChar)
 				|| (line > change.startLine && line == change.endLine && char <= change.endChar)) {
+				// if the current caret position is going to be completely
+				// removed, move to a valid position
 				line = change.endLine;
 				char = change.endChar;
 			}
 
 			if (change.endLine == line && change.endChar <= char) {
-				char -= change.endChar;
+				var offset = change.endChar;
+				if (change.startLine == line) {
+					offset -= change.startChar;
+				}
+				char -= offset;
 			}
 
 			if (line >= change.endLine) {
 				line -= (change.endLine - change.startLine);
-				if (line == change.startLine) {
+				if (line != change.endLine && line == change.startLine) {
 					char += change.startChar;
 				}
 			}
