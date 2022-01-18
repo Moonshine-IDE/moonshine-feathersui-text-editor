@@ -235,11 +235,25 @@ class TextEditorTextInputTestCase extends Test {
 	#end
 
 	public function testBackspaceWithCaret():Void {
+		_textEditor.text = "move";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 3, 0, 3);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.BACKSPACE));
+		Assert.equals("moe", _textEditor.text);
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(2, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testBackspaceWithCaretAtBeginningOfText():Void {
 		_textEditor.text = "hello";
 		_textEditor.stage.focus = _textEditor;
-		_textEditor.setSelection(0, 1, 0, 1);
+		_textEditor.setSelection(0, 0, 0, 0);
 		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.BACKSPACE));
-		Assert.equals("ello", _textEditor.text);
+		Assert.equals("hello", _textEditor.text);
 		Assert.equals(0, _textEditor.caretLineIndex);
 		Assert.equals(0, _textEditor.caretCharIndex);
 		Assert.equals(-1, _textEditor.selectionStartLineIndex);
@@ -263,12 +277,27 @@ class TextEditorTextInputTestCase extends Test {
 	}
 
 	public function testDeleteWithCaret():Void {
+		_textEditor.text = "move";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 2, 0, 2);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.DELETE));
+		Assert.equals("moe", _textEditor.text);
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(2, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testDeleteWithCaretAtEndOfText():Void {
 		_textEditor.text = "hello";
 		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 5, 0, 5);
 		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.DELETE));
-		Assert.equals("ello", _textEditor.text);
+		Assert.equals("hello", _textEditor.text);
 		Assert.equals(0, _textEditor.caretLineIndex);
-		Assert.equals(0, _textEditor.caretCharIndex);
+		Assert.equals(5, _textEditor.caretCharIndex);
 		Assert.equals(-1, _textEditor.selectionStartLineIndex);
 		Assert.equals(-1, _textEditor.selectionStartCharIndex);
 		Assert.equals(-1, _textEditor.selectionEndLineIndex);
