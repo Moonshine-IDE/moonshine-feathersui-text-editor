@@ -569,13 +569,22 @@ class EditManager {
 						&& change.startLine == _activeAutoClosingPairLineIndex
 						&& change.endChar == _activeAutoClosingPairEndCharIndex
 						&& _activeAutoClosingPairStartCharIndex == _activeAutoClosingPairEndCharIndex) {
-						change = new TextEditorChange(change.startLine, change.startChar, change.endLine, change.endChar + 1);
+						change = new TextEditorChange(change.startLine, change.startChar, change.endLine,
+							change.endChar + _activeAutoClosingPair.close.length);
 					}
 					dispatchChanges([change]);
 				}
 			case Keyboard.DELETE:
 				var change = createRemoveAtCursorTextEditorChange(true, event.altKey);
 				if (change != null) {
+					// normally, we check if the active auto-closing pair should
+					// be cleared whenever the selection changes, but when we
+					// press the delete key, and there's no selection, it might
+					// not move the caret, so we check here instead.
+					if (!_textEditor.hasSelection) {
+						checkForClearActiveAutoClosingPair(change.startLine, change.startChar);
+						checkForClearActiveAutoClosingPair(change.endLine, change.endChar);
+					}
 					dispatchChanges([change]);
 				}
 			case Keyboard.TAB:
@@ -782,23 +791,27 @@ class EditManager {
 		}
 	}
 
-	private function editManager_textEditor_selectionChangeHandler(event:TextEditorEvent):Void {
-		if (_activeAutoClosingPair != null) {
-			var clearActivePair = false;
-			var caretLineIndex = _textEditor.caretLineIndex;
-			var caretCharIndex = _textEditor.caretCharIndex;
-			if (caretLineIndex != _activeAutoClosingPairLineIndex) {
-				clearActivePair = true;
-			} else if (caretCharIndex < _activeAutoClosingPairStartCharIndex || caretCharIndex > _activeAutoClosingPairEndCharIndex) {
-				clearActivePair = true;
-			}
-			if (clearActivePair) {
-				_activeAutoClosingPair = null;
-				_activeAutoClosingPairLineIndex = -1;
-				_activeAutoClosingPairStartCharIndex = -1;
-				_activeAutoClosingPairEndCharIndex = -1;
-			}
+	private function checkForClearActiveAutoClosingPair(line:Int, char:Int):Void {
+		if (_activeAutoClosingPair == null) {
+			return;
 		}
+		var clearActivePair = false;
+		if (line != _activeAutoClosingPairLineIndex) {
+			clearActivePair = true;
+		} else if (char < _activeAutoClosingPairStartCharIndex || char > _activeAutoClosingPairEndCharIndex) {
+			clearActivePair = true;
+		}
+		if (!clearActivePair) {
+			return;
+		}
+		_activeAutoClosingPair = null;
+		_activeAutoClosingPairLineIndex = -1;
+		_activeAutoClosingPairStartCharIndex = -1;
+		_activeAutoClosingPairEndCharIndex = -1;
+	}
+
+	private function editManager_textEditor_selectionChangeHandler(event:TextEditorEvent):Void {
+		checkForClearActiveAutoClosingPair(_textEditor.caretLineIndex, _textEditor.caretCharIndex);
 	}
 
 	private function editManager_textEditor_clearHandler(event:Event):Void {
