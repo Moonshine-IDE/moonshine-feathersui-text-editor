@@ -192,7 +192,7 @@ class CompletionManager {
 				startIndex = TextUtil.startOfWord(line.text, startIndex);
 			}
 			if (startIndex >= 0) {
-				_filterText = line.text.substr(startIndex, Std.int(Math.max(0, _textEditor.caretCharIndex - startIndex))).toLowerCase();
+				_filterText = StringTools.trim(line.text.substr(startIndex, Std.int(Math.max(0, _textEditor.caretCharIndex - startIndex))).toLowerCase());
 			} else {
 				_filterText = "";
 			}
