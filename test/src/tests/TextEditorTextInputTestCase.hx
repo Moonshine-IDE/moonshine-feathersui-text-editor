@@ -596,13 +596,31 @@ class TextEditorTextInputTestCase extends Test {
 
 	public function testAutoClosingPair():Void {
 		_textEditor.autoClosingPairs = [new AutoClosingPair("{", "}")];
-		_textEditor.text = "hello ";
+		_textEditor.text = "hello world";
 		_textEditor.stage.focus = _textEditor;
 		_textEditor.setSelection(0, 6, 0, 6);
 		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, "{"));
-		Assert.equals("hello {}", _textEditor.text);
+		Assert.equals("hello {}world", _textEditor.text);
 		Assert.equals(0, _textEditor.caretLineIndex);
 		Assert.equals(7, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testMultiCharAutoClosingPair():Void {
+		_textEditor.autoClosingPairs = [new AutoClosingPair("<!--", "-->")];
+		_textEditor.text = "hello world";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 6, 0, 6);
+		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, "<"));
+		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, "!"));
+		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, "-"));
+		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, "-"));
+		Assert.equals("hello <!---->world", _textEditor.text);
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(10, _textEditor.caretCharIndex);
 		Assert.equals(-1, _textEditor.selectionStartLineIndex);
 		Assert.equals(-1, _textEditor.selectionStartCharIndex);
 		Assert.equals(-1, _textEditor.selectionEndLineIndex);
@@ -658,12 +676,12 @@ class TextEditorTextInputTestCase extends Test {
 
 	public function testBackspaceWithAutoClosingPair():Void {
 		_textEditor.autoClosingPairs = [new AutoClosingPair("{", "}")];
-		_textEditor.text = "hello ";
+		_textEditor.text = "hello world";
 		_textEditor.stage.focus = _textEditor;
 		_textEditor.setSelection(0, 6, 0, 6);
 		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, "{"));
 		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.BACKSPACE));
-		Assert.equals("hello ", _textEditor.text);
+		Assert.equals("hello world", _textEditor.text);
 		Assert.equals(0, _textEditor.caretLineIndex);
 		Assert.equals(6, _textEditor.caretCharIndex);
 		Assert.equals(-1, _textEditor.selectionStartLineIndex);
@@ -672,16 +690,72 @@ class TextEditorTextInputTestCase extends Test {
 		Assert.equals(-1, _textEditor.selectionEndCharIndex);
 	}
 
+	public function testBackspaceWithMultiCharAutoClosingPair():Void {
+		_textEditor.autoClosingPairs = [new AutoClosingPair("<!--", "-->")];
+		_textEditor.text = "hello world";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 6, 0, 6);
+		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, "<"));
+		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, "!"));
+		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, "-"));
+		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, "-"));
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.BACKSPACE));
+		Assert.equals("hello <!-world", _textEditor.text);
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(9, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testDeleteThenBackspaceWithAutoClosingPair():Void {
+		_textEditor.autoClosingPairs = [new AutoClosingPair("{", "}")];
+		_textEditor.text = "hello world";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 6, 0, 6);
+		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, "{"));
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.DELETE));
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.BACKSPACE));
+		Assert.equals("hello world", _textEditor.text);
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(6, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testDeleteThenBackspaceWithMultiCharAutoClosingPair():Void {
+		_textEditor.autoClosingPairs = [new AutoClosingPair("<!--", "-->")];
+		_textEditor.text = "hello world";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 6, 0, 6);
+		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, "<"));
+		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, "!"));
+		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, "-"));
+		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, "-"));
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.DELETE));
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.BACKSPACE));
+		Assert.equals("hello <!-->world", _textEditor.text);
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(9, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
 	public function testTypingAndBackspaceWithAutoClosingPair():Void {
 		_textEditor.autoClosingPairs = [new AutoClosingPair("{", "}")];
-		_textEditor.text = "hello ";
+		_textEditor.text = "hello world";
 		_textEditor.stage.focus = _textEditor;
 		_textEditor.setSelection(0, 6, 0, 6);
 		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, "{"));
 		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, "a"));
 		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.BACKSPACE));
 		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.BACKSPACE));
-		Assert.equals("hello ", _textEditor.text);
+		Assert.equals("hello world", _textEditor.text);
 		Assert.equals(0, _textEditor.caretLineIndex);
 		Assert.equals(6, _textEditor.caretCharIndex);
 		Assert.equals(-1, _textEditor.selectionStartLineIndex);
@@ -692,14 +766,14 @@ class TextEditorTextInputTestCase extends Test {
 
 	public function testBackspaceAfterSelectionMovedOutsideOfAutoClosingPair():Void {
 		_textEditor.autoClosingPairs = [new AutoClosingPair("{", "}")];
-		_textEditor.text = "hello ";
+		_textEditor.text = "hello world";
 		_textEditor.stage.focus = _textEditor;
 		_textEditor.setSelection(0, 6, 0, 6);
 		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, "{"));
 		_textEditor.setSelection(0, 0, 0, 0);
 		_textEditor.setSelection(0, 7, 0, 7);
 		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.BACKSPACE));
-		Assert.equals("hello }", _textEditor.text);
+		Assert.equals("hello }world", _textEditor.text);
 		Assert.equals(0, _textEditor.caretLineIndex);
 		Assert.equals(6, _textEditor.caretCharIndex);
 		Assert.equals(-1, _textEditor.selectionStartLineIndex);
@@ -711,12 +785,12 @@ class TextEditorTextInputTestCase extends Test {
 	public function testNewLineAfterBracketAsAutoClosingPair():Void {
 		_textEditor.brackets = [["{", "}"]];
 		_textEditor.autoClosingPairs = [new AutoClosingPair("{", "}")];
-		_textEditor.text = "hello ";
+		_textEditor.text = "hello world";
 		_textEditor.stage.focus = _textEditor;
 		_textEditor.setSelection(0, 6, 0, 6);
 		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, "{"));
 		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.ENTER));
-		Assert.equals("hello {\n\t\n}", _textEditor.text);
+		Assert.equals("hello {\n\t\n}world", _textEditor.text);
 		Assert.equals(1, _textEditor.caretLineIndex);
 		Assert.equals(1, _textEditor.caretCharIndex);
 		Assert.equals(-1, _textEditor.selectionStartLineIndex);
