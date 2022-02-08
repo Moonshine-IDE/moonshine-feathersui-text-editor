@@ -217,8 +217,6 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			_listView.scrollX = 0.0;
 			_listView.scrollY = 0.0;
 		}
-		/*
-			model.horizontalScrollPosition = 0; */
 
 		setInvalid(DATA);
 
@@ -228,6 +226,57 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	private var _viewPortVisibleBounds = new Rectangle();
 
 	private var _ignoreScrollChanges = false;
+
+	private var _scrollX:Float = 0.0;
+
+	/**
+		The current horizontal scroll position, as measured in pixels.
+	**/
+	@:flash.property
+	public var scrollX(get, set):Float;
+
+	private function get_scrollX():Float {
+		return _scrollX;
+	}
+
+	private function set_scrollX(value:Float):Float {
+		if (_scrollX == value) {
+			return _scrollX;
+		}
+		_scrollX = value;
+		if (_listView != null) {
+			_listView.scrollX = _scrollX;
+		}
+		return _scrollX;
+	}
+
+	private var _scrollY:Float = 0.0;
+
+	/**
+		The current vertical scroll position, as measured in pixels.
+	**/
+	@:flash.property
+	public var scrollY(get, set):Float;
+
+	private function get_scrollY():Float {
+		return _scrollY;
+	}
+
+	private function set_scrollY(value:Float):Float {
+		if (_scrollY == value) {
+			return _scrollY;
+		}
+		_scrollY = value;
+		_lineScrollY = 0;
+		if (_lineHeight != 0.0) {
+			// don't want to divide by zero
+			_lineScrollY = Std.int(_scrollY / _lineHeight);
+		}
+		if (_listView != null) {
+			_listView.scrollY = _scrollY;
+		}
+		return _scrollY;
+	}
 
 	private var _lineScrollY:Int = 0;
 
@@ -1137,6 +1186,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			var layout = new VerticalListLayout();
 			layout.contentJustify = true;
 			_listView.layout = layout;
+			_listView.scrollX = _scrollX;
 			_listView.scrollY = _lineScrollY * _lineHeight;
 			_listView.itemRendererRecycler = DisplayObjectRecycler.withFunction(createTextLineRenderer, updateTextLineRenderer, resetTextLineRenderer,
 				destroyTextLineRenderer);
@@ -1362,6 +1412,8 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		_viewPortVisibleBounds.x += _listView.x;
 		_viewPortVisibleBounds.y += _listView.y;
 
+		_scrollX = _listView.scrollX;
+		_scrollY = _listView.scrollY;
 		var newLineScrollY = 0;
 		if (_lineHeight != 0.0) {
 			// don't want to divide by zero
