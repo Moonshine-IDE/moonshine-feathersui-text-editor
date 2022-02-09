@@ -670,27 +670,27 @@ class TextLineRenderer extends FeathersControl {
 		return _linkEndChar;
 	}
 
-	private var _searchResultsBackgroundSkins:Array<DisplayObject> = [];
+	private var _searchResultBackgroundSkins:Array<DisplayObject> = [];
 
-	private var _searchResults:Array<TextEditorSearchResult> = null;
+	private var _searchResult:TextEditorSearchResult = null;
 
 	/**
-		The current search results displayed by this renderer.
+		The current search result displayed by the text editor.
 	**/
 	@:flash.property
-	public var searchResults(get, set):Array<TextEditorSearchResult>;
+	public var searchResult(get, set):TextEditorSearchResult;
 
-	private function get_searchResults():Array<TextEditorSearchResult> {
-		return _searchResults;
+	private function get_searchResult():TextEditorSearchResult {
+		return _searchResult;
 	}
 
-	private function set_searchResults(value:Array<TextEditorSearchResult>):Array<TextEditorSearchResult> {
-		if (_searchResults == value) {
-			return _searchResults;
+	private function set_searchResult(value:TextEditorSearchResult):TextEditorSearchResult {
+		if (_searchResult == value) {
+			return _searchResult;
 		}
-		_searchResults = value;
+		_searchResult = value;
 		setInvalid(STATE);
-		return _searchResults;
+		return _searchResult;
 	}
 
 	/**
@@ -838,7 +838,7 @@ class TextLineRenderer extends FeathersControl {
 		layoutContent();
 
 		if (stateInvalid || stylesInvalid) {
-			refreshSearchResultsBackgroundSkins();
+			refreshSearchResultBackgroundSkins();
 		}
 	}
 
@@ -1183,27 +1183,40 @@ class TextLineRenderer extends FeathersControl {
 		return breakpointSkin;
 	}
 
-	private function refreshSearchResultsBackgroundSkins():Void {
-		for (skin in _searchResultsBackgroundSkins) {
-			removeChild(skin);
+	private function refreshSearchResultBackgroundSkins():Void {
+		var skinsCount = _searchResult != null ? _searchResult.results.length : 0;
+		var difference = skinsCount - _searchResultBackgroundSkins.length;
+		if (difference < 0) {
+			for (i in 0...difference) {
+				var skin = _searchResultBackgroundSkins.pop();
+				removeChild(skin);
+			}
 		}
-		_searchResultsBackgroundSkins.resize(0);
-		if (_searchResults == null || _searchResults.length == 0 || searchResultBackgroundSkinFactory == null) {
+		if (_searchResult == null || _searchResult.results.length == 0 || searchResultBackgroundSkinFactory == null) {
 			return;
 		}
 		// display below the selected text, but if that doesn't exist, below the
 		// text field instead
 		var index = (_currentSelectedTextBackgroundSkin != null) ? getChildIndex(_currentSelectedTextBackgroundSkin) : getChildIndex(_mainTextField);
-		for (result in _searchResults) {
-			var skin = searchResultBackgroundSkinFactory();
-			var startBounds = _mainTextField.getCharBoundaries(result.startCharIndex);
-			var endBounds = _mainTextField.getCharBoundaries(result.endCharIndex - 1);
+		for (i in 0..._searchResult.results.length) {
+			var result = _searchResult.results[i];
+			var startBounds = _mainTextField.getCharBoundaries(result.pos);
+			var endBounds = _mainTextField.getCharBoundaries(result.pos + result.len - 1);
+			if (startBounds == null || endBounds == null) {
+				continue;
+			}
+			var skin:DisplayObject = null;
+			if (i < _searchResultBackgroundSkins.length) {
+				skin = _searchResultBackgroundSkins[i];
+			} else {
+				skin = searchResultBackgroundSkinFactory();
+				_searchResultBackgroundSkins[i] = skin;
+				addChildAt(skin, index);
+			}
 			skin.x = _mainTextField.x + startBounds.x;
 			skin.y = _mainTextField.y + startBounds.y;
 			skin.width = endBounds.x + endBounds.width - startBounds.x;
 			skin.height = endBounds.y + endBounds.height - startBounds.y;
-			addChildAt(skin, index);
-			_searchResultsBackgroundSkins.push(skin);
 		}
 	}
 
