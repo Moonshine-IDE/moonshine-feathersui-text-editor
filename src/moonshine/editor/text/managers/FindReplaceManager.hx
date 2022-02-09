@@ -17,6 +17,7 @@
 
 package moonshine.editor.text.managers;
 
+import moonshine.editor.text.TextEditorSearchResult.SearchResultItem;
 import moonshine.editor.text.changes.TextEditorChange;
 import moonshine.editor.text.events.TextEditorChangeEvent;
 import moonshine.editor.text.utils.TextUtil;
@@ -116,8 +117,8 @@ class FindReplaceManager {
 		return _findResult;
 	}
 
-	private function findInternal(str:String, searchRegExp:EReg, posOffset:Int = 0):Array<{pos:Int, len:Int}> {
-		var results:Array<{pos:Int, len:Int}> = [];
+	private function findInternal(str:String, searchRegExp:EReg):Array<SearchResultItem> {
+		var results:Array<SearchResultItem> = [];
 		if (searchRegExp != null) {
 			// Find all occurances
 			var startIndex = 0;
@@ -125,8 +126,15 @@ class FindReplaceManager {
 				if (searchRegExp.matched(0) != null) { // match return infinite string for somekind of regexp like /L*/ /?*/
 					var match = searchRegExp.matchedPos();
 					startIndex = match.pos + match.len;
-					match.pos += posOffset;
-					results.push(match);
+					var start = TextUtil.charIdx2LineCharIdx(str, match.pos, _textEditor.lineDelimiter);
+					results.push({
+						index: match.pos,
+						length: match.len,
+						startLine: start.line,
+						startChar: start.character,
+						endLine: start.line,
+						endChar: start.character + match.len
+					});
 				} else {
 					break;
 				}
@@ -153,7 +161,7 @@ class FindReplaceManager {
 			var i = Std.int(Math.min(results.length - 1, res.selectedIndex - 1));
 			while (i >= 0) {
 				var current = results[i];
-				if (current.pos < startPos) {
+				if (current.index < startPos) {
 					newSelectedIndex = i;
 					break;
 				}
@@ -163,12 +171,12 @@ class FindReplaceManager {
 			for (i in (res.selectedIndex + 1)...results.length) {
 				var current = results[i];
 				if (includeCurrent) {
-					if (current.pos >= startPos) {
+					if (current.index >= startPos) {
 						newSelectedIndex = i;
 						break;
 					}
 				} else {
-					if (current.pos > startPos) {
+					if (current.index > startPos) {
 						newSelectedIndex = i;
 						break;
 					}
@@ -193,40 +201,33 @@ class FindReplaceManager {
 			return res;
 		}
 		res.selectedIndex = newSelectedIndex;
-		updatePositionFromSelectedIndex(res);
+		if (res.selectedIndex == -1) {
+			res.current = null;
+		} else {
+			res.current = res.results[res.selectedIndex];
+		}
 		return res;
 	}
 
-	private function addChangesForReplace(str:String, replace:String, result:{pos:Int, len:Int}, changes:Array<TextEditorChange>):Void {
-		// Map to 2D
-		var lc = TextUtil.charIdx2LineCharIdx(str, result.pos, _textEditor.lineDelimiter);
-		var lineIndex = Std.int(lc.x);
-		var startCharIndex = Std.int(lc.y);
-		var endCharIndex = Std.int(lc.y) + result.len;
-
-		changes.push(new TextEditorChange(lineIndex, startCharIndex, lineIndex, endCharIndex, replace));
+	private function addChangesForReplace(str:String, replace:String, result:SearchResultItem, changes:Array<TextEditorChange>):Void {
+		changes.push(new TextEditorChange(result.startLine, result.startChar, result.endLine, result.endChar, replace));
 	}
 
 	// Map to TextEditor internal representation
-	private function applySearch(s:TextEditorSearchResult):Void {
-		_textEditor.setSelection(s.startLineIndex, s.startCharIndex, s.endLineIndex, s.endCharIndex);
-		_textEditor.scrollViewIfNeeded();
-	}
-
-	private function updatePositionFromSelectedIndex(res:TextEditorSearchResult):Void {
-		if (res.selectedIndex == -1) {
-			res.startLineIndex = -1;
-			res.startCharIndex = -1;
-			res.endLineIndex = -1;
-			res.endCharIndex = -1;
-			return;
+	private function applySearch(result:TextEditorSearchResult):Void {
+		var startLine = -1;
+		var startChar = -1;
+		var endLine = -1;
+		var endChar = -1;
+		var current = result.current;
+		if (current != null) {
+			startLine = current.startLine;
+			startChar = current.startChar;
+			endLine = current.endLine;
+			endChar = current.endChar;
 		}
-		var match = res.results[res.selectedIndex];
-		var lc = TextUtil.charIdx2LineCharIdx(_textEditor.text, match.pos, _textEditor.lineDelimiter);
-		res.startLineIndex = Std.int(lc.x);
-		res.endLineIndex = Std.int(lc.x);
-		res.startCharIndex = Std.int(lc.y);
-		res.endCharIndex = Std.int(lc.y) + match.len;
+		_textEditor.setSelection(startLine, startChar, endLine, endChar);
+		_textEditor.scrollViewIfNeeded();
 	}
 
 	private function findReplaceManager_textEditor_textChangeHandler(event:TextEditorChangeEvent):Void {

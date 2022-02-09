@@ -22,6 +22,7 @@ import feathers.core.IValidating;
 import feathers.skins.IProgrammaticSkin;
 import feathers.skins.RectangleSkin;
 import feathers.utils.TextFormatUtil;
+import moonshine.editor.text.TextEditorSearchResult.SearchResultItem;
 import moonshine.editor.text.events.TextEditorLineEvent;
 import moonshine.editor.text.theme.TextLineRendererStyles;
 import openfl.display.DisplayObject;
@@ -670,7 +671,12 @@ class TextLineRenderer extends FeathersControl {
 		return _linkEndChar;
 	}
 
+	@:style
+	public var highlightAllFindResults:Bool = false;
+
 	private var _searchResultBackgroundSkins:Array<DisplayObject> = [];
+
+	private var _currentSearchResults:Array<SearchResultItem> = [];
 
 	private var _searchResult:TextEditorSearchResult = null;
 
@@ -795,6 +801,10 @@ class TextLineRenderer extends FeathersControl {
 		var stateInvalid = isInvalid(STATE);
 		var stylesInvalid = isInvalid(STYLES);
 
+		if (stateInvalid || stylesInvalid || dataInvalid) {
+			refreshCurrentSearchResults();
+		}
+
 		if (stateInvalid || stylesInvalid) {
 			refreshBackgroundSkin();
 		}
@@ -837,7 +847,7 @@ class TextLineRenderer extends FeathersControl {
 
 		layoutContent();
 
-		if (stateInvalid || stylesInvalid) {
+		if (dataInvalid || stateInvalid || stylesInvalid) {
 			refreshSearchResultBackgroundSkins();
 		}
 	}
@@ -1184,24 +1194,25 @@ class TextLineRenderer extends FeathersControl {
 	}
 
 	private function refreshSearchResultBackgroundSkins():Void {
-		var skinsCount = _searchResult != null ? _searchResult.results.length : 0;
+		var skinsCount = _currentSearchResults.length;
 		var difference = skinsCount - _searchResultBackgroundSkins.length;
 		if (difference < 0) {
-			for (i in 0...difference) {
+			for (i in 0... - difference) {
 				var skin = _searchResultBackgroundSkins.pop();
 				removeChild(skin);
 			}
 		}
-		if (_searchResult == null || _searchResult.results.length == 0 || searchResultBackgroundSkinFactory == null) {
+		if (skinsCount == 0 || searchResultBackgroundSkinFactory == null) {
 			return;
 		}
 		// display below the selected text, but if that doesn't exist, below the
 		// text field instead
 		var index = (_currentSelectedTextBackgroundSkin != null) ? getChildIndex(_currentSelectedTextBackgroundSkin) : getChildIndex(_mainTextField);
-		for (i in 0..._searchResult.results.length) {
-			var result = _searchResult.results[i];
-			var startBounds = _mainTextField.getCharBoundaries(result.pos);
-			var endBounds = _mainTextField.getCharBoundaries(result.pos + result.len - 1);
+		for (i in 0...skinsCount) {
+			var result = _currentSearchResults[i];
+
+			var startBounds = _mainTextField.getCharBoundaries(result.startChar);
+			var endBounds = _mainTextField.getCharBoundaries(result.endChar - 1);
 			if (startBounds == null || endBounds == null) {
 				continue;
 			}
@@ -1389,6 +1400,18 @@ class TextLineRenderer extends FeathersControl {
 		_caretTimer.reset();
 		if (_textEditorHasFocus && _caretIndex != -1) {
 			_caretTimer.start();
+		}
+	}
+
+	private function refreshCurrentSearchResults():Void {
+		_currentSearchResults.resize(0);
+		if (highlightAllFindResults && _searchResult != null) {
+			for (result in _searchResult.results) {
+				if (lineIndex < result.startLine || lineIndex > result.endLine) {
+					continue;
+				}
+				_currentSearchResults.push(result);
+			}
 		}
 	}
 

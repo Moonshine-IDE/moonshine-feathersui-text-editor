@@ -32,47 +32,26 @@ class TextEditorSearchResult {
 	public var selectedIndex:Int = -1;
 
 	/**
-		The start line index of the result that is currently selected.
+		The result that is currently selected.
 
 		@see `TextEditorSearchResult.selectedIndex`
 	**/
-	public var startLineIndex:Int = -1;
+	public var current:SearchResultItem = null;
 
 	/**
-		The start character index of the result that is currently selected.
-
-		@see `TextEditorSearchResult.selectedIndex`
+		All results of the search.
 	**/
-	public var startCharIndex:Int = -1;
+	public var results:Array<SearchResultItem>;
 
 	/**
-		The end line index of the result that is currently selected.
-
-		@see `TextEditorSearchResult.selectedIndex`
+		The replaced ranges of the search.
 	**/
-	public var endLineIndex:Int = -1;
-
-	/**
-		The end character index of the result that is currently selected.
-
-		@see `TextEditorSearchResult.selectedIndex`
-	**/
-	public var endCharIndex:Int = -1;
+	public var replaced:Array<SearchResultItem>;
 
 	/**
 		Indicates if the search wrapped around to restart at the beginning.
 	**/
 	public var didWrap:Bool = false;
-
-	/**
-		All results of the search.
-	**/
-	public var results:Array<{pos:Int, len:Int}>;
-
-	/**
-		The replaced ranges of the search.
-	**/
-	public var replaced:Array<{pos:Int, len:Int}>;
 
 	/**
 		The search performed.
@@ -92,7 +71,7 @@ class TextEditorSearchResult {
 	/**
 		Creates a new `TextEditorSearchResult` object.
 	**/
-	public function new(search:EReg, backwards:Bool, allowWrap:Bool, ?results:Array<{pos:Int, len:Int}>, ?replaced:Array<{pos:Int, len:Int}>) {
+	public function new(search:EReg, backwards:Bool, allowWrap:Bool, ?results:Array<SearchResultItem>, ?replaced:Array<SearchResultItem>) {
 		this.search = search;
 		this.backwards = backwards;
 		this.allowWrap = allowWrap;
@@ -105,4 +84,14 @@ class TextEditorSearchResult {
 		}
 		this.replaced = replaced;
 	}
+}
+
+@:structInit
+class SearchResultItem {
+	public var index:Int;
+	public var length:Int;
+	public var startLine:Int;
+	public var startChar:Int;
+	public var endLine:Int;
+	public var endChar:Int;
 }

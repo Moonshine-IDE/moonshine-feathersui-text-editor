@@ -123,10 +123,10 @@ class TextUtil {
 	/**
 		Return line and character index from absolute character index.
 	**/
-	public static function charIdx2LineCharIdx(str:String, charIdx:Int, lineDelim:String):Point {
+	public static function charIdx2LineCharIdx(str:String, charIdx:Int, lineDelim:String):TextEditorPosition {
 		var line = str.substr(0, charIdx).split(lineDelim).length - 1;
 		var chr = line > 0 ? charIdx - str.lastIndexOf(lineDelim, charIdx - 1) - lineDelim.length : charIdx;
-		return new Point(line, chr);
+		return new TextEditorPosition(line, chr);
 	}
 
 	/**

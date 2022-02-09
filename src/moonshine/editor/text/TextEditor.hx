@@ -373,6 +373,8 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		return _showLineNumbers;
 	}
 
+	private var _searchResult:TextEditorSearchResult;
+
 	private var _hasFocus:Bool = false;
 
 	private var _parser:ILineParser;
@@ -806,6 +808,13 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	public var customTextLineRendererVariant:String = null;
 
 	/**
+		Indicates if a special background appears behind all results when
+		`find()` is called.
+	**/
+	@:style
+	public var highlightAllFindResults:Bool = false;
+
+	/**
 		Updates the code parser used for syntax highlighting.
 	**/
 	public function setParserAndTextStyles(parser:ILineParser, textStyles:Map<Int, TextFormat>):Void {
@@ -970,10 +979,36 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	}
 
 	/**
+		Clears any result of `find()`.
+	**/
+	public function clearFind():Void {
+		if (highlightAllFindResults && _searchResult != null) {
+			for (result in _searchResult.results) {
+				var startLine = result.startLine;
+				if (startLine < 0 || startLine >= _lines.length) {
+					continue;
+				}
+				_lines.updateAt(startLine);
+			}
+		}
+		_searchResult = null;
+	}
+
+	/**
 		Searches for the specified `String` or `EReg` in the editor's text.
 	**/
 	public function find(search:Any /* EReg | String */, backwards:Bool = false, allowWrap:Bool = true):TextEditorSearchResult {
-		return _findReplaceManager.find(search, backwards, allowWrap);
+		_searchResult = _findReplaceManager.find(search, backwards, allowWrap);
+		if (highlightAllFindResults) {
+			for (result in _searchResult.results) {
+				var startLine = result.startLine;
+				if (startLine < 0 || startLine >= _lines.length) {
+					continue;
+				}
+				_lines.updateAt(startLine);
+			}
+		}
+		return _searchResult;
 	}
 
 	/**
@@ -982,7 +1017,8 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		Must be called after `find()`
 	**/
 	public function findNext(backwards:Bool = false, allowWrap:Bool = true):TextEditorSearchResult {
-		return _findReplaceManager.findNext(backwards, allowWrap);
+		_searchResult = _findReplaceManager.findNext(backwards, allowWrap);
+		return _searchResult;
 	}
 
 	/**
@@ -994,7 +1030,8 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		if (readOnly) {
 			throw new IllegalOperationError("Replace not allowed on read-only text editor");
 		}
-		return _findReplaceManager.replace(newText, false, allowWrap);
+		_searchResult = _findReplaceManager.replace(newText, false, allowWrap);
+		return _searchResult;
 	}
 
 	/**
@@ -1006,7 +1043,8 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		if (readOnly) {
 			throw new IllegalOperationError("Replace all not allowed on read-only text editor");
 		}
-		return _findReplaceManager.replace(newText, true);
+		_searchResult = _findReplaceManager.replace(newText, true);
+		return _searchResult;
 	}
 
 	/**
@@ -1251,6 +1289,8 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		itemRenderer.showLineNumbers = _showLineNumbers;
 		itemRenderer.lineNumberWidth = lineNumberWidth;
 		itemRenderer.embedFonts = embedFonts;
+		itemRenderer.searchResult = _searchResult;
+		itemRenderer.highlightAllFindResults = highlightAllFindResults;
 		if (_selectionStartLineIndex != _selectionEndLineIndex) {
 			if (lineModel.lineIndex == _selectionStartLineIndex) { // Beginning of selection (may be below or above current point)
 				if (_selectionStartLineIndex > _caretLineIndex) {
