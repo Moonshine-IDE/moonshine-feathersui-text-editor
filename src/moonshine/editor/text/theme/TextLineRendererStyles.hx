@@ -55,10 +55,10 @@ class TextLineRendererStyles {
 					view.debuggerStoppedBackgroundSkin = new RectangleSkin(SolidColor(0xffffcc));
 				}
 				if (view.selectedTextBackgroundSkin == null) {
-					view.selectedTextBackgroundSkin = new RectangleSkin(SolidColor(0xd1e3f9));
+					view.selectedTextBackgroundSkin = new RectangleSkin(SolidColor(0xcfe1f7, 0.85));
 				}
 				if (view.selectedTextUnfocusedBackgroundSkin == null) {
-					view.selectedTextUnfocusedBackgroundSkin = new RectangleSkin(SolidColor(0xd1d3d9));
+					view.selectedTextUnfocusedBackgroundSkin = new RectangleSkin(SolidColor(0xcfe1f7, 0.75));
 				}
 				if (view.gutterBackgroundSkin == null) {
 					var gutterBackgroundSkin = new RectangleSkin(SolidColor(0xfdfdfd));
@@ -67,7 +67,7 @@ class TextLineRendererStyles {
 				}
 				if (view.searchResultBackgroundSkinFactory == null) {
 					view.searchResultBackgroundSkinFactory = () -> {
-						return new RectangleSkin(SolidColor(0xffb2ff));
+						return new RectangleSkin(SolidColor(0xf9e9b2, 0.75), SolidColor(1.0, 0xf9e9b2, 0.95));
 					};
 				}
 				if (view.breakpointSkin == null) {
