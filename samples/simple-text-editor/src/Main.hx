@@ -290,6 +290,7 @@ class Main extends Application {
 
 	private function newFile(?extension:String):Void {
 		_openedFile = null;
+		_textEditor.clearFind();
 		_textEditor.text = "";
 		_findReplaceToolBar.visible = false;
 		_findReplaceToolBar.includeInLayout = false;
@@ -585,6 +586,7 @@ class Main extends Application {
 		}
 		if (event.keyCode == Keyboard.ESCAPE && !event.ctrlKey && !event.shiftKey && !event.altKey && _findReplaceToolBar.visible) {
 			event.preventDefault();
+			_textEditor.clearFind();
 			_findReplaceToolBar.visible = false;
 			_findReplaceToolBar.includeInLayout = false;
 			_findResult = null;
