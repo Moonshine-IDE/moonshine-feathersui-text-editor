@@ -1353,9 +1353,9 @@ class TextLineRenderer extends FeathersControl {
 
 	private function layoutContent():Void {
 		#if flash
-		// the flash target internally rounds to the nearest pixel, while
-		// other targets do not
-		var gutterStartX = Math.fround(_scrollX);
+		// the flash target internally rounds to the nearest pixel when using
+		// scrollRect, while other targets do not
+		var gutterStartX = (parent.scrollRect == null) ? _scrollX : Math.fround(_scrollX);
 		#else
 		var gutterStartX = _scrollX;
 		#end
