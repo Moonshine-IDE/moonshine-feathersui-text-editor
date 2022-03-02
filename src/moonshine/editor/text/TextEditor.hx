@@ -1178,7 +1178,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	/**
 		Scrolls the view to display the caret, if it is not currently visible.
 	**/
-	public function scrollViewIfNeeded():Void {
+	public function scrollToCaret():Void {
 		if (_lines.length == 0 || _caretLineIndex == -1 || _expandedCaretCharIndex == -1) {
 			return;
 		}

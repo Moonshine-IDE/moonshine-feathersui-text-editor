@@ -181,7 +181,7 @@ class CompletionManager {
 		closeCompletionListView();
 
 		// make sure that the current caret position is visible
-		_textEditor.scrollViewIfNeeded();
+		_textEditor.scrollToCaret();
 
 		if (params.context == null
 			|| params.context.triggerKind != CompletionTriggerKind.TriggerCharacter

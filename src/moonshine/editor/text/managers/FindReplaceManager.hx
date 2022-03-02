@@ -227,7 +227,7 @@ class FindReplaceManager {
 			endChar = current.endChar;
 		}
 		_textEditor.setSelection(startLine, startChar, endLine, endChar);
-		_textEditor.scrollViewIfNeeded();
+		_textEditor.scrollToCaret();
 	}
 
 	private function findReplaceManager_textEditor_textChangeHandler(event:TextEditorChangeEvent):Void {
