@@ -244,9 +244,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			return _scrollX;
 		}
 		_scrollX = value;
-		if (_listView != null) {
-			_listView.scrollX = _scrollX;
-		}
+		setInvalid(SCROLL);
 		return _scrollX;
 	}
 
@@ -272,9 +270,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			// don't want to divide by zero
 			_lineScrollY = Std.int(_scrollY / _lineHeight);
 		}
-		if (_listView != null) {
-			_listView.scrollY = _scrollY;
-		}
+		setInvalid(SCROLL);
 		return _scrollY;
 	}
 
@@ -295,9 +291,8 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			return lineScrollY;
 		}
 		_lineScrollY = value;
-		if (_listView != null) {
-			_listView.scrollY = _lineScrollY * _lineHeight;
-		}
+		_scrollY = _lineScrollY * _lineHeight;
+		setInvalid(SCROLL);
 		return _lineScrollY;
 	}
 
@@ -1383,6 +1378,20 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		}
 
 		layoutContent();
+
+		if (dataInvalid || scrollInvalid) {
+			commitScroll();
+		}
+	}
+
+	private function commitScroll():Void {
+		var oldIgnoreScrollChanges = _ignoreScrollChanges;
+		_ignoreScrollChanges = true;
+
+		_listView.scrollX = _scrollX;
+		_listView.scrollY = _scrollY;
+
+		_ignoreScrollChanges = oldIgnoreScrollChanges;
 	}
 
 	private function layoutContent():Void {
@@ -1396,7 +1405,10 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		_viewPortVisibleBounds.x += _listView.x;
 		_viewPortVisibleBounds.y += _listView.y;
 
-		var firstLine = cast(_listView.itemToItemRenderer(_lines.get(_lineScrollY)), TextLineRenderer);
+		var firstLine:TextLineRenderer = null;
+		if (_lineScrollY >= 0 && _lineScrollY < _lines.length) {
+			firstLine = cast(_listView.itemToItemRenderer(_lines.get(_lineScrollY)), TextLineRenderer);
+		}
 
 		if (_lines.length == 0 || firstLine == null) {
 			// don't want to divide by zero
