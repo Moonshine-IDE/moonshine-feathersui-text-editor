@@ -1182,8 +1182,12 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		if (_lines.length == 0 || _caretLineIndex == -1 || _expandedCaretCharIndex == -1) {
 			return;
 		}
-		_ignoreScrollChanges = true;
 
+		// the max line will not be accurate until after we validate
+		validateNow();
+
+		var oldIgnoreScrollChanges = _ignoreScrollChanges;
+		_ignoreScrollChanges = true;
 		if (_caretLineIndex < lineScrollY || visibleLines <= 2 && _caretLineIndex > lineScrollY) {
 			lineScrollY = Std.int(Math.min(_caretLineIndex, _maxLineScrollY));
 		} else if (visibleLines > 2 && _caretLineIndex + 2 > lineScrollY + visibleLines) {
@@ -1193,9 +1197,12 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			}
 			lineScrollY = Std.int(Math.min(newLineScrollY, _maxLineScrollY));
 		}
+		_ignoreScrollChanges = oldIgnoreScrollChanges;
 
-		_listView.validateNow();
+		// the text line renderer may not exist until after we validate again
+		validateNow();
 
+		_ignoreScrollChanges = true;
 		var textLineRenderer = textEditorPositionToTextLineRenderer(new TextEditorPosition(_caretLineIndex, caretCharIndex));
 		// it shouldn't ever be null because we're scrolling to show the line,
 		// but it's safer to check just in case
@@ -1210,7 +1217,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			}
 			_listView.scrollX = scrollX;
 		}
-		_ignoreScrollChanges = false;
+		_ignoreScrollChanges = oldIgnoreScrollChanges;
 	}
 
 	override private function initialize():Void {
