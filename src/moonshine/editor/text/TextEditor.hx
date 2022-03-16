@@ -1389,6 +1389,15 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		if (dataInvalid || scrollInvalid) {
 			commitScroll();
 		}
+
+		saveLayoutProperties();
+	}
+
+	private function layoutContent():Void {
+		_listView.x = 0.0;
+		_listView.y = 0.0;
+		_listView.width = actualWidth;
+		_listView.height = actualHeight;
 	}
 
 	private function commitScroll():Void {
@@ -1401,11 +1410,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		_ignoreScrollChanges = oldIgnoreScrollChanges;
 	}
 
-	private function layoutContent():Void {
-		_listView.x = 0.0;
-		_listView.y = 0.0;
-		_listView.width = actualWidth;
-		_listView.height = actualHeight;
+	private function saveLayoutProperties():Void {
 		_listView.validateNow();
 
 		_listView.getViewPortVisibleBounds(_viewPortVisibleBounds);
