@@ -1,0 +1,37 @@
+<project>
+  <output>
+    <movie disabled="False"/>
+    <movie background="#FFFFFF"/>
+    <movie path="project.xml"/>
+    <movie input=""/>
+    <movie height="0"/>
+    <movie version="0"/>
+    <movie platform="Lime"/>
+    <movie fps="0"/>
+    <movie width="0"/>
+  </output>
+  <classpaths></classpaths>
+  <build>
+    <option mainClass=""/>
+    <option additional="--macro openfl._internal.macros.ExtraParams.include()&amp;#xA;--macro lime._internal.macros.DefineMacro.run()&amp;#xA;--remap flash:openfl&amp;#xA;--no-output "/>
+    <option directives=""/>
+    <option enabledebug="False"/>
+    <option flashStrict="False"/>
+    <option noInlineOnDebug="False"/>
+  </build>
+  <haxelib/>
+  <compileTargets></compileTargets>
+  <hiddenPaths></hiddenPaths>
+  <preBuildCommand>"$(CompilerPath)/haxelib" run lime build "$(OutputFile)" $(TargetBuild) -$(BuildConfig) -Dfdb</preBuildCommand>
+  <postBuildCommand alwaysRun="False"/>
+  <options>
+    <option testMovieCommand=""/>
+    <option showHiddenPaths="True"/>
+    <option testMovie="Webserver"/>
+  </options>
+  <moonshineRunCustomization>
+    <option webBrowser=""/>
+    <option targetPlatform="flash"/>
+  </moonshineRunCustomization>
+  <storage/>
+</project>
