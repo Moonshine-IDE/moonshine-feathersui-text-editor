@@ -247,29 +247,30 @@ class SignatureHelpView extends ScrollContainer implements IFocusExtras {
 			activeParameter = signature.activeParameter;
 		}
 
+		var parameterStartIndex = -1;
+		var parameterLength = -1;
 		var parameters = signature.parameters;
-		var signatureParts = ~/[\(\)]/g.split(signature.label);
-		var signatureHelpText = '<p class="pre"><font face="_typewriter">';
-		signatureHelpText += StringTools.htmlEscape(signatureParts[0]);
-		signatureHelpText += "(";
-		var parametersText = signatureParts[1];
-		var parameterParts = parametersText.split(",");
-		for (i in 0...parameters.length) {
-			if (i > 0) {
-				signatureHelpText += ",";
-			}
-			var partText = parameterParts[i];
-			if (i == activeParameter) {
-				signatureHelpText += "<b>";
-			}
-			signatureHelpText += StringTools.htmlEscape(partText);
-			if (i == activeParameter) {
-				signatureHelpText += "</b>";
+		if (activeParameter != -1 && activeParameter < parameters.length) {
+			var activeParameterText = parameters[activeParameter].label;
+			var paramPattern = new EReg('(\\W|^)${EReg.escape(activeParameterText)}(?=\\W|$)', '');
+			var matched = paramPattern.match(signature.label);
+			if (matched) {
+				var matchedPos = paramPattern.matchedPos();
+				var group1Length = paramPattern.matched(1).length;
+				parameterStartIndex = matchedPos.pos + group1Length;
+				parameterLength = matchedPos.len - group1Length;
 			}
 		}
-		signatureHelpText += ")";
-		if (signatureParts.length > 2) {
-			signatureHelpText += StringTools.htmlEscape(signatureParts[2]);
+		var signatureHelpText = '<p class="pre"><font face="_typewriter">';
+		if (parameterStartIndex == -1) {
+			signatureHelpText += signature.label;
+		}
+		else {
+			signatureHelpText += signature.label.substr(0, parameterStartIndex);
+			signatureHelpText += "<b>";
+			signatureHelpText += signature.label.substr(parameterStartIndex, parameterLength);
+			signatureHelpText += "</b>";
+			signatureHelpText += signature.label.substr(parameterStartIndex + parameterLength);
 		}
 		signatureHelpText += "</font></p>";
 		return signatureHelpText;
