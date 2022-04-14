@@ -13,6 +13,6 @@
     "actuate": "",
     "feathersui": "",
     "markdown-openfl-textfield": "",
-    "moonshine-openfl-language-client": ""
+    "moonshine-openfl-language-client": "git:https://github.com/Moonshine-IDE/moonshine-openfl-language-client.git"
   }
 }

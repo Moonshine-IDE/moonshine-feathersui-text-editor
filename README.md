@@ -10,9 +10,16 @@ The text editor UI component used by [Moonshine IDE](https://moonshine-ide.com/)
 
 ## Installation
 
-This library is not yet available on Haxelib. To install, run the following commands in a terminal:
+This library is not yet available on Haxelib. To install, run the following command in a terminal:
 
 ```sh
-haxelib git moonshine-openfl-language-client https://github.com/Moonshine-IDE/moonshine-openfl-language-client.git
 haxelib git moonshine-feathersui-text-editor https://github.com/Moonshine-IDE/moonshine-feathersui-text-editor.git
+```
+
+## Project Configuration
+
+After installing the library above, add it to your OpenFL _project.xml_ file:
+
+```xml
+<haxelib name="moonshine-feathersui-text-editor" />
 ```
