@@ -6,7 +6,7 @@ The text editor UI component used by [Moonshine IDE](https://moonshine-ide.com/)
 
 - Haxe v4.1
 - OpenFL v8.9.7
-- Feathers UI v1.0.0-beta.7
+- Feathers UI v1.0.0-beta.9
 
 ## Installation
 
