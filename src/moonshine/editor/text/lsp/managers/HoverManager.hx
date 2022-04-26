@@ -280,11 +280,13 @@ class HoverManager {
 	}
 
 	private function closeHoverView():Void {
+		if (_textEditor.stage != null) {
+			_textEditor.stage.removeEventListener(MouseEvent.MOUSE_DOWN, hoverManager_textEditor_stage_mouseDownHandler);
+		}
 		if (!PopUpManager.isTopLevelPopUp(_hoverView)) {
 			return;
 		}
 		PopUpManager.removePopUp(_hoverView);
-		_textEditor.stage.removeEventListener(MouseEvent.MOUSE_DOWN, hoverManager_textEditor_stage_mouseDownHandler);
 	}
 
 	private function isInsideSameWord(cl1:Position, cl2:TextEditorPosition):Bool {

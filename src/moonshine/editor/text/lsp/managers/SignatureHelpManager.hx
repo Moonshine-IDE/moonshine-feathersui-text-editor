@@ -242,11 +242,13 @@ class SignatureHelpManager {
 	}
 
 	private function closeSignatureHelpView():Void {
+		if (_textEditor.stage != null) {
+			_textEditor.stage.removeEventListener(MouseEvent.MOUSE_DOWN, signatureHelpManager_textEditor_stage_mouseDownHandler);
+		}
 		if (!PopUpManager.isTopLevelPopUp(_signatureHelpView)) {
 			return;
 		}
 		PopUpManager.removePopUp(_signatureHelpView);
-		_textEditor.stage.removeEventListener(MouseEvent.MOUSE_DOWN, signatureHelpManager_textEditor_stage_mouseDownHandler);
 	}
 
 	private function signatureHelpManager_textEditor_removedFromStageHandler(event:Event):Void {

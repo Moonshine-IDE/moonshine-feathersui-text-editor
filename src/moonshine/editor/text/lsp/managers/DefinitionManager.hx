@@ -151,6 +151,10 @@ class DefinitionManager {
 	}
 
 	private function clearDefinition():Void {
+		if (_textEditor.stage != null) {
+			_textEditor.stage.removeEventListener(KeyboardEvent.KEY_DOWN, definitionManager_textEditor_stage_keyDownHandler);
+			_textEditor.stage.removeEventListener(KeyboardEvent.KEY_UP, definitionManager_textEditor_stage_keyUpHandler);
+		}
 		_definitionLinkCallback(null, null);
 	}
 
@@ -228,8 +232,6 @@ class DefinitionManager {
 	}
 
 	private function definitionManager_textEditor_onRollOut(event:MouseEvent):Void {
-		_textEditor.stage.removeEventListener(KeyboardEvent.KEY_DOWN, definitionManager_textEditor_stage_keyDownHandler);
-		_textEditor.stage.removeEventListener(KeyboardEvent.KEY_UP, definitionManager_textEditor_stage_keyUpHandler);
 		_isOver = false;
 		_currentRequestParams = null;
 		stopRequestTimer();

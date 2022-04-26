@@ -467,6 +467,9 @@ class CompletionManager {
 	}
 
 	private function closeCompletionListView():Void {
+		if (_textEditor.stage != null) {
+			_textEditor.stage.removeEventListener(MouseEvent.MOUSE_DOWN, completionManager_textEditor_stage_mouseDownHandler);
+		}
 		if (PopUpManager.isPopUp(_completionDetailView)) {
 			PopUpManager.removePopUp(_completionDetailView);
 		}
@@ -474,7 +477,6 @@ class CompletionManager {
 			return;
 		}
 		PopUpManager.removePopUp(_completionListView);
-		_textEditor.stage.removeEventListener(MouseEvent.MOUSE_DOWN, completionManager_textEditor_stage_mouseDownHandler);
 	}
 
 	private function dispatchCompletionEventForCurrentPosition(?triggerChar:String):Void {
