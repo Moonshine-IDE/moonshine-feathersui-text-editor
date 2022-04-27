@@ -212,6 +212,8 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		// Reset selection state
 		setSelection(0, 0, 0, 0);
 		// Reset scroll
+		_scrollX = 0.0;
+		_scrollY = 0.0;
 		_lineScrollY = 0;
 		if (_listView != null) {
 			_listView.scrollX = 0.0;
