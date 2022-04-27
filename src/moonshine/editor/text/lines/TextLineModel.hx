@@ -56,5 +56,5 @@ class TextLineModel extends EventDispatcher {
 	/**
 		The style ranges for syntax highlighting.
 	**/
-	public var styleRanges:Array<Int> = [0, 0];
+	public var styleRanges:Array<Int> = null;
 }
