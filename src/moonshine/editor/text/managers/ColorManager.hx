@@ -129,10 +129,10 @@ class ColorManager {
 				var oldMeta = line.styleRanges;
 				// the actual line delimiter doesn't matter here and it won't
 				// affect the contents of the file
-				var newMeta = (_parser != null) ? _parser.parse(line.text + "\n") : [0, 0x0];
+				var newMeta = (_parser != null) ? _parser.parse(line.text + "\n") : null;
 
 				// Notify the editor of change, to invalidate lines if needed
-				if (oldMeta == null || oldMeta.join(",") != newMeta.join(",")) {
+				if (oldMeta == null || newMeta == null || oldMeta.join(",") != newMeta.join(",")) {
 					line.styleRanges = newMeta;
 				}
 
