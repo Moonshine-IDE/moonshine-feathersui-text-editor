@@ -1008,13 +1008,15 @@ class TextLineRenderer extends FeathersControl {
 			var current = 0;
 			var next = lineTextLength;
 			var style = _defaultTextStyleContext;
-			if (i < _styleRanges.length) {
+			if (_styleRanges != null && i < _styleRanges.length) {
 				current = _styleRanges[i];
 				i++;
-				style = _styleRanges[i];
+				if (i < _styleRanges.length) {
+					style = _styleRanges[i];
+				}
 				i++;
 				next = lineTextLength;
-				if (i < styleRanges.length) {
+				if (i < _styleRanges.length) {
 					next = _styleRanges[i];
 				}
 			}
@@ -1059,7 +1061,7 @@ class TextLineRenderer extends FeathersControl {
 				next = textIndexToRenderedIndex(next);
 				_mainTextField.setTextFormat(format, current, next);
 			}
-		} while (i < _styleRanges.length);
+		} while (_styleRanges != null && i < _styleRanges.length);
 		if (_text == null || _text.length == 0) {
 			// make sure that the fallback space character used for measurement
 			// has the proper formatting
