@@ -1483,14 +1483,6 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	}
 
 	private function textEditor_listView_scrollHandler(event:ScrollEvent):Void {
-		if (_ignoreScrollChanges) {
-			return;
-		}
-
-		_listView.getViewPortVisibleBounds(_viewPortVisibleBounds);
-		_viewPortVisibleBounds.x += _listView.x;
-		_viewPortVisibleBounds.y += _listView.y;
-
 		_scrollX = _listView.scrollX;
 		_scrollY = _listView.scrollY;
 		var newLineScrollY = 0;
@@ -1499,6 +1491,11 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			newLineScrollY = Std.int(_listView.scrollY / _lineHeight);
 		}
 		_lineScrollY = newLineScrollY;
+
+		if (_ignoreScrollChanges) {
+			return;
+		}
+
 		ScrollEvent.dispatch(this, ScrollEvent.SCROLL);
 	}
 
