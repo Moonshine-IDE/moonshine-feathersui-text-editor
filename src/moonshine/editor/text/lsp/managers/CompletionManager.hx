@@ -785,7 +785,8 @@ class CompletionManager {
 			return;
 		}
 		if (_isIncomplete) {
-			dispatchCompletionEventForCurrentPosition(event.text);
+			var triggerChar = (_textEditor.completionTriggerCharacters.indexOf(event.text) != -1) ? event.text : null;
+			dispatchCompletionEventForCurrentPosition(triggerChar);
 			return;
 		}
 		_filterText += event.text.toLowerCase();
