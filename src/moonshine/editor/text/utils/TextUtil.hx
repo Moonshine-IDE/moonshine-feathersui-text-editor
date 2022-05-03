@@ -17,6 +17,7 @@
 
 package moonshine.editor.text.utils;
 
+import openfl.errors.ArgumentError;
 import openfl.geom.Point;
 
 /**
@@ -26,6 +27,19 @@ class TextUtil {
 	private static final DEFAULT_NON_WORD_CHARACTERS:Array<String> = [
 		" ", "\t", ".", ":", ";", ",", "?", "+", "-", "*", "/", "%", "=", "!", "&", "|", "(", ")", "[", "]", "{", "}", "<", ">"
 	];
+
+	/**
+		Determines if a character is a word character or not.
+	**/
+	public static function isWordCharacter(char:String, ?nonWordCharacters:Array<String>):Bool {
+		if (char.length != 1) {
+			throw new ArgumentError("Length of character must be 1");
+		}
+		if (nonWordCharacters == null) {
+			nonWordCharacters = DEFAULT_NON_WORD_CHARACTERS;
+		}
+		return nonWordCharacters.indexOf(char) == -1;
+	}
 
 	/**
 		Returns the character index of the beginning of the current word

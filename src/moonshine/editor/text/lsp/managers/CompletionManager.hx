@@ -188,8 +188,10 @@ class CompletionManager {
 			|| params.context.triggerCharacter == null) {
 			var line = _textEditor.lines.get(_textEditor.caretLineIndex);
 			var startIndex = _textEditor.caretCharIndex - 1;
-			if (startIndex >= 0) {
+			if (startIndex >= 0 && TextUtil.isWordCharacter(line.text.charAt(startIndex))) {
 				startIndex = TextUtil.startOfWord(line.text, startIndex);
+			} else {
+				startIndex = -1;
 			}
 			if (startIndex >= 0) {
 				_filterText = StringTools.trim(line.text.substr(startIndex, Std.int(Math.max(0, _textEditor.caretCharIndex - startIndex))).toLowerCase());
