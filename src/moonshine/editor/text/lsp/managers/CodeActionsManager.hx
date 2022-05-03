@@ -227,6 +227,9 @@ class CodeActionsManager {
 			}
 		}
 		var point = charBounds.topLeft;
+		if (point.x < _textEditor.gutterWidth) {
+			point.x = _textEditor.gutterWidth;
+		}
 		if (_currentOpenOnResponse) {
 			point.y += charBounds.height;
 		} else {
