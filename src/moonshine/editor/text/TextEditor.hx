@@ -1211,10 +1211,10 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		if (textLineRenderer != null) {
 			var adjustedIndex = caretCharIndex;
 			var end = false;
+			var line = lines.get(_caretLineIndex);
 			// get the bounds of the final real character so that the horizontal
 			// lookahead is calculated with a width > 0.0
 			if (adjustedIndex > 0) {
-				var line = lines.get(_caretLineIndex);
 				if (adjustedIndex == line.text.length) {
 					adjustedIndex--;
 					end = true;
@@ -1222,14 +1222,30 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			}
 			var bounds = textLineRenderer.getCharBoundaries(adjustedIndex);
 			if (bounds != null) {
-				var horizontalLookahead = bounds.width * 8.0;
-				var scrollX = bounds.x + (end ? bounds.width : 0.0) + horizontalLookahead - _viewPortVisibleBounds.width;
-				if (scrollX < _listView.minScrollX) {
-					scrollX = _listView.minScrollX;
-				} else if (scrollX > _listView.maxScrollX) {
-					scrollX = _listView.maxScrollX;
+				var charWidth = bounds.width;
+				if (line.text.charAt(adjustedIndex) == "\t") {
+					// tabs are larger than the average character, so adjust it
+					// to something closer to the size of a space
+					charWidth /= _tabWidth;
 				}
-				_listView.scrollX = scrollX;
+				var horizontalLookaround = charWidth * 8.0;
+				var caretX = bounds.x;
+				if (end) {
+					caretX += bounds.width;
+				}
+				var newScrollX = _scrollX;
+				if (newScrollX < caretX + horizontalLookaround - _viewPortVisibleBounds.width) {
+					newScrollX = caretX + horizontalLookaround - _viewPortVisibleBounds.width;
+				}
+				if (newScrollX > caretX - horizontalLookaround - textLineRenderer.gutterWidth) {
+					newScrollX = caretX - horizontalLookaround - textLineRenderer.gutterWidth;
+				}
+				if (newScrollX < _listView.minScrollX) {
+					newScrollX = _listView.minScrollX;
+				} else if (newScrollX > _listView.maxScrollX) {
+					newScrollX = _listView.maxScrollX;
+				}
+				_listView.scrollX = newScrollX;
 			}
 		}
 		_ignoreScrollChanges = oldIgnoreScrollChanges;
