@@ -1209,15 +1209,28 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		// it shouldn't ever be null because we're scrolling to show the line,
 		// but it's safer to check just in case
 		if (textLineRenderer != null) {
-			var bounds = textLineRenderer.getCharBoundaries(caretCharIndex);
-			var horizontalLookahead = bounds.width * 8.0;
-			var scrollX = bounds.x + horizontalLookahead - _viewPortVisibleBounds.width;
-			if (scrollX < _listView.minScrollX) {
-				scrollX = _listView.minScrollX;
-			} else if (scrollX > _listView.maxScrollX) {
-				scrollX = _listView.maxScrollX;
+			var adjustedIndex = caretCharIndex;
+			var end = false;
+			// get the bounds of the final real character so that the horizontal
+			// lookahead is calculated with a width > 0.0
+			if (adjustedIndex > 0) {
+				var line = lines.get(_caretLineIndex);
+				if (adjustedIndex == line.text.length) {
+					adjustedIndex--;
+					end = true;
+				}
 			}
-			_listView.scrollX = scrollX;
+			var bounds = textLineRenderer.getCharBoundaries(adjustedIndex);
+			if (bounds != null) {
+				var horizontalLookahead = bounds.width * 8.0;
+				var scrollX = bounds.x + (end ? bounds.width : 0.0) + horizontalLookahead - _viewPortVisibleBounds.width;
+				if (scrollX < _listView.minScrollX) {
+					scrollX = _listView.minScrollX;
+				} else if (scrollX > _listView.maxScrollX) {
+					scrollX = _listView.maxScrollX;
+				}
+				_listView.scrollX = scrollX;
+			}
 		}
 		_ignoreScrollChanges = oldIgnoreScrollChanges;
 	}
