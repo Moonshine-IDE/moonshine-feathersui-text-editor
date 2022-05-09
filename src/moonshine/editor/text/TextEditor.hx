@@ -1450,7 +1450,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			firstLine = cast(_listView.itemToItemRenderer(_lines.get(_lineScrollY)), TextLineRenderer);
 		}
 
-		if (_lines.length == 0 || firstLine == null) {
+		if (_lines.length == 0 || firstLine == null || firstLine.height == 0.0) {
 			// don't want to divide by zero
 			_lineHeight = 0.0;
 			_visibleLines = 1;
