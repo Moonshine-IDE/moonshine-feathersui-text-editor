@@ -27,6 +27,7 @@ import feathers.events.FlatCollectionEvent;
 import feathers.events.ScrollEvent;
 import feathers.layout.VerticalListLayout;
 import feathers.utils.DisplayObjectRecycler;
+import feathers.utils.MathUtil;
 import moonshine.editor.text.events.TextEditorChangeEvent;
 import moonshine.editor.text.events.TextEditorEvent;
 import moonshine.editor.text.events.TextEditorLineEvent;
@@ -268,9 +269,9 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		}
 		_scrollY = value;
 		_lineScrollY = 0;
+		// don't want to divide by zero
 		if (_lineHeight != 0.0) {
-			// don't want to divide by zero
-			_lineScrollY = Std.int(_scrollY / _lineHeight);
+			_lineScrollY = calculateLineScrollY(_scrollY);
 		}
 		setInvalid(SCROLL);
 		return _scrollY;
@@ -1498,15 +1499,29 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		invalidateVisibleLines();
 	}
 
+	private inline function calculateLineScrollY(scrollY:Float):Int {
+		if (_lineHeight == 0.0) {
+			return 0;
+		}
+		var floatLineScrollY = _scrollY / _lineHeight;
+		var roundedLineScrollY = Math.round(floatLineScrollY);
+		// correcting for intermittent floating point error
+		// see: https://0.30000000000000004.com
+		if (MathUtil.fuzzyEquals(floatLineScrollY, roundedLineScrollY)) {
+			return roundedLineScrollY;
+		}
+		// prefer floor when there are no floating point issues, though
+		return Std.int(floatLineScrollY);
+	}
+
 	private function textEditor_listView_scrollHandler(event:ScrollEvent):Void {
 		_scrollX = _listView.scrollX;
 		_scrollY = _listView.scrollY;
-		var newLineScrollY = 0;
+		_lineScrollY = 0;
+		// don't want to divide by zero
 		if (_lineHeight != 0.0) {
-			// don't want to divide by zero
-			newLineScrollY = Std.int(_listView.scrollY / _lineHeight);
+			_lineScrollY = calculateLineScrollY(_scrollY);
 		}
-		_lineScrollY = newLineScrollY;
 
 		if (_ignoreScrollChanges) {
 			return;
