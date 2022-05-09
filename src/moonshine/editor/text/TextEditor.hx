@@ -268,11 +268,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			return _scrollY;
 		}
 		_scrollY = value;
-		_lineScrollY = 0;
-		// don't want to divide by zero
-		if (_lineHeight != 0.0) {
-			_lineScrollY = calculateLineScrollY(_scrollY);
-		}
+		_lineScrollY = calculateLineScrollY(_scrollY);
 		setInvalid(SCROLL);
 		return _scrollY;
 	}
@@ -1501,6 +1497,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 
 	private inline function calculateLineScrollY(scrollY:Float):Int {
 		if (_lineHeight == 0.0) {
+			// don't want to divide by zero
 			return 0;
 		}
 		var floatLineScrollY = _scrollY / _lineHeight;
@@ -1517,11 +1514,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	private function textEditor_listView_scrollHandler(event:ScrollEvent):Void {
 		_scrollX = _listView.scrollX;
 		_scrollY = _listView.scrollY;
-		_lineScrollY = 0;
-		// don't want to divide by zero
-		if (_lineHeight != 0.0) {
-			_lineScrollY = calculateLineScrollY(_scrollY);
-		}
+		_lineScrollY = calculateLineScrollY(_scrollY);
 
 		if (_ignoreScrollChanges) {
 			return;
