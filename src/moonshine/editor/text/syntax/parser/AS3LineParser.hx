@@ -83,7 +83,7 @@ class AS3LineParser extends LineParser {
 			AS_KEYWORD => [
 				'is', 'if', 'in', 'as', 'new', 'for', 'use', 'set', 'get', 'try', 'null', 'true', 'void', 'else', 'each', 'case', 'this', 'break', 'false',
 				'final', 'catch', 'class', 'return', 'switch', 'static', 'import', 'private', 'public', 'extends', 'override', 'inherits', 'internal',
-				'implements', 'package', 'protected', 'namespace', 'final', 'native', 'dynamic', 'delete', 'throw', 'finally'
+				'implements', 'package', 'protected', 'namespace', 'final', 'native', 'dynamic', 'delete', 'throw', 'finally', 'super'
 			],
 		];
 	}
