@@ -239,29 +239,54 @@ class EditManager {
 			var line = startLine;
 			while (line <= endLine) {
 				if (reverse) {
-					var indent = TextUtil.getFirstIndentAtStartOfLine(_textEditor.lines.get(line).text, _textEditor.tabWidth);
-					if (indent.length > 0) {
-						changes.push(new TextEditorChange(line, 0, line, indent.length));
+					var currentIndent = TextUtil.getIndentAtStartOfLine(_textEditor.lines.get(line).text, _textEditor.tabWidth);
+					var currentIndentSize = getIndentCountAtStartOfLine(currentIndent, _textEditor.tabWidth);
+					var newIndentSize = Math.floor(currentIndentSize);
+					if (newIndentSize == currentIndentSize) {
+						newIndentSize--;
+					}
+					if (currentIndentSize > 0) {
+						// the current indent may be a mix of spaces and tabs
+						// we convert the current indent to all spaces or all tabs
+						var indentString = getIndentString();
+						var newIndent = "";
+						for (i in 0...newIndentSize) {
+							newIndent += indentString;
+						}
+						changes.push(new TextEditorChange(line, 0, line, currentIndent.length, newIndent));
+						var selectionOffset = newIndent.length - currentIndent.length;
 						if (line == startLine) {
-							newSelectedStartCharIndex -= indent.length;
+							newSelectedStartCharIndex += selectionOffset;
 						}
 						if (line == endLine) {
-							newSelectedEndCharIndex -= indent.length;
+							newSelectedEndCharIndex += selectionOffset;
 						}
 					}
 				} else {
-					var indent = getTabString();
-					changes.push(new TextEditorChange(line, 0, line, 0, indent));
+					var currentIndent = TextUtil.getIndentAtStartOfLine(_textEditor.lines.get(line).text, _textEditor.tabWidth);
+					var currentIndentSize = getIndentCountAtStartOfLine(currentIndent, _textEditor.tabWidth);
+					var newIndentSize = Math.ceil(currentIndentSize);
+					if (newIndentSize == currentIndentSize) {
+						newIndentSize++;
+					}
+					// the current indent may be a mix of spaces and tabs
+					// we convert the current indent to all spaces or all tabs
+					var indentString = getIndentString();
+					var newIndent = "";
+					for (i in 0...newIndentSize) {
+						newIndent += indentString;
+					}
+					changes.push(new TextEditorChange(line, 0, line, currentIndent.length, newIndent));
+					var selectionOffset = newIndent.length - currentIndent.length;
 					if (line == startLine) {
-						newSelectedStartCharIndex += indent.length;
+						newSelectedStartCharIndex += selectionOffset;
 					}
 					if (line == endLine) {
-						newSelectedEndCharIndex += indent.length;
+						newSelectedEndCharIndex += selectionOffset;
 					}
 				}
 				line++;
 			}
-
 			if (changes.length > 0) {
 				dispatchChanges(changes);
 				_textEditor.setSelection(startLine, newSelectedStartCharIndex, endLine, newSelectedEndCharIndex);
@@ -289,7 +314,7 @@ class EditManager {
 				_textEditor.setSelection(lineIndex, newSelectionStartCharIndex, lineIndex, newSelectionEndCharIndex);
 			}
 		} else {
-			insertText(getTabString());
+			insertText(getIndentString());
 		}
 	}
 
@@ -340,7 +365,7 @@ class EditManager {
 							// bracket (or if there is no close bracket), then
 							// automatically increase the indent
 							if (closeIndex == -1 || closeIndex < openIndex) {
-								indent = indent + getTabString();
+								indent = indent + getIndentString();
 								break;
 							}
 						}
@@ -353,11 +378,34 @@ class EditManager {
 		return "";
 	}
 
-	private function getTabString():String {
+	private function getIndentString():String {
 		if (_textEditor.insertSpacesForTabs) {
 			return TextUtil.repeatStr(" ", _textEditor.tabWidth);
 		}
 		return "\t";
+	}
+
+	private function getIndentCountAtStartOfLine(line:String, tabWidth:Int):Float {
+		var indentCount = 0.0;
+		var spaceCount = 0;
+		for (i in 0...line.length) {
+			var char = line.charAt(i);
+			if (char == " ") {
+				spaceCount++;
+				if (spaceCount == tabWidth) {
+					indentCount++;
+					spaceCount = 0;
+				}
+			} else if (char == "\t") {
+				indentCount++;
+			} else {
+				break;
+			}
+		}
+		if (spaceCount > 0) {
+			indentCount += spaceCount / tabWidth;
+		}
+		return indentCount;
 	}
 
 	private function textEndsInUnterminatedStringOrComment(text:String):Bool {
@@ -554,7 +602,7 @@ class EditManager {
 			case Keyboard.ENTER:
 				var indent = findFullIndentForNewLine(_textEditor.caretLineIndex);
 				if (isBetweenBrackets()) {
-					var extendedIndent = indent + getTabString();
+					var extendedIndent = indent + getIndentString();
 					var newCaretLineIndex = _textEditor.caretLineIndex + 1;
 					var newCaretCharIndex = extendedIndent.length;
 					insertText(_textEditor.lineDelimiter + extendedIndent + _textEditor.lineDelimiter + indent);

@@ -387,6 +387,38 @@ class TextEditorTextInputTestCase extends Test {
 		Assert.equals(3, _textEditor.selectionEndCharIndex);
 	}
 
+	public function testTabWithRangeSelectionMultipleLinesAndMixedTabsSpaces():Void {
+		_textEditor.text = "\thello\n    world";
+		_textEditor.insertSpacesForTabs = false;
+		_textEditor.tabWidth = 4;
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 2, 1, 5);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.TAB));
+		Assert.equals("\t\thello\n\t\tworld", _textEditor.text);
+		Assert.equals(1, _textEditor.caretLineIndex);
+		Assert.equals(3, _textEditor.caretCharIndex);
+		Assert.equals(0, _textEditor.selectionStartLineIndex);
+		Assert.equals(3, _textEditor.selectionStartCharIndex);
+		Assert.equals(1, _textEditor.selectionEndLineIndex);
+		Assert.equals(3, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testTabWithRangeSelectionMultipleLinesAndMixedTabsSpaces2():Void {
+		_textEditor.text = "\thello\n  world";
+		_textEditor.insertSpacesForTabs = false;
+		_textEditor.tabWidth = 4;
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 2, 1, 3);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.TAB));
+		Assert.equals("\t\thello\n\tworld", _textEditor.text);
+		Assert.equals(1, _textEditor.caretLineIndex);
+		Assert.equals(2, _textEditor.caretCharIndex);
+		Assert.equals(0, _textEditor.selectionStartLineIndex);
+		Assert.equals(3, _textEditor.selectionStartCharIndex);
+		Assert.equals(1, _textEditor.selectionEndLineIndex);
+		Assert.equals(2, _textEditor.selectionEndCharIndex);
+	}
+
 	public function testShiftTabWithCaretSelection():Void {
 		_textEditor.text = "\thello";
 		_textEditor.stage.focus = _textEditor;
@@ -419,6 +451,38 @@ class TextEditorTextInputTestCase extends Test {
 		_textEditor.text = "\t\thello\n\t\tworld";
 		_textEditor.stage.focus = _textEditor;
 		_textEditor.setSelection(0, 3, 1, 3);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.TAB, null, false, false, true));
+		Assert.equals("\thello\n\tworld", _textEditor.text);
+		Assert.equals(1, _textEditor.caretLineIndex);
+		Assert.equals(2, _textEditor.caretCharIndex);
+		Assert.equals(0, _textEditor.selectionStartLineIndex);
+		Assert.equals(2, _textEditor.selectionStartCharIndex);
+		Assert.equals(1, _textEditor.selectionEndLineIndex);
+		Assert.equals(2, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testShiftTabWithRangeSelectionMultipleLinesAndMixedTabsSpaces():Void {
+		_textEditor.text = "\t\thello\n        world";
+		_textEditor.insertSpacesForTabs = false;
+		_textEditor.tabWidth = 4;
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 3, 1, 9);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.TAB, null, false, false, true));
+		Assert.equals("\thello\n\tworld", _textEditor.text);
+		Assert.equals(1, _textEditor.caretLineIndex);
+		Assert.equals(2, _textEditor.caretCharIndex);
+		Assert.equals(0, _textEditor.selectionStartLineIndex);
+		Assert.equals(2, _textEditor.selectionStartCharIndex);
+		Assert.equals(1, _textEditor.selectionEndLineIndex);
+		Assert.equals(2, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testShiftTabWithRangeSelectionMultipleLinesAndMixedTabsSpaces2():Void {
+		_textEditor.text = "\t\thello\n      world";
+		_textEditor.insertSpacesForTabs = false;
+		_textEditor.tabWidth = 4;
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 3, 1, 7);
 		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.TAB, null, false, false, true));
 		Assert.equals("\thello\n\tworld", _textEditor.text);
 		Assert.equals(1, _textEditor.caretLineIndex);

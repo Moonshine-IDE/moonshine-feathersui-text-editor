@@ -18,7 +18,6 @@
 package moonshine.editor.text.utils;
 
 import openfl.errors.ArgumentError;
-import openfl.geom.Point;
 
 /**
 	Utility functions for manipulating text in a code editor.
@@ -172,6 +171,17 @@ class TextUtil {
 				indent += char;
 			}
 			return indent;
+		}
+		return "";
+	}
+
+	/**
+		Gets the full set of whitspace at the start of a line.
+	**/
+	public static function getIndentAtStartOfLine(line:String, tabSize:Int):String {
+		var indentPattern = ~/^[ \t]+/;
+		if (indentPattern.match(line)) {
+			return indentPattern.matched(0);
 		}
 		return "";
 	}
