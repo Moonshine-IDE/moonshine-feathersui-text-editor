@@ -300,8 +300,8 @@ class SelectionManager {
 		var chars = 1;
 
 		var caretLine = _textEditor.lines.get(_textEditor.caretLineIndex);
-		if (event.commandKey) // Mac specific text editing functionality
-		{
+		// Mac specific text editing functionality
+		if (#if !flash event.commandKey #else Reflect.hasField(event, "commandKey") && Reflect.field(event, "commandKey") #end) {
 			if (!event.shiftKey && _textEditor.hasSelection) {
 				_textEditor.removeSelection();
 			}
@@ -353,8 +353,8 @@ class SelectionManager {
 		var chars = 1;
 
 		var caretLine = _textEditor.lines.get(_textEditor.caretLineIndex);
-		if (event.commandKey) // Mac specific text editing functionality
-		{
+		// Mac specific text editing functionality
+		if (#if !flash event.commandKey #else Reflect.hasField(event, "commandKey") && Reflect.field(event, "commandKey") #end) {
 			if (!event.shiftKey && _textEditor.hasSelection) {
 				_textEditor.removeSelection();
 			}
@@ -403,8 +403,8 @@ class SelectionManager {
 		var selectionStartLineIndex = _textEditor.hasSelection ? _textEditor.selectionStartLineIndex : _textEditor.caretLineIndex;
 		var selectionStartCharIndex = _textEditor.hasSelection ? _textEditor.selectionStartCharIndex : _textEditor.caretCharIndex;
 
-		if (event.commandKey) // Mac specific text editing functionality
-		{
+		// Mac specific text editing functionality
+		if (#if !flash event.commandKey #else Reflect.hasField(event, "commandKey") && Reflect.field(event, "commandKey") #end) {
 			if (!event.shiftKey && _textEditor.hasSelection) {
 				_textEditor.removeSelection();
 			}
@@ -446,8 +446,8 @@ class SelectionManager {
 		var selectionStartLineIndex = _textEditor.hasSelection ? _textEditor.selectionStartLineIndex : _textEditor.caretLineIndex;
 		var selectionStartCharIndex = _textEditor.hasSelection ? _textEditor.selectionStartCharIndex : _textEditor.caretCharIndex;
 
-		if (event.commandKey) // Mac specific text editing functionality
-		{
+		// Mac specific text editing functionality
+		if (#if !flash event.commandKey #else Reflect.hasField(event, "commandKey") && Reflect.field(event, "commandKey") #end) {
 			if (!event.shiftKey && _textEditor.hasSelection) {
 				_textEditor.removeSelection();
 			}

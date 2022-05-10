@@ -285,10 +285,20 @@ class SignatureHelpManager {
 			|| (!shortcutRequiresShift && event.shiftKey)
 			|| (shortcutRequiresAlt && !event.altKey)
 			|| (!shortcutRequiresAlt && event.altKey)
-			|| (shortcutRequiresCommand && !event.commandKey)
 			|| (shortcutRequiresControl && !event.controlKey)) {
 			return;
 		}
+		// special case for commandKey because, when compiled for flash target,
+		// commandKey will return false on air target too
+		#if flash
+		if (shortcutRequiresCommand && Reflect.hasField(event, "commandKey") && !Reflect.field(event, "commandKey")) {
+			return;
+		}
+		#else
+		if (shortcutRequiresCommand && !event.commandKey) {
+			return;
+		}
+		#end
 		event.preventDefault();
 		dispatchSignatureHelpEventForCurrentPosition();
 	}
