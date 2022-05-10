@@ -234,8 +234,8 @@ class EditManager {
 				endLine--;
 			}
 
-			var newSelectedStartCharIndex = _textEditor.selectionStartCharIndex;
-			var newSelectedEndCharIndex = _textEditor.selectionEndCharIndex;
+			var newSelectedStartCharIndex = startChar;
+			var newSelectedEndCharIndex = endChar;
 			var line = startLine;
 			while (line <= endLine) {
 				if (reverse) {
