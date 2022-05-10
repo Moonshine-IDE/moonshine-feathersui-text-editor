@@ -332,9 +332,6 @@ class SelectionManager {
 				_textEditor.setSelection(_textEditor.caretLineIndex, newCaretIndex, _textEditor.caretLineIndex, newCaretIndex);
 			}
 		} else {
-			if (_textEditor.caretLineIndex == 0) {
-				return;
-			}
 			var newLineIndex = _textEditor.caretLineIndex - 1;
 			if (newLineIndex >= 0) {
 				var newCaretIndex = _textEditor.lines.get(newLineIndex).text.length;
@@ -383,10 +380,6 @@ class SelectionManager {
 				_textEditor.setSelection(_textEditor.caretLineIndex, newCaretIndex, _textEditor.caretLineIndex, newCaretIndex);
 			}
 		} else {
-			if (_textEditor.caretLineIndex < _textEditor.lines.length - 1) {
-				return;
-			}
-
 			var newLineIndex = _textEditor.caretLineIndex + 1;
 			if (newLineIndex < _textEditor.lines.length) {
 				var newCaretIndex = 0;

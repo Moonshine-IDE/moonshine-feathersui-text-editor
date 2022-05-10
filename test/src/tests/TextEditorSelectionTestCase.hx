@@ -149,6 +149,44 @@ class TextEditorSelectionTestCase extends Test {
 		Assert.equals(-1, _textEditor.selectionEndCharIndex);
 	}
 
+	public function testSetCaretSelectionWithKeyboardRightAtEndOfLine():Void {
+		_textEditor.text = "hello\nworld";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 5, 0, 5);
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(5, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.RIGHT));
+		Assert.equals(1, _textEditor.caretLineIndex);
+		Assert.equals(0, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testSetCaretSelectionWithKeyboardRightAtEndOfFile():Void {
+		_textEditor.text = "hello\nworld";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(1, 5, 1, 5);
+		Assert.equals(1, _textEditor.caretLineIndex);
+		Assert.equals(5, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.RIGHT));
+		Assert.equals(1, _textEditor.caretLineIndex);
+		Assert.equals(5, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
 	public function testSetRangeSelectionWithKeyboardRight():Void {
 		_textEditor.text = "hello";
 		_textEditor.stage.focus = _textEditor;
@@ -206,6 +244,25 @@ class TextEditorSelectionTestCase extends Test {
 		Assert.equals(1, _textEditor.selectionEndCharIndex);
 	}
 
+	public function testSetRangeSelectionWithKeyboardRightAtEndOfLine():Void {
+		_textEditor.text = "hello\nworld";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 5, 0, 5);
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(5, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.RIGHT, null, false, false, true));
+		Assert.equals(1, _textEditor.caretLineIndex);
+		Assert.equals(0, _textEditor.caretCharIndex);
+		Assert.equals(0, _textEditor.selectionStartLineIndex);
+		Assert.equals(5, _textEditor.selectionStartCharIndex);
+		Assert.equals(1, _textEditor.selectionEndLineIndex);
+		Assert.equals(0, _textEditor.selectionEndCharIndex);
+	}
+
 	public function testSetCaretSelectionWithKeyboardLeft():Void {
 		_textEditor.text = "hello";
 		_textEditor.stage.focus = _textEditor;
@@ -219,6 +276,44 @@ class TextEditorSelectionTestCase extends Test {
 		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.LEFT));
 		Assert.equals(0, _textEditor.caretLineIndex);
 		Assert.equals(4, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testSetCaretSelectionWithKeyboardLeftAtStartOfLine():Void {
+		_textEditor.text = "hello\nworld";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(1, 0, 1, 0);
+		Assert.equals(1, _textEditor.caretLineIndex);
+		Assert.equals(0, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.LEFT));
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(5, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testSetCaretSelectionWithKeyboardLeftAtStartOfFile():Void {
+		_textEditor.text = "hello\nworld";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 0, 0, 0);
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(0, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.LEFT));
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(0, _textEditor.caretCharIndex);
 		Assert.equals(-1, _textEditor.selectionStartLineIndex);
 		Assert.equals(-1, _textEditor.selectionStartCharIndex);
 		Assert.equals(-1, _textEditor.selectionEndLineIndex);
@@ -283,6 +378,25 @@ class TextEditorSelectionTestCase extends Test {
 		Assert.equals(5, _textEditor.selectionStartCharIndex);
 		Assert.equals(0, _textEditor.selectionEndLineIndex);
 		Assert.equals(4, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testSetRangeSelectionWithKeyboardLeftAtStartOfLine():Void {
+		_textEditor.text = "hello\nworld";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(1, 0, 1, 0);
+		Assert.equals(1, _textEditor.caretLineIndex);
+		Assert.equals(0, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.LEFT, null, false, false, true));
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(5, _textEditor.caretCharIndex);
+		Assert.equals(1, _textEditor.selectionStartLineIndex);
+		Assert.equals(0, _textEditor.selectionStartCharIndex);
+		Assert.equals(0, _textEditor.selectionEndLineIndex);
+		Assert.equals(5, _textEditor.selectionEndCharIndex);
 	}
 
 	public function testSetCaretSelectionLeftFromRangeSelection():Void {
