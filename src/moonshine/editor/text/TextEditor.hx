@@ -783,6 +783,23 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	public var blockComment:Array<String> = null;
 
 	/**
+		Determines if `Keyboard.HOME` and `Keyboard.END` behave like native
+		macOS text editors (scroll to top or bottom, without changing the cursor
+		position), or if they change the cursor position to the beginning or
+		end of the current line (like most code editors).
+	**/
+	public var macHomeAndEndEnabled(get, set):Bool;
+
+	private function get_macHomeAndEndEnabled():Bool {
+		return _selectionMananger.macHomeAndEndEnabled;
+	}
+
+	private function set_macHomeAndEndEnabled(value:Bool):Bool {
+		_selectionMananger.macHomeAndEndEnabled = value;
+		return _selectionMananger.macHomeAndEndEnabled;
+	}
+
+	/**
 		The default background skin to display behind the text editor's content.
 	**/
 	@:style

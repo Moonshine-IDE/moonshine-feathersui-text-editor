@@ -3,6 +3,7 @@ package tests;
 import moonshine.editor.text.TextEditor;
 import openfl.events.Event;
 import openfl.events.KeyboardEvent;
+import openfl.system.Capabilities;
 import openfl.ui.Keyboard;
 import utest.Assert;
 import utest.Test;
@@ -807,5 +808,70 @@ class TextEditorSelectionTestCase extends Test {
 		Assert.equals(0, _textEditor.selectionStartCharIndex);
 		Assert.equals(1, _textEditor.selectionEndLineIndex);
 		Assert.equals(5, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testMacKeyboardHome():Void {
+		if (!StringTools.startsWith(Capabilities.version, "MAC")) {
+			Assert.pass();
+			return;
+		}
+		_textEditor.macHomeAndEndEnabled = true;
+		var text = "";
+		for (i in 0...1000) {
+			text += StringTools.lpad("0", '$i\n', 4);
+		}
+		_textEditor.text = text;
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(900, 2, 900, 2);
+		_textEditor.validateNow();
+		_textEditor.lineScrollY = 50;
+		Assert.equals(900, _textEditor.caretLineIndex);
+		Assert.equals(2, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+		Assert.equals(50, _textEditor.lineScrollY);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.HOME));
+		Assert.equals(900, _textEditor.caretLineIndex);
+		Assert.equals(2, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+		Assert.equals(0, _textEditor.lineScrollY);
+	}
+
+	public function testMacKeyboardEnd():Void {
+		if (!StringTools.startsWith(Capabilities.version, "MAC")) {
+			Assert.pass();
+			return;
+		}
+		_textEditor.macHomeAndEndEnabled = true;
+		var text = "";
+		for (i in 0...1000) {
+			text += StringTools.lpad("0", '$i\n', 4);
+		}
+		_textEditor.text = text;
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(100, 2, 100, 2);
+		_textEditor.validateNow();
+		_textEditor.lineScrollY = 50;
+		Assert.equals(100, _textEditor.caretLineIndex);
+		Assert.equals(2, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+		Assert.equals(50, _textEditor.lineScrollY);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.END));
+		Assert.equals(100, _textEditor.caretLineIndex);
+		Assert.equals(2, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+		Assert.isTrue(_textEditor.maxLineScrollY > 0);
+		Assert.equals(_textEditor.maxLineScrollY, _textEditor.lineScrollY);
 	}
 }

@@ -27,6 +27,7 @@ import openfl.events.KeyboardEvent;
 import openfl.events.MouseEvent;
 import openfl.events.TimerEvent;
 import openfl.geom.Point;
+import openfl.system.Capabilities;
 import openfl.ui.Keyboard;
 import openfl.utils.Timer;
 
@@ -63,6 +64,8 @@ class SelectionManager {
 	private var _dragScrollDelta:Int = 0;
 	private var _dragLocalPoint:Point;
 	private var _dragScrollTimer:Timer;
+
+	public var macHomeAndEndEnabled:Bool = false;
 
 	private function applyChanges(changes:Array<TextEditorChange>):Void {
 		var line = _savedCaretLineIndex;
@@ -514,9 +517,21 @@ class SelectionManager {
 			case Keyboard.PAGE_UP:
 				keyboardPageUp(event);
 			case Keyboard.HOME:
-				keyboardHome(event);
+				if (macHomeAndEndEnabled && StringTools.startsWith(Capabilities.version, "MAC")) {
+					_textEditor.lineScrollY = 0;
+					event.preventDefault();
+					return;
+				} else {
+					keyboardHome(event);
+				}
 			case Keyboard.END:
-				keyboardEnd(event);
+				if (macHomeAndEndEnabled && StringTools.startsWith(Capabilities.version, "MAC")) {
+					_textEditor.lineScrollY = _textEditor.maxLineScrollY;
+					event.preventDefault();
+					return;
+				} else {
+					keyboardEnd(event);
+				}
 			default:
 				// Unflag as processed if nothing matched
 				processed = false;
