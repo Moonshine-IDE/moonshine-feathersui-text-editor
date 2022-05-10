@@ -254,12 +254,19 @@ class EditManager {
 							newIndent += indentString;
 						}
 						changes.push(new TextEditorChange(line, 0, line, currentIndent.length, newIndent));
-						var selectionOffset = newIndent.length - currentIndent.length;
 						if (line == startLine) {
-							newSelectedStartCharIndex += selectionOffset;
+							newSelectedStartCharIndex -= currentIndent.length;
+							if (newSelectedStartCharIndex < 0) {
+								newSelectedStartCharIndex = 0;
+							}
+							newSelectedStartCharIndex += newIndent.length;
 						}
 						if (line == endLine) {
-							newSelectedEndCharIndex += selectionOffset;
+							newSelectedEndCharIndex -= currentIndent.length;
+							if (newSelectedEndCharIndex < 0) {
+								newSelectedEndCharIndex = 0;
+							}
+							newSelectedEndCharIndex += newIndent.length;
 						}
 					}
 				} else {
@@ -277,12 +284,19 @@ class EditManager {
 						newIndent += indentString;
 					}
 					changes.push(new TextEditorChange(line, 0, line, currentIndent.length, newIndent));
-					var selectionOffset = newIndent.length - currentIndent.length;
 					if (line == startLine) {
-						newSelectedStartCharIndex += selectionOffset;
+						newSelectedStartCharIndex -= currentIndent.length;
+						if (newSelectedStartCharIndex < 0) {
+							newSelectedStartCharIndex = 0;
+						}
+						newSelectedStartCharIndex += newIndent.length;
 					}
 					if (line == endLine) {
-						newSelectedEndCharIndex += selectionOffset;
+						newSelectedEndCharIndex -= currentIndent.length;
+						if (newSelectedEndCharIndex < 0) {
+							newSelectedEndCharIndex = 0;
+						}
+						newSelectedEndCharIndex += newIndent.length;
 					}
 				}
 				line++;

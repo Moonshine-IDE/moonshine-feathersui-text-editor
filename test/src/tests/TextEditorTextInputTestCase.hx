@@ -419,6 +419,24 @@ class TextEditorTextInputTestCase extends Test {
 		Assert.equals(2, _textEditor.selectionEndCharIndex);
 	}
 
+	public function testTabWithRangeSelectionMultipleLinesAndMixedTabsSpaces3():Void {
+		_textEditor.text = "\thello\n      world";
+		_textEditor.insertSpacesForTabs = false;
+		_textEditor.tabWidth = 4;
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 2, 1, 1);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.TAB));
+		Assert.equals("\t\thello\n\t\tworld", _textEditor.text);
+		Assert.equals(1, _textEditor.caretLineIndex);
+		// if the end line's selection does not include the full indent, expand
+		// it to the full indent, rather than trying to calculate a middle point
+		Assert.equals(2, _textEditor.caretCharIndex);
+		Assert.equals(0, _textEditor.selectionStartLineIndex);
+		Assert.equals(3, _textEditor.selectionStartCharIndex);
+		Assert.equals(1, _textEditor.selectionEndLineIndex);
+		Assert.equals(2, _textEditor.selectionEndCharIndex);
+	}
+
 	public function testShiftTabWithCaretSelection():Void {
 		_textEditor.text = "\thello";
 		_textEditor.stage.focus = _textEditor;
