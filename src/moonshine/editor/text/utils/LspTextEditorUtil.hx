@@ -30,8 +30,21 @@ class LspTextEditorUtil {
 		to a `TextEditorChange` object used by the `TextEditor` component.
 	**/
 	public static function lspTextEditToTextEditorChange(textEdit:TextEdit):TextEditorChange {
-		return new TextEditorChange(textEdit.range.start.line, textEdit.range.start.character, textEdit.range.end.line, textEdit.range.end.character,
-			textEdit.newText);
+		var range = textEdit.range;
+		var start = range.start;
+		var end = range.end;
+		var startLine = start.line;
+		var startChar = start.character;
+		var endLine = end.line;
+		var endChar = end.character;
+		// the order matters in TextEditorChange, but doesn't seem to in TextEdit
+		if (endLine < startLine || (endLine == startLine && endChar < startChar)) {
+			startLine = endLine;
+			startChar = endChar;
+			endLine = start.line;
+			endChar = start.character;
+		}
+		return new TextEditorChange(startLine, startChar, endLine, endChar, textEdit.newText);
 	}
 
 	/**
