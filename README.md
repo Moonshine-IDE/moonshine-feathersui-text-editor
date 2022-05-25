@@ -2,11 +2,11 @@
 
 The text editor UI component used by [Moonshine IDE](https://moonshine-ide.com/), written in [Haxe](https://haxe.org/), and built on [Feathers UI](https://feathersui.com/) and [OpenFL](https://openfl.org/).
 
-## Requirements
+## Minimum Requirements
 
-- Haxe v4.1
-- OpenFL v8.9.7
-- Feathers UI v1.0.0-beta.9
+- Haxe 4.1
+- OpenFL 8.9.7
+- Feathers UI 1.0.0-rc.1
 
 ## Installation
 
@@ -23,3 +23,7 @@ After installing the library above, add it to your OpenFL _project.xml_ file:
 ```xml
 <haxelib name="moonshine-feathersui-text-editor" />
 ```
+
+## Documentation
+
+- [API Reference](https://moonshine-ide.github.io/moonshine-feathersui-text-editor/)

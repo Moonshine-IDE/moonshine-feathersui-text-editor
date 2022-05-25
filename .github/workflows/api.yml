@@ -35,3 +35,9 @@ jobs:
           name: moonshine-feathersui-text-editor-api-reference
           path: bin/api/
           if-no-files-found: error
+      - name: Upload Site
+        if: ${{ github.repository_owner == 'Moonshine-IDE' && github.event_name != 'pull_request' && github.ref_name == 'master' }}
+        uses: JamesIves/github-pages-deploy-action@v4.2.3
+        with:
+          branch: gh-pages
+          folder: bin/api/
