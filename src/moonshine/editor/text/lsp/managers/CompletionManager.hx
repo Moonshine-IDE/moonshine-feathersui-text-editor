@@ -296,6 +296,17 @@ class CompletionManager {
 		if (text1 > text2) {
 			return 1;
 		}
+		// if sortText is equal, fall back to comparing label instead
+		if (item1.sortText != null || item2.sortText != null) {
+			text1 = item1.label.toLowerCase();
+			text2 = item2.label.toLowerCase();
+			if (text1 < text2) {
+				return -1;
+			}
+			if (text1 > text2) {
+				return 1;
+			}
+		}
 		return 0;
 	}
 
