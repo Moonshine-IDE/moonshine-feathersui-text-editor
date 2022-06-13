@@ -120,9 +120,14 @@ class LspTextLineRenderer extends TextLineRenderer {
 			} else {
 				var startBounds = _mainTextField.getCharBoundaries(startChar);
 				var endBounds = _mainTextField.getCharBoundaries(endChar);
-				startX = startBounds.x;
-				// does not include the full end char
-				lineLength = endBounds.x - startBounds.x;
+				if (startBounds != null && endBounds != null) {
+					startX = startBounds.x;
+					// does not include the full end char
+					lineLength = endBounds.x - startBounds.x;
+				} else {
+					// skip this one because something is wrong
+					continue;
+				}
 			}
 			_diagnosticsShape.graphics.moveTo(startX, 0.0);
 			var upDirection = false;

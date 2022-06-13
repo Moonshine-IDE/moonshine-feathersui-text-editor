@@ -1338,8 +1338,12 @@ class TextLineRenderer extends FeathersControl {
 		var renderedStartIndex = textIndexToRenderedIndex(adjustedStartIndex);
 		var renderedEndIndex = textIndexToRenderedIndex(adjustedEndIndex);
 		var startBounds = _mainTextField.getCharBoundaries(renderedStartIndex);
-		var startOffsetX = (textLength > 0 && startIndex > adjustedStartIndex) ? startBounds.width : 0.0;
 		var endBounds = _mainTextField.getCharBoundaries(renderedEndIndex);
+		if (startBounds == null || endBounds == null) {
+			_currentSelectedTextBackgroundSkin.visible = false;
+			return;
+		}
+		var startOffsetX = (textLength > 0 && startIndex > adjustedStartIndex) ? startBounds.width : 0.0;
 		var endOffsetX = (textLength > 0 && endIndex > adjustedEndIndex) ? endBounds.width : 0.0;
 		_currentSelectedTextBackgroundSkin.x = _gutterWidth + startBounds.x + startOffsetX;
 		_currentSelectedTextBackgroundSkin.y = _mainTextField.y + startBounds.y;
