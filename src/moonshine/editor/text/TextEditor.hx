@@ -251,6 +251,32 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		return _scrollX;
 	}
 
+	/**
+		The minimum value currently allowed for `scrollX`.
+	**/
+	@:flash.property
+	public var minScrollX(get, never):Float;
+
+	private function get_minScrollX():Float {
+		if (_listView == null) {
+			return 0.0;
+		}
+		return _listView.minScrollX;
+	}
+
+	/**
+		The maximum value currently allowed for `scrollX`.
+	**/
+	@:flash.property
+	public var maxScrollX(get, never):Float;
+
+	private function get_maxScrollX():Float {
+		if (_listView == null) {
+			return 0.0;
+		}
+		return _listView.maxScrollX;
+	}
+
 	private var _scrollY:Float = 0.0;
 
 	/**
@@ -271,6 +297,32 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		_lineScrollY = calculateLineScrollY(_scrollY);
 		setInvalid(SCROLL);
 		return _scrollY;
+	}
+
+	/**
+		The minimum value currently allowed for `scrollY`.
+	**/
+	@:flash.property
+	public var minScrollY(get, never):Float;
+
+	private function get_minScrollY():Float {
+		if (_listView == null) {
+			return 0.0;
+		}
+		return _listView.minScrollY;
+	}
+
+	/**
+		The maximum value currently allowed for `scrollY`.
+	**/
+	@:flash.property
+	public var maxScrollY(get, never):Float;
+
+	private function get_maxScrollY():Float {
+		if (_listView == null) {
+			return 0.0;
+		}
+		return _listView.maxScrollY;
 	}
 
 	private var _lineScrollY:Int = 0;
