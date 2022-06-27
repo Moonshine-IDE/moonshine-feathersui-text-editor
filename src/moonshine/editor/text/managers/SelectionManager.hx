@@ -61,7 +61,8 @@ class SelectionManager {
 	private var _dragStartLine:Int = -1;
 	private var _dragStartChar:Int = -1;
 	private var _dragEndChar:Int = -1;
-	private var _dragScrollDelta:Int = 0;
+	private var _dragScrollDeltaX:Int = 0;
+	private var _dragScrollDeltaY:Int = 0;
 	private var _dragLocalPoint:Point;
 	private var _dragScrollTimer:Timer;
 
@@ -651,16 +652,24 @@ class SelectionManager {
 	private function selectionManager_stage_mouseMoveHandler(event:MouseEvent):Void {
 		var localPoint = new Point(_textEditor.mouseX, _textEditor.mouseY);
 		_dragLocalPoint = localPoint;
-		_dragScrollDelta = 0;
+		_dragScrollDeltaX = 0;
+		_dragScrollDeltaY = 0;
 
 		var bounds = _textEditor.getViewPortVisibleBounds();
+		var minX = bounds.x + _textEditor.gutterWidth;
+		var maxX = bounds.x + bounds.width;
 		var maxY = bounds.y + bounds.height;
-		if (localPoint.y <= SCROLL_THRESHOLD) {
-			_dragScrollDelta = Math.ceil((localPoint.y - SCROLL_THRESHOLD) / SCROLL_THRESHOLD);
-		} else if (localPoint.y >= (maxY - SCROLL_THRESHOLD)) {
-			_dragScrollDelta = Math.ceil((localPoint.y - (maxY - SCROLL_THRESHOLD)) / SCROLL_THRESHOLD);
+		if (localPoint.x <= (minX + SCROLL_THRESHOLD)) {
+			_dragScrollDeltaX = Math.ceil((localPoint.x - (minX + SCROLL_THRESHOLD)));
+		} else if (localPoint.x >= (maxX - SCROLL_THRESHOLD)) {
+			_dragScrollDeltaX = Math.ceil((localPoint.x - (maxX - SCROLL_THRESHOLD)));
 		}
-		if (_dragScrollDelta == 0) {
+		if (localPoint.y <= SCROLL_THRESHOLD) {
+			_dragScrollDeltaY = Math.ceil((localPoint.y - SCROLL_THRESHOLD) / SCROLL_THRESHOLD);
+		} else if (localPoint.y >= (maxY - SCROLL_THRESHOLD)) {
+			_dragScrollDeltaY = Math.ceil((localPoint.y - (maxY - SCROLL_THRESHOLD)) / SCROLL_THRESHOLD);
+		}
+		if (_dragScrollDeltaX == 0 && _dragScrollDeltaY == 0) {
 			stopDragScroll();
 			updateDragSelect();
 		} else if (_dragScrollTimer == null) {
@@ -680,7 +689,15 @@ class SelectionManager {
 	}
 
 	private function selectionManager_dragScrollTimer_timerHandler(event:TimerEvent):Void {
-		var newLineScrollY = _textEditor.lineScrollY + _dragScrollDelta;
+		var newScrollX = _textEditor.scrollX + _dragScrollDeltaX;
+		if (newScrollX < 0) {
+			newScrollX = 0;
+		} else if (newScrollX > _textEditor.maxScrollX) {
+			newScrollX = _textEditor.maxScrollX;
+		}
+		_textEditor.scrollX = newScrollX;
+
+		var newLineScrollY = _textEditor.lineScrollY + _dragScrollDeltaY;
 		if (newLineScrollY < 0) {
 			newLineScrollY = 0;
 		} else if (newLineScrollY > _textEditor.maxLineScrollY) {
