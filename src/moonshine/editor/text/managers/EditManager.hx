@@ -60,8 +60,14 @@ class EditManager {
 	**/
 	public function toggleLineComment():Void {
 		var lineComment = _textEditor.lineComment;
+		var endLineComment:String = null;
 		if (lineComment == null || lineComment.length == 0) {
-			return;
+			var blockComment = _textEditor.blockComment;
+			if (blockComment == null || blockComment.length < 2) {
+				return;
+			}
+			lineComment = blockComment[0];
+			endLineComment = blockComment[1];
 		}
 
 		var startLine = _textEditor.caretLineIndex;
@@ -77,11 +83,17 @@ class EditManager {
 		}
 
 		var removeComment = true;
+		var endCommentIndex = -1;
 		var startsWithComment = new EReg('^\\s*${EReg.escape(lineComment)}', "");
 		for (i in startLine...(endLine + 1)) {
 			var lineText = _textEditor.lines.get(i).text;
 			if (!startsWithComment.match(lineText)) {
 				removeComment = false;
+			} else if (endLineComment != null) {
+				endCommentIndex = lineText.lastIndexOf(endLineComment);
+				if (endCommentIndex == -1) {
+					removeComment = false;
+				}
 			}
 		}
 
@@ -109,6 +121,9 @@ class EditManager {
 					commentSize++;
 				}
 				changes.push(new TextEditorChange(i, whitespaceSize, i, whitespaceSize + commentSize));
+				if (endLineComment != null) {
+					changes.push(new TextEditorChange(i, endCommentIndex, i, endCommentIndex + endLineComment.length));
+				}
 				if (i == newSelectionStartLineIndex) {
 					newSelectionStartCharIndex -= commentSize;
 				}
@@ -117,6 +132,9 @@ class EditManager {
 				}
 			} else {
 				changes.push(new TextEditorChange(i, whitespaceSize, i, whitespaceSize, lineComment + " "));
+				if (endLineComment != null) {
+					changes.push(new TextEditorChange(i, lineText.length, i, lineText.length, " " + endLineComment));
+				}
 				var commentSize = lineComment.length + 1;
 				if (i == newSelectionStartLineIndex) {
 					newSelectionStartCharIndex += commentSize;
