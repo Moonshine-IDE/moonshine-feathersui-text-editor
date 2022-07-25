@@ -30,11 +30,14 @@ class HaxeLineParser extends LineParser {
 	public static final HX_KEYWORD:Int = 0xA;
 	public static final HX_VAR_KEYWORD:Int = 0xB;
 	public static final HX_FUNCTION_KEYWORD:Int = 0xC;
-	public static final HX_PACKAGE_CLASS_KEYWORDS:Int = 0xD;
+	public static final HX_TYPE_KEYWORDS:Int = 0xD;
 	public static final HX_METADATA:Int = 0xE;
 	public static final HX_FIELD:Int = 0xF;
 	public static final HX_FUNCTIONS:Int = 0x11;
 	public static final HX_CONDITIONAL:Int = 0x12;
+	public static final HX_SELF_KEYWORDS:Int = 0x13;
+	public static final HX_VALUE_KEYWORDS:Int = 0x14;
+	public static final HX_PACKAGE_KEYWORD:Int = 0x15;
 
 	/**
 		Creates a new `HaxeLineParser` object.
@@ -66,7 +69,7 @@ class HaxeLineParser extends LineParser {
 			new LineParserPattern(HX_METADATA,
 				~/^@:(?:(abi|abstract|access|allow|analyzer|annotation|arrayAccess|astSource|autoBuild|bind|bitmap|bridgeProperties|build|buildXml|bypassAccessor|callable|classCode|commutative|compilerGenerated|const|coreApi|coreType|cppFileCode|cppInclude|cppNamespaceCode|cs.assemblyMeta|cs.assemblyStrict|cs.using|dce|debug|decl|delegate|depend|deprecated|eager|enum|event|expose|extern|file|fileXml|final|fixed|flash.property|font|forward.new|forward.variance|forward|forwardStatics|from|functionCode|functionTailCode|generic|genericBuild|genericClassPerMethod|getter|hack|headerClassCode|headerCode|headerInclude|headerNamespaceCode|hlNative|hxGen|ifFeature|include|inheritDoc|inline|internal|isVar|java.native|javaCanonical|jsRequire|jvm.synthetic|keep|keepInit|keepSub|luaDotMethod|luaRequire|macro|markup|mergeBlock|meta|multiReturn|multiType|native|nativeChildren|nativeGen|nativeProperty|nativeStaticExtension|noClosure|noCompletion|noDebug|noDoc|noImportGlobal|noPrivateAccess|noStack|noUsing|nonVirtual|notNull|nullSafety|objc|objcProtocol|op|optional|overload|persistent|phpClassConst|phpGlobal|phpMagic|phpNoConstructor|pos|private|privateAccess|property|protected|publicFields|pure|pythonImport|readOnly|remove|require|resolve|rtti|runtimeValue|scalar|selfCall|semantics|setter|sound|sourceFile|stackOnly|strict|struct|structAccess|structInit|suppressWarnings|templatedCall|throws|to|transient|transitive|unifyMinDynamic|unreflective|unsafe|using|void|volatile))/),
 			// fieldName(get, set):Type;
-			new LineParserPattern(HX_FIELD, ~/^\s+\w+(?=(\((default|get|never|null),\s*(default|set|never|null)\))?:\w+(<\w+>)?(\s*=\s*[^;]+)?;$)/),
+			new LineParserPattern(HX_FIELD, ~/^\s+\w+(?=(\((default|get|never|null),\s*(default|set|never|null)\))?:\w+(<[\w\s,]+>)?(\s*=\s*[^;]+)?;$)/),
 			// methodName():Type
 			new LineParserPattern(HX_FUNCTIONS, ~/^\s+\w+(?=\((\s*|.+)\):([^:]+)$)/),
 		];
@@ -79,14 +82,17 @@ class HaxeLineParser extends LineParser {
 
 		keywords = [
 			HX_KEYWORD => [
-				'abstract', 'break', 'case', 'cast', 'catch', 'continue', 'default', 'do', 'dynamic', 'else', 'extends', 'extern', 'false', 'final', 'for',
-				'if',
-				'implements', 'import', 'in', 'inline', 'macro', 'new', 'null', 'overload', 'override', 'private', 'public', 'return', 'static', 'switch',
-				'super', 'this', 'throw', 'true', 'try', 'typedef', 'untyped', 'using', 'while', 'get', 'set', 'never'
+				'abstract', 'break', 'case', 'cast', 'catch', 'continue', 'default', 'do', 'dynamic', 'else', 'extends', 'extern', 'final', 'for', 'if',
+				'implements', 'import', 'in', 'inline', 'macro', 'new', 'overload', 'override', 'private', 'public', 'return', 'static', 'switch', 'throw',
+				'try',
+				'typedef', 'untyped', 'using', 'while', 'get', 'set', 'never'
 			],
 			HX_VAR_KEYWORD => ['var'],
 			HX_FUNCTION_KEYWORD => ['function'],
-			HX_PACKAGE_CLASS_KEYWORDS => ['package', 'class', 'interface', 'enum']
+			HX_PACKAGE_KEYWORD => ['package'],
+			HX_TYPE_KEYWORDS => ['class', 'interface', 'enum'],
+			HX_SELF_KEYWORDS => ['this', 'super'],
+			HX_VALUE_KEYWORDS => ['true', 'false', 'null']
 		];
 	}
 }

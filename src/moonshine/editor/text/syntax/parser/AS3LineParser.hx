@@ -36,6 +36,8 @@ class AS3LineParser extends LineParser {
 	public static final AS_METADATA:Int = 0xF;
 	public static final AS_FIELD:Int = 0x10;
 	public static final AS_FUNCTIONS:Int = 0x11;
+	public static final AS_SELF_KEYWORDS:Int = 0x12;
+	public static final AS_VALUE_KEYWORDS:Int = 0x13;
 
 	/**
 		Creates a new `AS3LineParser` object.
@@ -81,10 +83,12 @@ class AS3LineParser extends LineParser {
 			AS_PACKAGE_KEYWORD => ['package'],
 			AS_TYPE_KEYWORD => ['class', 'interface'],
 			AS_KEYWORD => [
-				'is', 'if', 'in', 'as', 'new', 'for', 'use', 'set', 'get', 'try', 'null', 'true', 'void', 'else', 'each', 'case', 'this', 'break', 'false',
-				'final', 'catch', 'class', 'return', 'switch', 'static', 'import', 'private', 'public', 'extends', 'override', 'inherits', 'internal',
-				'implements', 'package', 'protected', 'namespace', 'final', 'native', 'dynamic', 'delete', 'throw', 'finally', 'super'
+				'is', 'if', 'in', 'as', 'new', 'for', 'use', 'set', 'get', 'try', 'void', 'else', 'each', 'case', 'break', 'final', 'catch', 'class', 'return',
+				'switch', 'static', 'import', 'private', 'public', 'extends', 'override', 'inherits', 'internal', 'implements', 'package', 'protected',
+				'namespace', 'final', 'native', 'dynamic', 'delete', 'throw', 'finally'
 			],
+			AS_SELF_KEYWORDS => ['this', 'super'],
+			AS_VALUE_KEYWORDS => ['true', 'false', 'null', 'undefined']
 		];
 	}
 }

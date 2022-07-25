@@ -70,6 +70,8 @@ class AS3SyntaxFormatBuilder {
 		formats.set(AS3LineParser.AS_METADATA, getTextFormat(_colorSettings.annotationColor));
 		formats.set(AS3LineParser.AS_FIELD, getTextFormat(_colorSettings.fieldNameColor));
 		formats.set(AS3LineParser.AS_FUNCTIONS, getTextFormat(_colorSettings.methodNameColor));
+		formats.set(AS3LineParser.AS_SELF_KEYWORDS, getTextFormat(_colorSettings.thisSelfKeywordColor));
+		formats.set(AS3LineParser.AS_VALUE_KEYWORDS, getTextFormat(_colorSettings.valueColor));
 		return formats;
 	}
 

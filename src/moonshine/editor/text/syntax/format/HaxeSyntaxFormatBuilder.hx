@@ -65,11 +65,14 @@ class HaxeSyntaxFormatBuilder {
 		formats.set(HaxeLineParser.HX_KEYWORD, getTextFormat(_colorSettings.keywordColor));
 		formats.set(HaxeLineParser.HX_VAR_KEYWORD, getTextFormat(_colorSettings.fieldKeywordColor));
 		formats.set(HaxeLineParser.HX_FUNCTION_KEYWORD, getTextFormat(_colorSettings.methodKeywordColor));
-		formats.set(HaxeLineParser.HX_PACKAGE_CLASS_KEYWORDS, getTextFormat(_colorSettings.typeKeywordColor));
+		formats.set(HaxeLineParser.HX_TYPE_KEYWORDS, getTextFormat(_colorSettings.typeKeywordColor));
+		formats.set(HaxeLineParser.HX_PACKAGE_KEYWORD, getTextFormat(_colorSettings.moduleKeywordColor));
 		formats.set(HaxeLineParser.HX_METADATA, getTextFormat(_colorSettings.annotationColor));
 		formats.set(HaxeLineParser.HX_FIELD, getTextFormat(_colorSettings.fieldNameColor));
 		formats.set(HaxeLineParser.HX_FUNCTIONS, getTextFormat(_colorSettings.methodNameColor));
 		formats.set(HaxeLineParser.HX_CONDITIONAL, getTextFormat(_colorSettings.preprocessorColor));
+		formats.set(HaxeLineParser.HX_SELF_KEYWORDS, getTextFormat(_colorSettings.thisSelfKeywordColor));
+		formats.set(HaxeLineParser.HX_VALUE_KEYWORDS, getTextFormat(_colorSettings.valueColor));
 		return formats;
 	}
 
