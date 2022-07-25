@@ -297,7 +297,12 @@ class LspTextEditor extends TextEditor {
 	}
 
 	override private function createTextLineRenderer():TextLineRenderer {
-		var renderer = new LspTextLineRenderer();
+		var renderer:LspTextLineRenderer = null;
+		if (_textLineRendererFactory != null) {
+			renderer = cast(_textLineRendererFactory.create(), LspTextLineRenderer);
+		} else {
+			renderer = new LspTextLineRenderer();
+		}
 		renderer.addEventListener(MouseEvent.CLICK, lspTextEditor_textLineRenderer_clickHandler);
 		return renderer;
 	}

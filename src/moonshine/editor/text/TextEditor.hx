@@ -17,6 +17,7 @@
 
 package moonshine.editor.text;
 
+import feathers.utils.AbstractDisplayObjectFactory;
 import feathers.controls.ListView;
 import feathers.core.FeathersControl;
 import feathers.core.IFocusObject;
@@ -877,6 +878,24 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	@:style
 	public var highlightAllFindResults:Bool = false;
 
+	private var _textLineRendererFactory:AbstractDisplayObjectFactory<TextLineRenderer, TextLineRenderer>;
+
+	public var textLineRendererFactory(get, set):AbstractDisplayObjectFactory<TextLineRenderer, TextLineRenderer>;
+
+	private function get_textLineRendererFactory():AbstractDisplayObjectFactory<TextLineRenderer, TextLineRenderer> {
+		return _textLineRendererFactory;
+	}
+
+	private function set_textLineRendererFactory(value:AbstractDisplayObjectFactory<TextLineRenderer,
+		TextLineRenderer>):AbstractDisplayObjectFactory<TextLineRenderer, TextLineRenderer> {
+		if (_textLineRendererFactory == value) {
+			return _textLineRendererFactory;
+		}
+		_textLineRendererFactory = value;
+		setInvalid(STYLES);
+		return _textLineRendererFactory;
+	}
+
 	/**
 		Updates the code parser used for syntax highlighting.
 	**/
@@ -1325,8 +1344,6 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			_listView.layout = layout;
 			_listView.scrollX = _scrollX;
 			_listView.scrollY = _lineScrollY * _lineHeight;
-			_listView.itemRendererRecycler = DisplayObjectRecycler.withFunction(createTextLineRenderer, updateTextLineRenderer, resetTextLineRenderer,
-				destroyTextLineRenderer);
 			_listView.addEventListener(ScrollEvent.SCROLL, textEditor_listView_scrollHandler);
 			_listView.addEventListener(FocusEvent.FOCUS_IN, textEditor_listView_focusInHandler);
 			_listView.addEventListener(FocusEvent.FOCUS_OUT, textEditor_listView_focusOutHandler);
@@ -1363,6 +1380,9 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	}
 
 	private function createTextLineRenderer():TextLineRenderer {
+		if (_textLineRendererFactory != null) {
+			return _textLineRendererFactory.create();
+		}
 		return new TextLineRenderer();
 	}
 
@@ -1449,7 +1469,11 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		itemRenderer.removeEventListener(TextEditorLineEvent.SELECT_LINE, textEditor_textLineRenderer_selectLineHandler);
 	}
 
-	private function destroyTextLineRenderer(itemRenderer:TextLineRenderer):Void {}
+	private function destroyTextLineRenderer(itemRenderer:TextLineRenderer):Void {
+		if (_textLineRendererFactory != null && _textLineRendererFactory.destroy != null) {
+			_textLineRendererFactory.destroy(itemRenderer);
+		}
+	}
 
 	private function invalidateVisibleLines():Void {
 		if (_listView == null || _listView.dataProvider == null) {
@@ -1478,6 +1502,8 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		if (stylesInvalid) {
 			_listView.backgroundSkin = backgroundSkin;
 			_listView.disabledBackgroundSkin = disabledBackgroundSkin;
+			_listView.itemRendererRecycler = DisplayObjectRecycler.withFunction(createTextLineRenderer, updateTextLineRenderer, resetTextLineRenderer,
+				destroyTextLineRenderer);
 			_listView.customItemRendererVariant = customTextLineRendererVariant;
 		}
 
