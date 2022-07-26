@@ -59,7 +59,14 @@ class SyntaxColorSettings {
 		settings.selectionBackgroundAlpha = 0x80 / 0xFF;
 		settings.selectionUnfocusedBackgroundColor = 0x878b91;
 		settings.selectionUnfocusedBackgroundAlpha = 0x80 / 0xFF;
-		settings.focusedBackgroundColor = 0x37352D;
+
+		settings.focusedLineBackgroundColor = 0x37352D;
+		settings.debuggerStoppedLineBackgroundColor = 0x67654D;
+
+		settings.searchResultBackgroundColor = 0x515C6A;
+
+		settings.breakpointColor = 0xE51400;
+		settings.unverifiedBreakpointColor = 0x848484;
 
 		return settings;
 	}
@@ -102,7 +109,14 @@ class SyntaxColorSettings {
 		settings.selectionBackgroundAlpha = 1.0;
 		settings.selectionUnfocusedBackgroundColor = 0x264F78;
 		settings.selectionUnfocusedBackgroundAlpha = 0.5;
-		settings.focusedBackgroundColor = 0x243030;
+
+		settings.focusedLineBackgroundColor = 0x243030;
+		settings.debuggerStoppedLineBackgroundColor = 0x555040;
+
+		settings.searchResultBackgroundColor = 0x515C6A;
+
+		settings.breakpointColor = 0xE51400;
+		settings.unverifiedBreakpointColor = 0x848484;
 
 		return settings;
 	}
@@ -117,7 +131,7 @@ class SyntaxColorSettings {
 	public function new() {}
 
 	public var backgroundColor:UInt = 0xfffffe;
-	public var foregroundColor:UInt = 0x333333;
+	public var foregroundColor:UInt = 0x131313;
 	public var invalidColor:UInt = 0xcd3131;
 
 	public var stringColor:UInt = 0xa31515;
@@ -151,5 +165,12 @@ class SyntaxColorSettings {
 	public var selectionBackgroundAlpha:Float = 1.0;
 	public var selectionUnfocusedBackgroundColor:UInt = 0xADD6FF;
 	public var selectionUnfocusedBackgroundAlpha:Float = 0.5;
-	public var focusedBackgroundColor:UInt = 0xedfbfb;
+
+	public var focusedLineBackgroundColor:UInt = 0xedfbfb;
+	public var debuggerStoppedLineBackgroundColor:UInt = 0xffffcc;
+
+	public var searchResultBackgroundColor:UInt = 0xA8AC94;
+
+	public var breakpointColor:UInt = 0xE51400;
+	public var unverifiedBreakpointColor:UInt = 0x848484;
 }
