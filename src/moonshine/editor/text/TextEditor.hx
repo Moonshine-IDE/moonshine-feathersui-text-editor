@@ -1381,7 +1381,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 
 	private function createTextLineRenderer():TextLineRenderer {
 		if (_textLineRendererFactory != null) {
-			return _textLineRendererFactory.create();
+			return cast(_textLineRendererFactory.create(), TextLineRenderer);
 		}
 		return new TextLineRenderer();
 	}
