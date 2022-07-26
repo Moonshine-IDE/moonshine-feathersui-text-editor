@@ -63,3 +63,7 @@ jobs:
         working-directory: samples/signature-help
         run: |
           haxelib run openfl build air
+      - name: Build samples/syntax-color-schemes
+        working-directory: samples/syntax-color-schemes
+        run: |
+          haxelib run openfl build air
