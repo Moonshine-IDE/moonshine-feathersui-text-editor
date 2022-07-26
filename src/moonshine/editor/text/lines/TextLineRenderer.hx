@@ -822,7 +822,7 @@ class TextLineRenderer extends FeathersControl {
 			refreshCaretSkin();
 		}
 
-		if (dataInvalid) {
+		if (dataInvalid || stylesInvalid) {
 			refreshLineNumber();
 			refreshText();
 		}
