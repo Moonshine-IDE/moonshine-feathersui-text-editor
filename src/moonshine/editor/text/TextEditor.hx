@@ -1307,7 +1307,12 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		}
 
 		// the max line will not be accurate until after we validate
-		validateNow();
+		if (isInvalid()) {
+			validateNow();
+		} else {
+			// sometimes, when the TextEditor isn't invalid, the ListView is
+			_listView.validateNow();
+		}
 
 		var oldIgnoreScrollChanges = _ignoreScrollChanges;
 		_ignoreScrollChanges = true;
@@ -1323,7 +1328,12 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		_ignoreScrollChanges = oldIgnoreScrollChanges;
 
 		// the text line renderer may not exist until after we validate again
-		validateNow();
+		if (isInvalid()) {
+			validateNow();
+		} else {
+			// sometimes, when the TextEditor isn't invalid, the ListView is
+			_listView.validateNow();
+		}
 
 		_ignoreScrollChanges = true;
 		var textLineRenderer = textEditorPositionToTextLineRenderer(new TextEditorPosition(_caretLineIndex, caretCharIndex));
