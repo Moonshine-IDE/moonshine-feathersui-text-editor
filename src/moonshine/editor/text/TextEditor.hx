@@ -897,13 +897,49 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	}
 
 	/**
+		The code parser used for syntax highlighting.
+	**/
+	public var parser(get, set):ILineParser;
+
+	private function get_parser():ILineParser {
+		return _parser;
+	}
+
+	private function set_parser(value:ILineParser):ILineParser {
+		if (_parser == value) {
+			return _parser;
+		}
+		_parser = value;
+		_colorManager.parser = value;
+		setInvalid(DATA);
+		return _parser;
+	}
+
+	/**
+		The text styles used for syntax highlighting. The key corresponds to the
+		syntax identifiers from the parser.
+	**/
+	public var textStyles(get, set):Map<Int, TextFormat>;
+
+	private function get_textStyles():Map<Int, TextFormat> {
+		return _textStyles;
+	}
+
+	private function set_textStyles(value:Map<Int, TextFormat>):Map<Int, TextFormat> {
+		if (_textStyles == value) {
+			return _textStyles;
+		}
+		_textStyles = value;
+		setInvalid(DATA);
+		return _textStyles;
+	}
+
+	/**
 		Updates the code parser used for syntax highlighting.
 	**/
 	public function setParserAndTextStyles(parser:ILineParser, textStyles:Map<Int, TextFormat>):Void {
-		_parser = parser;
-		_textStyles = textStyles;
-		_colorManager.parser = parser;
-		setInvalid(DATA);
+		this.parser = parser;
+		this.textStyles = textStyles;
 	}
 
 	/**
@@ -1502,9 +1538,12 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		if (stylesInvalid) {
 			_listView.backgroundSkin = backgroundSkin;
 			_listView.disabledBackgroundSkin = disabledBackgroundSkin;
+			_listView.customItemRendererVariant = customTextLineRendererVariant;
+		}
+
+		if (dataInvalid || stylesInvalid) {
 			_listView.itemRendererRecycler = DisplayObjectRecycler.withFunction(createTextLineRenderer, updateTextLineRenderer, resetTextLineRenderer,
 				destroyTextLineRenderer);
-			_listView.customItemRendererVariant = customTextLineRendererVariant;
 		}
 
 		layoutContent();
