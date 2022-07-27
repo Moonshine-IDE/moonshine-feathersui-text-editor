@@ -1626,7 +1626,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	}
 
 	private function textEditor_focusInHandler(event:FocusEvent):Void {
-		if (stage != null && stage.focus != _listView) {
+		if (stage != null && stage.focus != _listView && _listView != null && !_listView.contains(stage.focus)) {
 			event.stopImmediatePropagation();
 			stage.focus = _listView;
 		}
