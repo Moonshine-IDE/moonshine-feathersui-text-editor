@@ -153,7 +153,14 @@ class SelectionManager {
 				endChar = newCaretPosition;
 			} else if (_clickCount == 2) {
 				endLine = textEditorPosition.line;
-				endChar = newCaretPosition + TextUtil.wordBoundaryForward(_textEditor.lines.get(endLine).text.substring(newCaretPosition));
+				if ((endLine < startLine) || (endLine == startLine && newCaretPosition < startChar)) {
+					endChar = newCaretPosition - TextUtil.wordBoundaryBackward(_textEditor.lines.get(endLine).text.substring(0, newCaretPosition));
+				} else {
+					endChar = newCaretPosition + TextUtil.wordBoundaryForward(_textEditor.lines.get(endLine).text.substring(newCaretPosition));
+					if (_textEditor.lines.get(endLine).text.charAt(endChar - 1) == " ") {
+						endChar--;
+					}
+				}
 			} else if (_clickCount == 3) {
 				endLine = textEditorPosition.line;
 				endChar = _textEditor.lines.get(endLine).text.length;
