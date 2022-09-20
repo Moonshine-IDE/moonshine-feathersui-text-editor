@@ -1,6 +1,7 @@
 package tests;
 
 import moonshine.editor.text.TextEditor;
+import moonshine.editor.text.lines.TextLineRenderer;
 import moonshine.editor.text.utils.AutoClosingPair;
 import openfl.Lib;
 import openfl.desktop.Clipboard;
@@ -879,5 +880,23 @@ class TextEditorTextInputTestCase extends Test {
 		Assert.equals(-1, _textEditor.selectionStartCharIndex);
 		Assert.equals(-1, _textEditor.selectionEndLineIndex);
 		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
+	// catches a potential performance regression where simple typing causes
+	// item renderers to get recreated instead of reused
+	public function testItemRendererFactoryNotCalledOnTextInputEvent():Void {
+		var callCount = 0;
+		_textEditor.textLineRendererFactory = () -> {
+			callCount++;
+			return new TextLineRenderer();
+		};
+		_textEditor.text = "hello";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 5, 0, 5);
+		_textEditor.validateNow();
+		callCount = 0;
+		_textEditor.dispatchEvent(new TextEvent(TextEvent.TEXT_INPUT, false, false, " world"));
+		_textEditor.validateNow();
+		Assert.equals(0, callCount);
 	}
 }

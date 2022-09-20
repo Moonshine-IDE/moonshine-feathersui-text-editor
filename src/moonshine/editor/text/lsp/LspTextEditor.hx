@@ -137,6 +137,8 @@ class LspTextEditor extends TextEditor {
 			}
 		}
 		setInvalid(DATA);
+		// no need to call _lines.updateAll() here because we call
+		// _lines.updateAt() above
 		return _diagnostics;
 	}
 

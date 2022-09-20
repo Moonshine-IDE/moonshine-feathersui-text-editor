@@ -22,6 +22,7 @@ class TestMain extends Sprite {
 		runner.addCase(new tests.LspTextEditorSignatureHelpTestCase());
 		runner.addCase(new tests.LspTextEditorHoverTestCase());
 		runner.addCase(new tests.LspTextEditorCodeActionTestCase());
+		runner.addCase(new tests.LspTextEditorDiagnosticsTestCase());
 
 		// a report prints the final results after all tests have run
 		Report.create(runner);

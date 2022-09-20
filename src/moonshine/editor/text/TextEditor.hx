@@ -417,6 +417,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		}
 		_showLineNumbers = value;
 		setInvalid(DATA);
+		_lines.updateAll();
 		return _showLineNumbers;
 	}
 
@@ -521,7 +522,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			}
 
 			var selText = _lines.get(startLine).text.substr(startChar);
-			for (i in (startLine + 1)...endLine) {
+			for (i in(startLine + 1)...endLine) {
 				selText += _lineDelimiter + _lines.get(i).text;
 			}
 			selText += _lineDelimiter + _lines.get(endLine).text.substr(0, endChar);
@@ -683,6 +684,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		}
 		_tabWidth = value;
 		setInvalid(DATA);
+		_lines.updateAll();
 		return _tabWidth;
 	}
 
@@ -713,6 +715,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		}
 		_allowToggleBreakpoints = value;
 		setInvalid(DATA);
+		_lines.updateAll();
 		return _allowToggleBreakpoints;
 	}
 
@@ -753,6 +756,8 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			}
 		}
 		setInvalid(DATA);
+		// no need to call _lines.updateAll() here because we call
+		// _lines.updateAt() above
 		return _breakpoints;
 	}
 
@@ -781,6 +786,8 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			_lines.updateAt(_debuggerLineIndex);
 		}
 		setInvalid(DATA);
+		// no need to call _lines.updateAll() here because we call
+		// _lines.updateAt() above
 		return _debuggerLineIndex;
 	}
 
@@ -912,6 +919,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		_parser = value;
 		_colorManager.parser = value;
 		setInvalid(DATA);
+		_lines.updateAll();
 		return _parser;
 	}
 
@@ -931,6 +939,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		}
 		_textStyles = value;
 		setInvalid(DATA);
+		_lines.updateAll();
 		return _textStyles;
 	}
 
@@ -1551,7 +1560,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			_listView.customItemRendererVariant = customTextLineRendererVariant;
 		}
 
-		if (dataInvalid || stylesInvalid) {
+		if (stylesInvalid) {
 			_listView.itemRendererRecycler = DisplayObjectRecycler.withFunction(createTextLineRenderer, updateTextLineRenderer, resetTextLineRenderer,
 				destroyTextLineRenderer);
 		}
