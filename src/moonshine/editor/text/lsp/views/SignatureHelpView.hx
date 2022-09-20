@@ -17,6 +17,7 @@
 
 package moonshine.editor.text.lsp.views;
 
+import feathers.layout.Measurements;
 import feathers.controls.Button;
 import feathers.controls.Label;
 import feathers.controls.LayoutGroup;
@@ -61,6 +62,7 @@ class SignatureHelpView extends ScrollContainer implements IFocusExtras {
 	}
 
 	private var label:Label;
+	private var _buttonGroupMeasurements:Measurements;
 	private var buttonGroup:LayoutGroup;
 	private var prevButton:Button;
 	private var nextButton:Button;
@@ -141,6 +143,8 @@ class SignatureHelpView extends ScrollContainer implements IFocusExtras {
 		buttonGroup.layout = buttonLayout;
 		_focusExtrasBefore.push(buttonGroup);
 		addRawChild(buttonGroup);
+		buttonGroup.initializeNow();
+		_buttonGroupMeasurements = new Measurements(buttonGroup);
 
 		prevButton = new Button();
 		prevButton.variant = CHILD_VARIANT_PREVIOUS_SIGNATURE_BUTTON;
@@ -174,6 +178,9 @@ class SignatureHelpView extends ScrollContainer implements IFocusExtras {
 
 	override private function calculateViewPortOffsets(forceScrollBars:Bool, useActualBounds:Bool):Void {
 		if (_signatureHelp != null && _signatureHelp.signatures.length > 1) {
+			if (_buttonGroupMeasurements != null) {
+				_buttonGroupMeasurements.restore(buttonGroup);
+			}
 			buttonGroup.validateNow();
 			leftViewPortOffset += buttonGroup.width;
 			chromeMeasuredHeight = Math.max(chromeMeasuredHeight, buttonGroup.height);
@@ -264,8 +271,7 @@ class SignatureHelpView extends ScrollContainer implements IFocusExtras {
 		var signatureHelpText = '<p class="pre"><font face="_typewriter">';
 		if (parameterStartIndex == -1) {
 			signatureHelpText += signature.label;
-		}
-		else {
+		} else {
 			signatureHelpText += signature.label.substr(0, parameterStartIndex);
 			signatureHelpText += "<b>";
 			signatureHelpText += signature.label.substr(parameterStartIndex, parameterLength);
