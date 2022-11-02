@@ -12,7 +12,7 @@ jobs:
   build-air:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: joshtynjala/setup-adobe-air-action@v1
       - uses: krdlab/setup-haxe@v1
         with:

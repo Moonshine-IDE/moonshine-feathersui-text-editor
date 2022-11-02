@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: krdlab/setup-haxe@v1
         with:
           haxe-version: 4.1.5
@@ -28,7 +28,7 @@ jobs:
           haxelib dev moonshine-feathersui-text-editor $GITHUB_WORKSPACE
       - name: Build Flash .swc library
         run: haxelib run openfl build flash -debug
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: moonshine-feathersui-text-editor-flash
           path: |
