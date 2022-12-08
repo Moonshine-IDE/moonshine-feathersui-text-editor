@@ -22,6 +22,7 @@ import feathers.controls.ScrollContainer;
 import feathers.layout.VerticalLayout;
 import feathers.text.TextFormat;
 import moonshine.editor.text.lsp.views.theme.HoverViewStyles;
+import openfl.events.Event;
 
 /**
 	A view to display hover data.
@@ -38,6 +39,8 @@ class HoverView extends ScrollContainer {
 		super();
 
 		tabEnabled = false;
+
+		addEventListener(Event.REMOVED_FROM_STAGE, hoverView_removedFromStageHandler);
 	}
 
 	private var label:Label;
@@ -98,5 +101,12 @@ class HoverView extends ScrollContainer {
 		}
 
 		super.update();
+	}
+
+	private function hoverView_removedFromStageHandler(event:Event):Void {
+		// reset the scroll position so that the next hover text is shown
+		// from the beginning
+		scrollX = minScrollX;
+		scrollY = minScrollY;
 	}
 }

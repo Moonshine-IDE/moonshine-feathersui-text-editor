@@ -17,7 +17,6 @@
 
 package moonshine.editor.text.lsp.views;
 
-import feathers.layout.Measurements;
 import feathers.controls.Button;
 import feathers.controls.Label;
 import feathers.controls.LayoutGroup;
@@ -25,12 +24,14 @@ import feathers.controls.ScrollContainer;
 import feathers.core.IFocusExtras;
 import feathers.events.TriggerEvent;
 import feathers.layout.HorizontalLayout;
+import feathers.layout.Measurements;
 import feathers.layout.VerticalLayout;
 import feathers.text.TextFormat;
 import moonshine.editor.text.lsp.views.theme.SignatureHelpViewStyles;
 import moonshine.lsp.MarkupContent;
 import moonshine.lsp.SignatureHelp;
 import openfl.display.DisplayObject;
+import openfl.events.Event;
 
 /**
 	A view to display signature help data.
@@ -59,6 +60,8 @@ class SignatureHelpView extends ScrollContainer implements IFocusExtras {
 		super();
 
 		tabEnabled = false;
+
+		addEventListener(Event.REMOVED_FROM_STAGE, signatureHelpView_removedFromStageHandler);
 	}
 
 	private var label:Label;
@@ -296,6 +299,13 @@ class SignatureHelpView extends ScrollContainer implements IFocusExtras {
 		// some kind of content that we don't understand
 		// to be safe, show nothing
 		return null;
+	}
+
+	private function signatureHelpView_removedFromStageHandler(event:Event):Void {
+		// reset the scroll position so that the next signature help is shown
+		// from the beginning
+		scrollX = minScrollX;
+		scrollY = minScrollY;
 	}
 
 	private function signatureHelpView_prevButton_triggerHandler(event:TriggerEvent):Void {
