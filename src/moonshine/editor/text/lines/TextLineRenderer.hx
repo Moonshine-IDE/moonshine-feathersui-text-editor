@@ -263,7 +263,7 @@ class TextLineRenderer extends FeathersControl {
 			return _debuggerStopped;
 		}
 		_debuggerStopped = value;
-		setInvalid(DATA);
+		setInvalid(STATE);
 		return _debuggerStopped;
 	}
 
@@ -915,7 +915,7 @@ class TextLineRenderer extends FeathersControl {
 			}
 			_tabToSpaceOffsets.push(current);
 			_tabToSpaceOffsets.push(spacesCount);
-			for (i in (renderedCurrent + 1)...(renderedCurrent + spacesCount)) {
+			for (i in(renderedCurrent + 1)...(renderedCurrent + spacesCount)) {
 				_spaceToTabOffsets.push(i);
 				_spaceToTabOffsets.push((-1));
 			}
