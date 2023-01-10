@@ -617,6 +617,70 @@ class TextEditorTextInputTestCase extends Test {
 		Assert.equals(-1, _textEditor.selectionEndCharIndex);
 	}
 
+	public function testToggleLineCommentOnMultipleLinesIndentedWithTabs():Void {
+		_textEditor.lineComment = "//";
+		_textEditor.tabWidth = 4;
+		_textEditor.text = "\thello\n\t\thi\n\thowdy";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 3, 2, 4);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.SLASH, "/".charCodeAt(0), true));
+		Assert.equals("\t// hello\n\t// \thi\n\t// howdy", _textEditor.text);
+		Assert.equals(2, _textEditor.caretLineIndex);
+		Assert.equals(7, _textEditor.caretCharIndex);
+		Assert.equals(0, _textEditor.selectionStartLineIndex);
+		Assert.equals(6, _textEditor.selectionStartCharIndex);
+		Assert.equals(2, _textEditor.selectionEndLineIndex);
+		Assert.equals(7, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testToggleLineCommentOnMultipleLinesIndentedWithSpaces():Void {
+		_textEditor.lineComment = "//";
+		_textEditor.tabWidth = 4;
+		_textEditor.text = "    hello\n        hi\n    howdy";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 6, 2, 7);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.SLASH, "/".charCodeAt(0), true));
+		Assert.equals("    // hello\n    //     hi\n    // howdy", _textEditor.text);
+		Assert.equals(2, _textEditor.caretLineIndex);
+		Assert.equals(10, _textEditor.caretCharIndex);
+		Assert.equals(0, _textEditor.selectionStartLineIndex);
+		Assert.equals(9, _textEditor.selectionStartCharIndex);
+		Assert.equals(2, _textEditor.selectionEndLineIndex);
+		Assert.equals(10, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testToggleLineCommentOnMultipleLinesIndentedWithTabsAndSpaces1():Void {
+		_textEditor.lineComment = "//";
+		_textEditor.tabWidth = 4;
+		_textEditor.text = "    \thello\n    \t    hi\n\t    howdy";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 7, 2, 8);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.SLASH, "/".charCodeAt(0), true));
+		Assert.equals("    \t// hello\n    \t//     hi\n\t    // howdy", _textEditor.text);
+		Assert.equals(2, _textEditor.caretLineIndex);
+		Assert.equals(11, _textEditor.caretCharIndex);
+		Assert.equals(0, _textEditor.selectionStartLineIndex);
+		Assert.equals(10, _textEditor.selectionStartCharIndex);
+		Assert.equals(2, _textEditor.selectionEndLineIndex);
+		Assert.equals(11, _textEditor.selectionEndCharIndex);
+	}
+
+	public function testToggleLineCommentOnMultipleLinesIndentedWithTabsAndSpaces2():Void {
+		_textEditor.lineComment = "//";
+		_textEditor.tabWidth = 4;
+		_textEditor.text = "    \thello\n\t    \thi\n\t    howdy";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 7, 2, 8);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.SLASH, "/".charCodeAt(0), true));
+		Assert.equals("    \t// hello\n\t    // \thi\n\t    // howdy", _textEditor.text);
+		Assert.equals(2, _textEditor.caretLineIndex);
+		Assert.equals(11, _textEditor.caretCharIndex);
+		Assert.equals(0, _textEditor.selectionStartLineIndex);
+		Assert.equals(10, _textEditor.selectionStartCharIndex);
+		Assert.equals(2, _textEditor.selectionEndLineIndex);
+		Assert.equals(11, _textEditor.selectionEndCharIndex);
+	}
+
 	public function testToggleLineCommentOnNumpad():Void {
 		_textEditor.lineComment = "//";
 		_textEditor.text = "hello";

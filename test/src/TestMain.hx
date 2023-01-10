@@ -14,6 +14,7 @@ class TestMain extends Sprite {
 		var runner = new Runner();
 
 		// add as many test cases as you need
+		runner.addCase(new tests.TextUtilTestCase());
 		runner.addCase(new tests.TextEditorSelectionTestCase());
 		runner.addCase(new tests.TextEditorTextInputTestCase());
 		runner.addCase(new tests.TextEditorUndoRedoTestCase());

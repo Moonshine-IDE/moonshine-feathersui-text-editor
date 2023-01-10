@@ -107,11 +107,20 @@ class EditManager {
 			newSelectionEndLineIndex = newSelectionStartLineIndex;
 			newSelectionEndCharIndex = newSelectionStartCharIndex;
 		}
+		var minIndent = 0x7FFFFFFF;
+		for (i in startLine...(endLine + 1)) {
+			var lineText = _textEditor.lines.get(i).text;
+			var indent = TextUtil.getIndentCountAtStartOfLine(lineText, _textEditor.tabWidth);
+			if (minIndent > indent) {
+				minIndent = indent;
+			}
+		}
+		var startingWhitespace = ~/^\s*/;
 		var changes:Array<TextEditorChange> = [];
 		for (i in startLine...(endLine + 1)) {
-			var startingWhitespace = ~/^\s*/;
 			var lineText = _textEditor.lines.get(i).text;
 			if (!startingWhitespace.match(lineText)) {
+				// if it's an empty line, don't add a comment
 				continue;
 			}
 			var whitespaceSize = startingWhitespace.matched(0).length;
@@ -131,6 +140,26 @@ class EditManager {
 					newSelectionEndCharIndex -= commentSize;
 				}
 			} else {
+				var indent = TextUtil.getIndentCountAtStartOfLine(lineText, _textEditor.tabWidth);
+				if (indent > minIndent) {
+					var i = whitespaceSize - 1;
+					var spaceCount = 0;
+					while (i >= 0 && indent > minIndent) {
+						var char = lineText.charAt(i);
+						if (char == "\t") {
+							indent--;
+							whitespaceSize--;
+							continue;
+						}
+						spaceCount++;
+						if (spaceCount == _textEditor.tabWidth) {
+							indent--;
+							whitespaceSize -= spaceCount;
+							spaceCount = 0;
+						}
+						i--;
+					}
+				}
 				changes.push(new TextEditorChange(i, whitespaceSize, i, whitespaceSize, lineComment + " "));
 				if (endLineComment != null) {
 					changes.push(new TextEditorChange(i, lineText.length, i, lineText.length, " " + endLineComment));
@@ -252,35 +281,36 @@ class EditManager {
 				endLine--;
 			}
 
+			var findStartingWhitespace = ~/^[ \t]+/;
 			var newSelectedStartCharIndex = startChar;
 			var newSelectedEndCharIndex = endChar;
 			var line = startLine;
 			while (line <= endLine) {
+				var lineText = _textEditor.lines.get(line).text;
+				var startingWhitespace = "";
+				if (findStartingWhitespace.match(lineText)) {
+					startingWhitespace = findStartingWhitespace.matched(0);
+				}
 				if (reverse) {
-					var currentIndent = TextUtil.getIndentAtStartOfLine(_textEditor.lines.get(line).text, _textEditor.tabWidth);
-					var currentIndentSize = getIndentCountAtStartOfLine(currentIndent, _textEditor.tabWidth);
-					var newIndentSize = Math.floor(currentIndentSize);
-					if (newIndentSize == currentIndentSize) {
-						newIndentSize--;
-					}
+					var currentIndentSize = TextUtil.getIndentCountAtStartOfLine(startingWhitespace, _textEditor.tabWidth, true);
 					if (currentIndentSize > 0) {
 						// the current indent may be a mix of spaces and tabs
 						// we convert the current indent to all spaces or all tabs
 						var indentString = getIndentString();
 						var newIndent = "";
-						for (i in 0...newIndentSize) {
+						for (i in 0...(currentIndentSize - 1)) {
 							newIndent += indentString;
 						}
-						changes.push(new TextEditorChange(line, 0, line, currentIndent.length, newIndent));
+						changes.push(new TextEditorChange(line, 0, line, startingWhitespace.length, newIndent));
 						if (line == startLine) {
-							newSelectedStartCharIndex -= currentIndent.length;
+							newSelectedStartCharIndex -= startingWhitespace.length;
 							if (newSelectedStartCharIndex < 0) {
 								newSelectedStartCharIndex = 0;
 							}
 							newSelectedStartCharIndex += newIndent.length;
 						}
 						if (line == endLine) {
-							newSelectedEndCharIndex -= currentIndent.length;
+							newSelectedEndCharIndex -= startingWhitespace.length;
 							if (newSelectedEndCharIndex < 0) {
 								newSelectedEndCharIndex = 0;
 							}
@@ -288,8 +318,7 @@ class EditManager {
 						}
 					}
 				} else {
-					var currentIndent = TextUtil.getIndentAtStartOfLine(_textEditor.lines.get(line).text, _textEditor.tabWidth);
-					var currentIndentSize = getIndentCountAtStartOfLine(currentIndent, _textEditor.tabWidth);
+					var currentIndentSize = TextUtil.getIndentCountAtStartOfLine(startingWhitespace, _textEditor.tabWidth);
 					var newIndentSize = Math.ceil(currentIndentSize);
 					if (newIndentSize == currentIndentSize) {
 						newIndentSize++;
@@ -301,16 +330,16 @@ class EditManager {
 					for (i in 0...newIndentSize) {
 						newIndent += indentString;
 					}
-					changes.push(new TextEditorChange(line, 0, line, currentIndent.length, newIndent));
+					changes.push(new TextEditorChange(line, 0, line, startingWhitespace.length, newIndent));
 					if (line == startLine) {
-						newSelectedStartCharIndex -= currentIndent.length;
+						newSelectedStartCharIndex -= startingWhitespace.length;
 						if (newSelectedStartCharIndex < 0) {
 							newSelectedStartCharIndex = 0;
 						}
 						newSelectedStartCharIndex += newIndent.length;
 					}
 					if (line == endLine) {
-						newSelectedEndCharIndex -= currentIndent.length;
+						newSelectedEndCharIndex -= startingWhitespace.length;
 						if (newSelectedEndCharIndex < 0) {
 							newSelectedEndCharIndex = 0;
 						}
@@ -415,29 +444,6 @@ class EditManager {
 			return TextUtil.repeatStr(" ", _textEditor.tabWidth);
 		}
 		return "\t";
-	}
-
-	private function getIndentCountAtStartOfLine(line:String, tabWidth:Int):Float {
-		var indentCount = 0.0;
-		var spaceCount = 0;
-		for (i in 0...line.length) {
-			var char = line.charAt(i);
-			if (char == " ") {
-				spaceCount++;
-				if (spaceCount == tabWidth) {
-					indentCount++;
-					spaceCount = 0;
-				}
-			} else if (char == "\t") {
-				indentCount++;
-			} else {
-				break;
-			}
-		}
-		if (spaceCount > 0) {
-			indentCount += spaceCount / tabWidth;
-		}
-		return indentCount;
 	}
 
 	private function textEndsInUnterminatedStringOrComment(text:String):Bool {

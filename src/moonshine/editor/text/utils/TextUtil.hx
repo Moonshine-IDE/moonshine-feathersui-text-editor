@@ -156,7 +156,7 @@ class TextUtil {
 		Return the first indent (either a tab or a set of spaces with the
 		specified tab size) at the start of a line.
 	**/
-	public static function getFirstIndentAtStartOfLine(line:String, tabSize:Int):String {
+	public static function getFirstIndentAtStartOfLine(line:String, tabSize:Int, includePartial:Bool = false):String {
 		var firstChar = line.charAt(0);
 		if (firstChar == "\t") {
 			return firstChar;
@@ -165,7 +165,14 @@ class TextUtil {
 			var indent = firstChar;
 			for (i in 1...tabSize) {
 				var char = line.charAt(i);
+				if (char == "\t") {
+					indent += char;
+					return indent;
+				}
 				if (char != " ") {
+					if (includePartial) {
+						return indent;
+					}
 					return "";
 				}
 				indent += char;
@@ -176,13 +183,63 @@ class TextUtil {
 	}
 
 	/**
-		Gets the full set of whitespace at the start of a line.
+		Gets the full string of whitespace indents (tabs and spaces) at the
+		start of a line.
 	**/
-	public static function getIndentAtStartOfLine(line:String, tabSize:Int):String {
-		var indentPattern = ~/^[ \t]+/;
-		if (indentPattern.match(line)) {
-			return indentPattern.matched(0);
+	public static function getIndentAtStartOfLine(line:String, tabSize:Int, includePartial:Bool = false):String {
+		var indent = "";
+		var spaces = "";
+		for (i in 0...line.length) {
+			var char = line.charAt(i);
+			if (char == "\t") {
+				if (spaces.length > 0) {
+					indent += spaces;
+					spaces = "";
+				}
+				indent += char;
+				continue;
+			} else if (char == " ") {
+				spaces += char;
+				if (spaces.length == tabSize) {
+					indent += spaces;
+					spaces = "";
+				}
+			} else {
+				break;
+			}
 		}
-		return "";
+		if (includePartial && spaces.length > 0) {
+			indent += spaces;
+		}
+		return indent;
+	}
+
+	/**
+		Gets the number of whitespace indents (tabs and spaces) at the start of
+		a line.
+	**/
+	public static function getIndentCountAtStartOfLine(line:String, tabSize:Int, includePartial:Bool = false):Int {
+		var indentCount = 0;
+		var spaceCount = 0;
+		for (i in 0...line.length) {
+			var char = line.charAt(i);
+			if (char == "\t") {
+				indentCount++;
+				spaceCount = 0;
+				continue;
+			} else if (char == " ") {
+				spaceCount++;
+				if (spaceCount == tabSize) {
+					indentCount++;
+					spaceCount = 0;
+				}
+			} else {
+				break;
+			}
+		}
+		if (includePartial && spaceCount > 0) {
+			indentCount++;
+		}
+		return indentCount;
 	}
 }
