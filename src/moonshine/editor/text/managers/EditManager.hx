@@ -168,7 +168,7 @@ class EditManager {
 			endLine = _textEditor.selectionEndLineIndex;
 			endChar = _textEditor.selectionEndCharIndex;
 		}
-		if (endLine < startLine) {
+		if (endLine < startLine || (endLine == startLine && endChar < startChar)) {
 			var temp = startLine;
 			startLine = endLine;
 			endLine = temp;
