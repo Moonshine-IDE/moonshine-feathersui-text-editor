@@ -176,7 +176,7 @@ class TextUtil {
 	}
 
 	/**
-		Gets the full set of whitspace at the start of a line.
+		Gets the full set of whitespace at the start of a line.
 	**/
 	public static function getIndentAtStartOfLine(line:String, tabSize:Int):String {
 		var indentPattern = ~/^[ \t]+/;
