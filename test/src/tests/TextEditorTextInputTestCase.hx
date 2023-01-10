@@ -617,6 +617,21 @@ class TextEditorTextInputTestCase extends Test {
 		Assert.equals(-1, _textEditor.selectionEndCharIndex);
 	}
 
+	public function testToggleLineCommentOnNumpad():Void {
+		_textEditor.lineComment = "//";
+		_textEditor.text = "hello";
+		_textEditor.stage.focus = _textEditor;
+		_textEditor.setSelection(0, 2, 0, 2);
+		_textEditor.stage.focus.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 0, Keyboard.NUMPAD_DIVIDE, "/".charCodeAt(0), true));
+		Assert.equals("// hello", _textEditor.text);
+		Assert.equals(0, _textEditor.caretLineIndex);
+		Assert.equals(5, _textEditor.caretCharIndex);
+		Assert.equals(-1, _textEditor.selectionStartLineIndex);
+		Assert.equals(-1, _textEditor.selectionStartCharIndex);
+		Assert.equals(-1, _textEditor.selectionEndLineIndex);
+		Assert.equals(-1, _textEditor.selectionEndCharIndex);
+	}
+
 	public function testToggleBlockCommentOn():Void {
 		_textEditor.blockComment = ["/*", "*/"];
 		_textEditor.text = "hello";

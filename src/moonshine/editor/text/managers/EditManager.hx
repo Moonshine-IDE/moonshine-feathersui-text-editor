@@ -670,7 +670,7 @@ class EditManager {
 			case Keyboard.TAB:
 				indent(event.shiftKey);
 				event.preventDefault();
-			case Keyboard.SLASH:
+			case Keyboard.SLASH | Keyboard.NUMPAD_DIVIDE:
 				if (event.ctrlKey && event.altKey) {
 					toggleBlockComment();
 					event.preventDefault();
