@@ -28,6 +28,7 @@ class LineParser extends EventDispatcher implements ILineParser {
 	private var patterns:Array<LineParserPattern>;
 	private var endPatterns:Array<LineParserPattern>;
 	private var keywords:Map<Int, Array<String>>;
+	private var caseSensitiveKeywords:Bool = true;
 
 	// Generated based on keywords array
 	private var keywordSet:Map<String, Int>;
@@ -103,6 +104,9 @@ class LineParser extends EventDispatcher implements ILineParser {
 		for (keywordType in keywords.keys()) {
 			var keywordsOfType = keywords.get(keywordType);
 			for (keyword in keywordsOfType) {
+				if (!caseSensitiveKeywords) {
+					keyword = keyword.toLowerCase();
+				}
 				keywordSet.set(keyword, keywordType);
 			}
 		}
@@ -177,6 +181,9 @@ class LineParser extends EventDispatcher implements ILineParser {
 			}
 
 			var currentKeyword = source.substring(startPos, endPos);
+			if (!caseSensitiveKeywords) {
+				currentKeyword = currentKeyword.toLowerCase();
+			}
 			if (keywordSet.exists(currentKeyword)) {
 				style = keywordSet.get(currentKeyword);
 			} else if (!~/^\s+$/m.match(currentKeyword)) { // Avoid switching styles for whitespace
