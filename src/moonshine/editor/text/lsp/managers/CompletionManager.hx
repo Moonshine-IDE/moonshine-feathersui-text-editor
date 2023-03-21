@@ -236,7 +236,6 @@ class CompletionManager {
 		// if it's the same object, be sure that the change is noticed
 		_completionListView.dataProvider.updateAt(index);
 		_ignoreCompletionListViewChange = oldIgnoreCompletionListViewChange;
-		var selectedItem = cast(_completionListView.selectedItem, CompletionItem);
 		updateDetail();
 	}
 
@@ -265,19 +264,22 @@ class CompletionManager {
 		var items = new ArrayCollection(result.items);
 		items.filterFunction = completionItemFilterFunction;
 		items.sortCompareFunction = completionItemSortCompareFunction;
-		if (items.length == 0) {
-			return;
-		}
-
 		_isIncomplete = result.isIncomplete;
 		_completionListView.dataProvider = items;
-		_textEditor.stage.addEventListener(MouseEvent.MOUSE_DOWN, completionManager_textEditor_stage_mouseDownHandler, false, 0, true);
-		PopUpManager.addPopUp(_completionListView, _textEditor, false, false);
 		_prevSelectedIndex = -1;
 		_prevSelectedItem = null;
 		if (items.length > 0) {
 			_completionListView.selectedIndex = 0;
 		}
+		if (items.length == 0) {
+			// no reason to open the completion list because it is already
+			// empty (either because there were no results, or because the
+			// filterText has already cleared everything)
+			return;
+		}
+
+		_textEditor.stage.addEventListener(MouseEvent.MOUSE_DOWN, completionManager_textEditor_stage_mouseDownHandler, false, 0, true);
+		PopUpManager.addPopUp(_completionListView, _textEditor, false, false);
 		if (_sharedObject.data.showDetail) {
 			PopUpManager.addPopUp(_completionDetailView, _textEditor, false, false);
 		}
