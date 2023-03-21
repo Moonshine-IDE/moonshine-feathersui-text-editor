@@ -804,6 +804,10 @@ class CompletionManager {
 			dispatchCompletionEventForCurrentPosition(event.text);
 			return;
 		}
+		if (_currentRequestParams != null) {
+			_filterText += event.text.toLowerCase();
+			_currentRequestParams.position.character += event.text.length;
+		}
 		if (!PopUpManager.isPopUp(_completionListView)) {
 			return;
 		}
@@ -812,8 +816,6 @@ class CompletionManager {
 			dispatchCompletionEventForCurrentPosition(triggerChar);
 			return;
 		}
-		_filterText += event.text.toLowerCase();
-		_currentRequestParams.position.character += event.text.length;
 		refreshAfterFilterUpdate();
 	}
 
