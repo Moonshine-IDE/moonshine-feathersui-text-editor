@@ -27,8 +27,9 @@ import feathers.events.ScrollEvent;
 import feathers.utils.DisplayObjectRecycler;
 import moonshine.editor.text.changes.TextEditorChange;
 import moonshine.editor.text.events.TextEditorChangeEvent;
-import moonshine.editor.text.lsp.events.LspTextEditorLanguageActionEvent;
 import moonshine.editor.text.lsp.events.LspTextEditorLanguageRequestEvent;
+import moonshine.editor.text.lsp.managers.completion.ICompletionMatcher;
+import moonshine.editor.text.lsp.managers.completion.SimpleWeightedCompletionMatcher;
 import moonshine.editor.text.lsp.views.CompletionItemRenderer;
 import moonshine.editor.text.lsp.views.HoverView;
 import moonshine.editor.text.lsp.views.events.CompletionItemRendererEvent;
@@ -88,6 +89,8 @@ class CompletionManager {
 		_textEditor.addEventListener(TextEvent.TEXT_INPUT, completionManager_textEditor_textInputHandler, false, 0, true);
 		_textEditor.addEventListener(FocusEvent.FOCUS_OUT, completionManager_textEditor_focusOutHandler, false, 0, true);
 		_textEditor.addEventListener(Event.RESIZE, completionManager_textEditor_resizeHandler, false, 0, true);
+
+		completionMatcher = new SimpleWeightedCompletionMatcher();
 
 		_sharedObject = SharedObject.getLocal("CompletionManager");
 		if (_sharedObject.data.showDetail == null) {
@@ -150,6 +153,11 @@ class CompletionManager {
 	**/
 	public var shortcutKey:UInt = Keyboard.SPACE;
 
+	/**
+		Filters and sorts completion items.
+	**/
+	public var completionMatcher:ICompletionMatcher;
+
 	private var _textEditor:LspTextEditor;
 	private var _currentRequestID:Int = -1;
 	private var _currentRequestParams:CompletionParams;
@@ -194,13 +202,14 @@ class CompletionManager {
 				startIndex = -1;
 			}
 			if (startIndex >= 0) {
-				_filterText = StringTools.trim(line.text.substr(startIndex, Std.int(Math.max(0, _textEditor.caretCharIndex - startIndex))).toLowerCase());
+				_filterText = StringTools.trim(line.text.substr(startIndex, Std.int(Math.max(0, _textEditor.caretCharIndex - startIndex))));
 			} else {
 				_filterText = "";
 			}
 		} else {
 			_filterText = "";
 		}
+		completionMatcher.updateFilter(_filterText);
 		_initialFilterTextLength = _filterText.length;
 		_isIncomplete = false;
 		incrementRequestID();
@@ -288,39 +297,14 @@ class CompletionManager {
 	}
 
 	private function completionItemSortCompareFunction(item1:CompletionItem, item2:CompletionItem):Int {
-		var text1 = (item1.sortText != null) ? item1.sortText : item1.label;
-		text1 = text1.toLowerCase();
-		var text2 = (item2.sortText != null) ? item2.sortText : item2.label;
-		text2 = text2.toLowerCase();
-		if (text1 < text2) {
-			return -1;
-		}
-		if (text1 > text2) {
-			return 1;
-		}
-		// if sortText is equal, fall back to comparing label instead
-		if (item1.sortText != null || item2.sortText != null) {
-			text1 = item1.label.toLowerCase();
-			text2 = item2.label.toLowerCase();
-			if (text1 < text2) {
-				return -1;
-			}
-			if (text1 > text2) {
-				return 1;
-			}
-		}
-		return 0;
+		return completionMatcher.sort(item1, item2);
 	}
 
 	private function completionItemFilterFunction(item:CompletionItem):Bool {
 		if (_filterText == null || _filterText.length == 0) {
 			return true;
 		}
-		var itemText = item.label;
-		if (item.filterText != null) {
-			itemText = item.filterText;
-		}
-		return StringTools.startsWith(itemText.toLowerCase(), _filterText);
+		return completionMatcher.filter(item);
 	}
 
 	private function refreshAfterFilterUpdate():Void {
@@ -587,6 +571,7 @@ class CompletionManager {
 			_textEditor.runCommand(item.command);
 		}
 		_filterText = "";
+		completionMatcher.updateFilter(_filterText);
 		if (_textEditor.focusManager != null) {
 			_textEditor.focusManager.focus = _textEditor;
 		} else if (_textEditor.stage != null) {
@@ -696,6 +681,7 @@ class CompletionManager {
 					}
 					// otherwise, update the filter based on the current request
 					_filterText = _filterText.substr(0, newLength);
+					completionMatcher.updateFilter(_filterText);
 					_currentRequestParams.position.character--;
 					refreshAfterFilterUpdate();
 					return;
@@ -807,7 +793,8 @@ class CompletionManager {
 			return;
 		}
 		if (_currentRequestParams != null) {
-			_filterText += event.text.toLowerCase();
+			_filterText += event.text;
+			completionMatcher.updateFilter(_filterText);
 			_currentRequestParams.position.character += event.text.length;
 		}
 		if (!PopUpManager.isPopUp(_completionListView)) {
