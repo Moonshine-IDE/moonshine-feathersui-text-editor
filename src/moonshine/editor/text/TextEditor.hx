@@ -1081,11 +1081,15 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		}
 		if (oldSelectionStartLineIndex != -1 && oldSelectionEndLineIndex != -1) {
 			var min = oldSelectionStartLineIndex;
-			var max = oldSelectionEndLineIndex + 1;
+			var max = oldSelectionEndLineIndex;
 			if (oldSelectionEndLineIndex < oldSelectionStartLineIndex) {
 				min = oldSelectionEndLineIndex;
-				max = oldSelectionStartLineIndex + 1;
+				max = oldSelectionStartLineIndex;
 			}
+			if (max > maxLine) {
+				max = maxLine;
+			}
+			max++;
 			for (i in min...max) {
 				_lines.updateAt(i);
 			}
@@ -1536,11 +1540,16 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	private function invalidateSelectedLines():Void {
 		if (_selectionStartLineIndex != -1 && _selectionEndLineIndex != -1) {
 			var min = _selectionStartLineIndex;
-			var max = _selectionEndLineIndex + 1;
+			var max = _selectionEndLineIndex;
 			if (_selectionEndLineIndex < _selectionStartLineIndex) {
 				min = _selectionEndLineIndex;
-				max = _selectionStartLineIndex + 1;
+				max = _selectionStartLineIndex;
 			}
+			var maxLine = _lines.length - 1;
+			if (max > maxLine) {
+				max = maxLine;
+			}
+			max++;
 			for (i in min...max) {
 				_lines.updateAt(i);
 			}
