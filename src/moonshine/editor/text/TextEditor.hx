@@ -522,7 +522,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			}
 
 			var selText = _lines.get(startLine).text.substr(startChar);
-			for (i in(startLine + 1)...endLine) {
+			for (i in (startLine + 1)...endLine) {
 				selText += _lineDelimiter + _lines.get(i).text;
 			}
 			selText += _lineDelimiter + _lines.get(endLine).text.substr(0, endChar);
@@ -1018,6 +1018,9 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		Used by `SelectionManager` to preserve the expanded caret char index.
 	**/
 	public function setSelectionAdvanced(startLine:Int, startChar:Int, endLine:Int, endChar:Int, expandCaret:Bool):Void {
+		var oldSelectionStartLineIndex = _selectionStartLineIndex;
+		var oldSelectionEndLineIndex = _selectionEndLineIndex;
+		var oldCaretLineIndex = _caretLineIndex;
 		var selectionChanged = false;
 		var maxLine = _lines.length - 1;
 		if (startLine > maxLine) {
@@ -1076,7 +1079,32 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		if (!selectionChanged) {
 			return;
 		}
-		invalidateVisibleLines();
+		if (oldSelectionStartLineIndex != -1 && oldSelectionEndLineIndex != -1) {
+			var min = oldSelectionStartLineIndex;
+			var max = oldSelectionEndLineIndex + 1;
+			if (oldSelectionEndLineIndex < oldSelectionStartLineIndex) {
+				min = oldSelectionEndLineIndex;
+				max = oldSelectionStartLineIndex + 1;
+			}
+			for (i in min...max) {
+				_lines.updateAt(i);
+			}
+		} else if (oldCaretLineIndex != -1) {
+			_lines.updateAt(oldCaretLineIndex);
+		}
+		if (_selectionStartLineIndex != -1 && _selectionEndLineIndex != -1) {
+			var min = _selectionStartLineIndex;
+			var max = _selectionEndLineIndex + 1;
+			if (_selectionEndLineIndex < _selectionStartLineIndex) {
+				min = _selectionEndLineIndex;
+				max = _selectionStartLineIndex + 1;
+			}
+			for (i in min...max) {
+				_lines.updateAt(i);
+			}
+		} else if (_caretLineIndex != -1) {
+			_lines.updateAt(_caretLineIndex);
+		}
 		dispatchEvent(new TextEditorEvent(TextEditorEvent.SELECTION_CHANGE));
 	}
 
