@@ -372,12 +372,12 @@ class LspTextEditor extends TextEditor {
 		}
 
 		var maxLine = _lines.length - 1;
-		if (oldLine != -1 && oldLine < maxLine) {
+		if (oldLine != -1 && oldLine <= maxLine) {
 			_lines.updateAt(oldLine);
 		}
 		if (_linksPosition != null && _links != null && _links.length > 0) {
 			var newLine = _linksPosition.line;
-			if (newLine < maxLine) {
+			if (newLine <= maxLine) {
 				_lines.updateAt(_linksPosition.line);
 			}
 		}

@@ -1093,7 +1093,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			for (i in min...max) {
 				_lines.updateAt(i);
 			}
-		} else if (oldCaretLineIndex != -1) {
+		} else if (oldCaretLineIndex != -1 && oldCaretLineIndex <= maxLine) {
 			_lines.updateAt(oldCaretLineIndex);
 		}
 		forceUpdateSelectedLines();
@@ -1538,6 +1538,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	}
 
 	private function forceUpdateSelectedLines():Void {
+		var maxLine = _lines.length - 1;
 		if (_selectionStartLineIndex != -1 && _selectionEndLineIndex != -1) {
 			var min = _selectionStartLineIndex;
 			var max = _selectionEndLineIndex;
@@ -1545,7 +1546,6 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 				min = _selectionEndLineIndex;
 				max = _selectionStartLineIndex;
 			}
-			var maxLine = _lines.length - 1;
 			if (max > maxLine) {
 				max = maxLine;
 			}
@@ -1553,7 +1553,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			for (i in min...max) {
 				_lines.updateAt(i);
 			}
-		} else if (_caretLineIndex != -1) {
+		} else if (_caretLineIndex != -1 && _caretLineIndex <= maxLine) {
 			_lines.updateAt(_caretLineIndex);
 		}
 	}
