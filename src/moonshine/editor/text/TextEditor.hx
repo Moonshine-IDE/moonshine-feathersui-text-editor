@@ -1125,16 +1125,8 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		Clears any result of `find()`.
 	**/
 	public function clearFind():Void {
-		if (highlightAllFindResults && _searchResult != null) {
-			for (result in _searchResult.results) {
-				var startLine = result.startLine;
-				if (startLine < 0 || startLine >= _lines.length) {
-					continue;
-				}
-				_lines.updateAt(startLine);
-			}
-		}
 		_searchResult = null;
+		_lines.updateAll();
 	}
 
 	/**
@@ -1142,15 +1134,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	**/
 	public function find(search:Any /* EReg | String */, backwards:Bool = false, allowWrap:Bool = true):TextEditorSearchResult {
 		_searchResult = _findReplaceManager.find(search, backwards, allowWrap);
-		if (highlightAllFindResults) {
-			for (result in _searchResult.results) {
-				var startLine = result.startLine;
-				if (startLine < 0 || startLine >= _lines.length) {
-					continue;
-				}
-				_lines.updateAt(startLine);
-			}
-		}
+		_lines.updateAll();
 		return _searchResult;
 	}
 
@@ -1161,6 +1145,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	**/
 	public function findNext(backwards:Bool = false, allowWrap:Bool = true):TextEditorSearchResult {
 		_searchResult = _findReplaceManager.findNext(backwards, allowWrap);
+		_lines.updateAll();
 		return _searchResult;
 	}
 
@@ -1174,6 +1159,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			throw new IllegalOperationError("Replace not allowed on read-only text editor");
 		}
 		_searchResult = _findReplaceManager.replace(newText, false, allowWrap);
+		_lines.updateAll();
 		return _searchResult;
 	}
 
@@ -1187,6 +1173,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			throw new IllegalOperationError("Replace all not allowed on read-only text editor");
 		}
 		_searchResult = _findReplaceManager.replace(newText, true);
+		_lines.updateAll();
 		return _searchResult;
 	}
 
