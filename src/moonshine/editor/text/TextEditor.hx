@@ -1674,7 +1674,26 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		if (_readOnly) {
 			throw new IllegalOperationError("Read-only text editor must not dispatch text change event");
 		}
-		invalidateVisibleLines();
+		// most often, only one line changes
+		// but if a change affects multiple lines, we update all of them
+		var needsAllUpdated = false;
+		for (change in event.changes) {
+			if (change.startLine != change.endLine) {
+				needsAllUpdated = true;
+				break;
+			}
+			if (change.newText != null) {
+				var newLines = ~/\r?\n|\r/g.split(change.newText);
+				if (newLines.length > 1) {
+					needsAllUpdated = true;
+					break;
+				}
+			}
+			_lines.updateAt(change.startLine);
+		}
+		if (needsAllUpdated) {
+			_lines.updateAll();
+		}
 	}
 
 	private inline function calculateLineScrollY(scrollY:Float):Int {
