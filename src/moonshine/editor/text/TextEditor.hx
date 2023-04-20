@@ -1096,7 +1096,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		} else if (oldCaretLineIndex != -1) {
 			_lines.updateAt(oldCaretLineIndex);
 		}
-		invalidateSelectedLines();
+		forceUpdateSelectedLines();
 		dispatchEvent(new TextEditorEvent(TextEditorEvent.SELECTION_CHANGE));
 	}
 
@@ -1537,7 +1537,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		}
 	}
 
-	private function invalidateSelectedLines():Void {
+	private function forceUpdateSelectedLines():Void {
 		if (_selectionStartLineIndex != -1 && _selectionEndLineIndex != -1) {
 			var min = _selectionStartLineIndex;
 			var max = _selectionEndLineIndex;
@@ -1707,12 +1707,12 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 
 	private function textEditor_listView_focusInHandler(event:FocusEvent):Void {
 		_hasFocus = true;
-		invalidateSelectedLines();
+		forceUpdateSelectedLines();
 	}
 
 	private function textEditor_listView_focusOutHandler(event:FocusEvent):Void {
 		_hasFocus = false;
-		invalidateSelectedLines();
+		forceUpdateSelectedLines();
 	}
 
 	private function textEditor_textLineRenderer_toggleBreakpointHandler(event:TextEditorLineEvent):Void {
