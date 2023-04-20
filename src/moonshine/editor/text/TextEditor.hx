@@ -80,7 +80,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		}
 		_clipboardMananger = new ClipboardManager(this);
 		_selectionMananger = new SelectionManager(this);
-		_colorManager = new ColorManager(this, invalidateVisibleLines);
+		_colorManager = new ColorManager(this);
 		_findReplaceManager = new FindReplaceManager(this);
 		createContextMenu();
 		this.text = text;
@@ -1556,14 +1556,6 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		} else if (_caretLineIndex != -1) {
 			_lines.updateAt(_caretLineIndex);
 		}
-	}
-
-	private function invalidateVisibleLines():Void {
-		if (_listView == null || _listView.dataProvider == null) {
-			return;
-		}
-		_listView.setInvalid(DATA);
-		_listView.setInvalid(LAYOUT);
 	}
 
 	override private function update():Void {

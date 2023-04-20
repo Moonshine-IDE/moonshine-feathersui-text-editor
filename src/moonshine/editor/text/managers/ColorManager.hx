@@ -33,15 +33,13 @@ class ColorManager {
 	/**
 		Creates a new `ColorManager` object.
 	**/
-	public function new(textEditor:TextEditor, invalidateCallback:() -> Void) {
+	public function new(textEditor:TextEditor) {
 		_textEditor = textEditor;
-		_invalidateCallback = invalidateCallback;
 
 		_textEditor.addEventListener(TextEditorChangeEvent.TEXT_CHANGE, colorManager_textEditor_textChangeHandler, false, 0, true);
 	}
 
 	private var _textEditor:TextEditor;
-	private var _invalidateCallback:() -> Void;
 
 	private var _parser:ILineParser;
 
@@ -134,6 +132,7 @@ class ColorManager {
 				// Notify the editor of change, to invalidate lines if needed
 				if (oldMeta == null || newMeta == null || oldMeta.join(",") != newMeta.join(",")) {
 					line.styleRanges = newMeta;
+					_textEditor.lines.updateAt(i);
 				}
 
 				if (i == rangeEnd && i < (count - 1)) {
@@ -160,7 +159,6 @@ class ColorManager {
 			_ranges.shift();
 		}
 
-		_invalidateCallback();
 		stopListening();
 	}
 
