@@ -1092,19 +1092,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		} else if (oldCaretLineIndex != -1) {
 			_lines.updateAt(oldCaretLineIndex);
 		}
-		if (_selectionStartLineIndex != -1 && _selectionEndLineIndex != -1) {
-			var min = _selectionStartLineIndex;
-			var max = _selectionEndLineIndex + 1;
-			if (_selectionEndLineIndex < _selectionStartLineIndex) {
-				min = _selectionEndLineIndex;
-				max = _selectionStartLineIndex + 1;
-			}
-			for (i in min...max) {
-				_lines.updateAt(i);
-			}
-		} else if (_caretLineIndex != -1) {
-			_lines.updateAt(_caretLineIndex);
-		}
+		invalidateSelectedLines();
 		dispatchEvent(new TextEditorEvent(TextEditorEvent.SELECTION_CHANGE));
 	}
 
@@ -1558,6 +1546,22 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		}
 	}
 
+	private function invalidateSelectedLines():Void {
+		if (_selectionStartLineIndex != -1 && _selectionEndLineIndex != -1) {
+			var min = _selectionStartLineIndex;
+			var max = _selectionEndLineIndex + 1;
+			if (_selectionEndLineIndex < _selectionStartLineIndex) {
+				min = _selectionEndLineIndex;
+				max = _selectionStartLineIndex + 1;
+			}
+			for (i in min...max) {
+				_lines.updateAt(i);
+			}
+		} else if (_caretLineIndex != -1) {
+			_lines.updateAt(_caretLineIndex);
+		}
+	}
+
 	private function invalidateVisibleLines():Void {
 		if (_listView == null || _listView.dataProvider == null) {
 			return;
@@ -1706,12 +1710,12 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 
 	private function textEditor_listView_focusInHandler(event:FocusEvent):Void {
 		_hasFocus = true;
-		invalidateVisibleLines();
+		invalidateSelectedLines();
 	}
 
 	private function textEditor_listView_focusOutHandler(event:FocusEvent):Void {
 		_hasFocus = false;
-		invalidateVisibleLines();
+		invalidateSelectedLines();
 	}
 
 	private function textEditor_textLineRenderer_toggleBreakpointHandler(event:TextEditorLineEvent):Void {
