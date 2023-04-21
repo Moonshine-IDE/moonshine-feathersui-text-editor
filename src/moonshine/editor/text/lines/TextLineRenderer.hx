@@ -705,7 +705,10 @@ class TextLineRenderer extends FeathersControl {
 	**/
 	public function getCharBoundaries(charIndex:Int):Rectangle {
 		validateNow();
-		var end = charIndex == _text.length;
+		if (_mainTextField == null) {
+			return null;
+		}
+		var end = charIndex == _mainTextField.text.length;
 		if (end) {
 			if (charIndex == 0) {
 				return new Rectangle(_mainTextField.x, _mainTextField.y, 0.0, _mainTextField.textHeight);
@@ -759,7 +762,7 @@ class TextLineRenderer extends FeathersControl {
 			return 0;
 		} else if (localX >= (_mainTextField.x + _mainTextField.width)) {
 			// after text
-			return _text.length;
+			return _mainTextField.text.length;
 		}
 		// Get a line through the middle of the text field for y
 		var renderedCharIndexAtPoint = _mainTextField.getCharIndexAtPoint(localX - _mainTextField.x, actualHeight / 2.0);
@@ -915,7 +918,7 @@ class TextLineRenderer extends FeathersControl {
 			}
 			_tabToSpaceOffsets.push(current);
 			_tabToSpaceOffsets.push(spacesCount);
-			for (i in(renderedCurrent + 1)...(renderedCurrent + spacesCount)) {
+			for (i in (renderedCurrent + 1)...(renderedCurrent + spacesCount)) {
 				_spaceToTabOffsets.push(i);
 				_spaceToTabOffsets.push((-1));
 			}
