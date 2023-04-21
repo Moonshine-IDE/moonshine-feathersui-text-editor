@@ -1079,6 +1079,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		if (!selectionChanged) {
 			return;
 		}
+		#if (feathersui >= "1.2.0")
 		if (oldSelectionStartLineIndex != -1 && oldSelectionEndLineIndex != -1) {
 			var min = oldSelectionStartLineIndex;
 			var max = oldSelectionEndLineIndex;
@@ -1097,6 +1098,9 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			_lines.updateAt(oldCaretLineIndex);
 		}
 		forceUpdateSelectedLines();
+		#else
+		invalidateVisibleLines();
+		#end
 		dispatchEvent(new TextEditorEvent(TextEditorEvent.SELECTION_CHANGE));
 	}
 
@@ -1130,7 +1134,11 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	**/
 	public function clearFind():Void {
 		_searchResult = null;
+		#if (feathersui >= "1.2.0")
 		_lines.updateAll();
+		#else
+		invalidateVisibleLines();
+		#end
 	}
 
 	/**
@@ -1138,7 +1146,19 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	**/
 	public function find(search:Any /* EReg | String */, backwards:Bool = false, allowWrap:Bool = true):TextEditorSearchResult {
 		_searchResult = _findReplaceManager.find(search, backwards, allowWrap);
+		#if (feathersui >= "1.2.0")
 		_lines.updateAll();
+		#else
+		if (highlightAllFindResults) {
+			for (result in _searchResult.results) {
+				var startLine = result.startLine;
+				if (startLine < 0 || startLine >= _lines.length) {
+					continue;
+				}
+				_lines.updateAt(startLine);
+			}
+		}
+		#end
 		return _searchResult;
 	}
 
@@ -1149,7 +1169,9 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	**/
 	public function findNext(backwards:Bool = false, allowWrap:Bool = true):TextEditorSearchResult {
 		_searchResult = _findReplaceManager.findNext(backwards, allowWrap);
+		#if (feathersui >= "1.2.0")
 		_lines.updateAll();
+		#end
 		return _searchResult;
 	}
 
@@ -1163,7 +1185,9 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			throw new IllegalOperationError("Replace not allowed on read-only text editor");
 		}
 		_searchResult = _findReplaceManager.replace(newText, false, allowWrap);
+		#if (feathersui >= "1.2.0")
 		_lines.updateAll();
+		#end
 		return _searchResult;
 	}
 
@@ -1177,7 +1201,9 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			throw new IllegalOperationError("Replace all not allowed on read-only text editor");
 		}
 		_searchResult = _findReplaceManager.replace(newText, true);
+		#if (feathersui >= "1.2.0")
 		_lines.updateAll();
+		#end
 		return _searchResult;
 	}
 
@@ -1537,6 +1563,14 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		}
 	}
 
+	private function invalidateVisibleLines():Void {
+		if (_listView == null || _listView.dataProvider == null) {
+			return;
+		}
+		_listView.setInvalid(DATA);
+		_listView.setInvalid(LAYOUT);
+	}
+
 	private function forceUpdateSelectedLines():Void {
 		var maxLine = _lines.length - 1;
 		if (_selectionStartLineIndex != -1 && _selectionEndLineIndex != -1) {
@@ -1568,7 +1602,9 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		}
 		if (_textStyles == null) {
 			_textStyles = new PlainTextFormatBuilder().build();
+			#if (feathersui >= "1.2.0")
 			_lines.updateAll();
+			#end
 		}
 
 		if (dataInvalid) {
@@ -1666,6 +1702,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		if (_readOnly) {
 			throw new IllegalOperationError("Read-only text editor must not dispatch text change event");
 		}
+		#if (feathersui >= "1.2.0")
 		// most often, only one line changes
 		// but if a change affects multiple lines, we update all of them
 		var needsAllUpdated = false;
@@ -1686,6 +1723,9 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		if (needsAllUpdated) {
 			_lines.updateAll();
 		}
+		#else
+		invalidateVisibleLines();
+		#end
 	}
 
 	private inline function calculateLineScrollY(scrollY:Float):Int {
@@ -1718,12 +1758,20 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 
 	private function textEditor_listView_focusInHandler(event:FocusEvent):Void {
 		_hasFocus = true;
+		#if (feathersui >= "1.2.0")
 		forceUpdateSelectedLines();
+		#else
+		invalidateVisibleLines();
+		#end
 	}
 
 	private function textEditor_listView_focusOutHandler(event:FocusEvent):Void {
 		_hasFocus = false;
+		#if (feathersui >= "1.2.0")
 		forceUpdateSelectedLines();
+		#else
+		invalidateVisibleLines();
+		#end
 	}
 
 	private function textEditor_textLineRenderer_toggleBreakpointHandler(event:TextEditorLineEvent):Void {

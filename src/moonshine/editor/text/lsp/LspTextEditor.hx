@@ -342,10 +342,12 @@ class LspTextEditor extends TextEditor {
 			return;
 		}
 
+		#if (feathersui >= "1.2.0")
 		var oldLine = -1;
 		if (_linksPosition != null && _links != null && _links.length > 0) {
 			oldLine = _linksPosition.line;
 		}
+		#end
 		_linksPosition = position;
 		_links = locations;
 
@@ -371,6 +373,7 @@ class LspTextEditor extends TextEditor {
 			}
 		}
 
+		#if (feathersui >= "1.2.0")
 		var maxLine = _lines.length - 1;
 		if (oldLine != -1 && oldLine <= maxLine) {
 			_lines.updateAt(oldLine);
@@ -381,6 +384,9 @@ class LspTextEditor extends TextEditor {
 				_lines.updateAt(_linksPosition.line);
 			}
 		}
+		#else
+		invalidateVisibleLines();
+		#end
 	}
 
 	private function activateCodeAction(codeAction:CodeAction):Void {

@@ -132,7 +132,9 @@ class ColorManager {
 				// Notify the editor of change, to invalidate lines if needed
 				if (oldMeta == null || newMeta == null || oldMeta.join(",") != newMeta.join(",")) {
 					line.styleRanges = newMeta;
+					#if (feathersui >= "1.2.0")
 					_textEditor.lines.updateAt(i);
+					#end
 				}
 
 				if (i == rangeEnd && i < (count - 1)) {
@@ -159,6 +161,9 @@ class ColorManager {
 			_ranges.shift();
 		}
 
+		#if (feathersui < "1.2.0")
+		@:privateAccess _textEditor.invalidateVisibleLines();
+		#end
 		stopListening();
 	}
 
