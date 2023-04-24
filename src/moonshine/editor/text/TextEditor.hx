@@ -1475,6 +1475,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	}
 
 	private function updateTextLineRendererFromModel(itemRenderer:TextLineRenderer, lineModel:TextLineModel):Void {
+		itemRenderer.textEditorOwner = this;
 		itemRenderer.lineIndex = lineModel.lineIndex;
 		itemRenderer.text = lineModel.text;
 		if (!_readOnly && lineModel.lineIndex == _caretLineIndex) {
@@ -1486,7 +1487,6 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		itemRenderer.minLineNumberCharacters = minLineNumberCharacters;
 		itemRenderer.numLines = _lines.length;
 		itemRenderer.tabWidth = _tabWidth;
-		itemRenderer.scrollX = _listView.scrollX;
 		itemRenderer.breakpoint = _breakpoints != null && _breakpoints.indexOf(lineModel.lineIndex) != -1;
 		itemRenderer.allowToggleBreakpoints = _allowToggleBreakpoints;
 		itemRenderer.debuggerStopped = _debuggerLineIndex == lineModel.lineIndex;
@@ -1546,6 +1546,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	}
 
 	private function resetTextLineRenderer(itemRenderer:TextLineRenderer, state:ListViewItemState):Void {
+		itemRenderer.textEditorOwner = null;
 		itemRenderer.caretIndex = -1;
 		itemRenderer.lineIndex = -1;
 		itemRenderer.styleRanges = null;

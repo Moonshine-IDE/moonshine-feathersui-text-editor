@@ -17,6 +17,7 @@
 
 package moonshine.editor.text.lines;
 
+import feathers.events.ScrollEvent;
 import feathers.core.FeathersControl;
 import feathers.core.IValidating;
 import feathers.skins.IProgrammaticSkin;
@@ -355,6 +356,8 @@ class TextLineRenderer extends FeathersControl {
 		return _allowToggleBreakpoints;
 	}
 
+	private var _oldScrollX:Float;
+
 	private var _caretTimer:Timer;
 
 	private var _caretSkin:RectangleSkin;
@@ -508,27 +511,6 @@ class TextLineRenderer extends FeathersControl {
 	**/
 	@:style
 	public var gutterPaddingRight:Float = 0.0;
-
-	private var _scrollX:Float = 0.0;
-
-	/**
-		The current horizontal scroll position of the `TextEditor`.
-	**/
-	@:flash.property
-	public var scrollX(get, set):Float;
-
-	private function get_scrollX():Float {
-		return _scrollX;
-	}
-
-	private function set_scrollX(value:Float):Float {
-		if (_scrollX == value) {
-			return _scrollX;
-		}
-		_scrollX = value;
-		setInvalid(SCROLL);
-		return _scrollX;
-	}
 
 	private var _caretIndex:Int = -1;
 
@@ -697,6 +679,33 @@ class TextLineRenderer extends FeathersControl {
 		_searchResult = value;
 		setInvalid(STATE);
 		return _searchResult;
+	}
+
+	private var _textEditorOwner:TextEditor;
+
+	/**
+		The `TextEditor` that owns this text line renderer.
+	**/
+	@:flash.property
+	public var textEditorOwner(get, set):TextEditor;
+
+	private function get_textEditorOwner():TextEditor {
+		return _textEditorOwner;
+	}
+
+	private function set_textEditorOwner(value:TextEditor):TextEditor {
+		if (_textEditorOwner == value) {
+			return _textEditorOwner;
+		}
+		if (_textEditorOwner != null) {
+			_textEditorOwner.removeEventListener(ScrollEvent.SCROLL, textLineRenderer_textEditorOwner_scrollHandler);
+		}
+		_textEditorOwner = value;
+		if (_textEditorOwner != null) {
+			_textEditorOwner.addEventListener(ScrollEvent.SCROLL, textLineRenderer_textEditorOwner_scrollHandler, false, 0, true);
+		}
+		setInvalid(DATA);
+		return _textEditorOwner;
 	}
 
 	/**
@@ -1361,12 +1370,14 @@ class TextLineRenderer extends FeathersControl {
 	}
 
 	private function layoutContent():Void {
+		var scrollX = (_textEditorOwner != null) ? _textEditorOwner.scrollX : 0.0;
+		_oldScrollX = scrollX;
 		#if flash
 		// the flash target internally rounds to the nearest pixel when using
 		// scrollRect, while other targets do not
-		var gutterStartX = (parent == null || parent.scrollRect == null) ? _scrollX : Math.fround(_scrollX);
+		var gutterStartX = (parent == null || parent.scrollRect == null) ? scrollX : Math.fround(scrollX);
 		#else
-		var gutterStartX = _scrollX;
+		var gutterStartX = scrollX;
 		#end
 		if (_currentGutterBackgroundSkin != null) {
 			_currentGutterBackgroundSkin.width = _gutterWidth;
@@ -1453,5 +1464,13 @@ class TextLineRenderer extends FeathersControl {
 
 	private function textLineRenderer_lineNumberTextField_mouseDownHandler(event:MouseEvent):Void {
 		dispatchEvent(new TextEditorLineEvent(TextEditorLineEvent.SELECT_LINE, lineIndex));
+	}
+
+	private function textLineRenderer_textEditorOwner_scrollHandler(event:ScrollEvent):Void {
+		var textEditor = cast(event.currentTarget, TextEditor);
+		if (_oldScrollX == textEditor.scrollX) {
+			return;
+		}
+		setInvalid(SCROLL);
 	}
 }
