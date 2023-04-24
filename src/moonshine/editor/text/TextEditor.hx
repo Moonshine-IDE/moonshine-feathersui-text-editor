@@ -229,8 +229,6 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 
 	private var _viewPortVisibleBounds = new Rectangle();
 
-	private var _ignoreScrollChanges = false;
-
 	private var _scrollX:Float = 0.0;
 
 	/**
@@ -1705,13 +1703,8 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	}
 
 	private function commitScroll():Void {
-		var oldIgnoreScrollChanges = _ignoreScrollChanges;
-		_ignoreScrollChanges = true;
-
 		_listView.scrollX = _scrollX;
 		_listView.scrollY = _scrollY;
-
-		_ignoreScrollChanges = oldIgnoreScrollChanges;
 	}
 
 	private function saveLayoutProperties():Void {
@@ -1794,11 +1787,6 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		_scrollX = _listView.scrollX;
 		_scrollY = _listView.scrollY;
 		_lineScrollY = calculateLineScrollY(_scrollY);
-
-		if (_ignoreScrollChanges) {
-			return;
-		}
-
 		ScrollEvent.dispatch(this, ScrollEvent.SCROLL);
 	}
 
