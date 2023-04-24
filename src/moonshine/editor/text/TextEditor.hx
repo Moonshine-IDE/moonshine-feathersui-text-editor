@@ -1019,9 +1019,14 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	**/
 	public function setSelectionAdvanced(startLine:Int, startChar:Int, endLine:Int, endChar:Int, expandCaret:Bool):Void {
 		var oldSelectionStartLineIndex = _selectionStartLineIndex;
+		var oldSelectionStartCharIndex = _selectionStartCharIndex;
 		var oldSelectionEndLineIndex = _selectionEndLineIndex;
+		var oldSelectionEndCharIndex = _selectionEndCharIndex;
 		var oldCaretLineIndex = _caretLineIndex;
+		var oldCaretCharIndex = _expandedCaretCharIndex;
+
 		var selectionChanged = false;
+
 		var maxLine = _lines.length - 1;
 		if (startLine > maxLine) {
 			startLine = maxLine;
@@ -1080,24 +1085,16 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			return;
 		}
 		#if (feathersui >= "1.2.0")
-		if (oldSelectionStartLineIndex != -1 && oldSelectionEndLineIndex != -1) {
-			var min = oldSelectionStartLineIndex;
-			var max = oldSelectionEndLineIndex;
-			if (oldSelectionEndLineIndex < oldSelectionStartLineIndex) {
-				min = oldSelectionEndLineIndex;
-				max = oldSelectionStartLineIndex;
-			}
-			if (max > maxLine) {
-				max = maxLine;
-			}
-			max++;
-			for (i in min...max) {
-				_lines.updateAt(i);
-			}
-		} else if (oldCaretLineIndex != -1 && oldCaretLineIndex <= maxLine) {
-			_lines.updateAt(oldCaretLineIndex);
-		}
-		forceUpdateSelectedLines();
+		var startLine1 = oldSelectionStartLineIndex != -1 ? oldSelectionStartLineIndex : oldCaretLineIndex;
+		var startChar1 = oldSelectionStartCharIndex != -1 ? oldSelectionStartCharIndex : oldCaretCharIndex;
+		var endLine1 = oldSelectionEndLineIndex != -1 ? oldSelectionEndLineIndex : oldCaretLineIndex;
+		var endChar1 = oldSelectionEndCharIndex != -1 ? oldSelectionEndCharIndex : oldCaretCharIndex;
+		var startLine2 = _selectionStartLineIndex != -1 ? _selectionStartLineIndex : _caretLineIndex;
+		var startChar2 = _selectionStartCharIndex != -1 ? _selectionStartCharIndex : _expandedCaretCharIndex;
+		var endLine2 = _selectionEndLineIndex != -1 ? _selectionEndLineIndex : _caretLineIndex;
+		var endChar2 = _selectionEndCharIndex != -1 ? _selectionEndCharIndex : _expandedCaretCharIndex;
+		// updating only the lines that are different is fastest
+		forceUpdateRangeDiff(startLine1, startChar1, endLine1, endChar1, startLine2, startChar2, endLine2, endChar2);
 		#else
 		invalidateVisibleLines();
 		#end
@@ -1570,6 +1567,79 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		}
 		_listView.setInvalid(DATA);
 		_listView.setInvalid(LAYOUT);
+	}
+
+	private function forceUpdateRangeDiff(startLine1:Int, startChar1:Int, endLine1:Int, endChar1:Int, startLine2:Int, startChar2:Int, endLine2:Int,
+			endChar2:Int) {
+		var minLine1 = startLine1;
+		var minChar1 = startChar1;
+		var maxLine1 = endLine1;
+		var maxChar1 = endChar1;
+		if (startLine1 > endLine1) {
+			minLine1 = endLine1;
+			minChar1 = endChar1;
+			maxLine1 = startLine1;
+			maxChar1 = startChar1;
+		}
+		var minLine2 = startLine2;
+		var minChar2 = startChar2;
+		var maxLine2 = endLine2;
+		var maxChar2 = endChar2;
+		if (startLine2 > endLine2) {
+			minLine2 = endLine2;
+			minChar2 = endChar2;
+			maxLine2 = startLine2;
+			maxChar2 = startChar2;
+		}
+		var minLine = minLine1;
+		var minChar = minChar1;
+		if (minLine1 > minLine2) {
+			minLine = minLine2;
+			minChar = minChar2;
+		}
+		var maxLine = maxLine1;
+		var maxChar = maxChar1;
+		if (maxLine1 < maxLine2) {
+			maxLine = maxLine2;
+			maxChar = maxChar2;
+		}
+		for (i in minLine...(maxLine + 1)) {
+			if (i < minLine1 || i < minLine2 || i > maxLine1 || i > maxLine2) {
+				// line was included in one range, but not the other
+				_lines.updateAt(i);
+				continue;
+			}
+			if (i == minLine) {
+				// the minimum line from either range
+				if ((i == minLine1 && minChar != minChar1) || (i == minLine2 && minChar != minChar2)) {
+					// character on mimimum line doesn't match
+					_lines.updateAt(i);
+					continue;
+				}
+			} else {
+				if (i == minLine1 || i == minLine2) {
+					// the entire line (probably) was not selected before, but
+					// now it is because it is not the minimum anymore
+					_lines.updateAt(i);
+					continue;
+				}
+			}
+			if (i == maxLine) {
+				// the maximum line from either range
+				if ((i == maxLine1 && maxChar != maxChar1) || (i == maxLine2 && maxChar != maxChar2)) {
+					// character on maximum line doesn't match
+					_lines.updateAt(i);
+					continue;
+				}
+			} else {
+				if (i == maxLine1 || i == maxLine2) {
+					// the entire line (probably) was not selected before, but
+					// now it is because it is not the maximum anymore
+					_lines.updateAt(i);
+					continue;
+				}
+			}
+		}
 	}
 
 	private function forceUpdateSelectedLines():Void {
