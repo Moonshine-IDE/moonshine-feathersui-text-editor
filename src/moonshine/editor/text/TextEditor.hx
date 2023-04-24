@@ -1564,6 +1564,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 
 	private function forceUpdateRangeDiff(startLine1:Int, startChar1:Int, endLine1:Int, endChar1:Int, startLine2:Int, startChar2:Int, endLine2:Int,
 			endChar2:Int) {
+		var maxMaxLine = _lines.length - 1;
 		var minLine1 = startLine1;
 		var minChar1 = startChar1;
 		var maxLine1 = endLine1;
@@ -1584,6 +1585,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			maxLine2 = startLine2;
 			maxChar2 = startChar2;
 		}
+
 		var minLine = minLine1;
 		var minChar = minChar1;
 		if (minLine1 > minLine2) {
@@ -1597,6 +1599,11 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			maxChar = maxChar2;
 		}
 		for (i in minLine...(maxLine + 1)) {
+			if (i > maxMaxLine) {
+				// if the numbe of lines has been reduced since the prev range
+				// avoid exceptions that would be thrown if we went to far
+				break;
+			}
 			if (i < minLine1 || i < minLine2 || i > maxLine1 || i > maxLine2) {
 				// line was included in one range, but not the other
 				_lines.updateAt(i);
