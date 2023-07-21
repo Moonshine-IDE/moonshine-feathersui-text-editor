@@ -1426,6 +1426,11 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			_listView.addEventListener(FocusEvent.FOCUS_IN, textEditor_listView_focusInHandler);
 			_listView.addEventListener(FocusEvent.FOCUS_OUT, textEditor_listView_focusOutHandler);
 			addChild(_listView);
+
+			#if (feathersui >= "1.2.0")
+			_listView.itemRendererRecycler = DisplayObjectRecycler.withFunction(createTextLineRenderer, updateTextLineRenderer, resetTextLineRenderer,
+				destroyTextLineRenderer);
+			#end
 		}
 	}
 
@@ -1689,8 +1694,12 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		}
 
 		if (stylesInvalid) {
+			#if (feathersui >= "1.2.0")
+			_lines.updateAll();
+			#else
 			_listView.itemRendererRecycler = DisplayObjectRecycler.withFunction(createTextLineRenderer, updateTextLineRenderer, resetTextLineRenderer,
 				destroyTextLineRenderer);
+			#end
 		}
 
 		layoutContent();
