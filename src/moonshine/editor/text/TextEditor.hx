@@ -197,11 +197,15 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		if (_lines != null) {
 			_lines.removeEventListener(FlatCollectionEvent.ADD_ITEM, textEditor_lines_addItemHandler);
 			_lines.removeEventListener(FlatCollectionEvent.REMOVE_ITEM, textEditor_lines_removeItemHandler);
+			_lines.removeEventListener(FlatCollectionEvent.UPDATE_ITEM, textEditor_lines_updateItemHandler);
+			_lines.removeEventListener(FlatCollectionEvent.UPDATE_ALL, textEditor_lines_updateAllHandler);
 			_lines.removeEventListener(Event.CHANGE, textEditor_lines_changeHandler);
 		}
 		_lines = new ArrayCollection(lineModels);
 		_lines.addEventListener(FlatCollectionEvent.ADD_ITEM, textEditor_lines_addItemHandler);
 		_lines.addEventListener(FlatCollectionEvent.REMOVE_ITEM, textEditor_lines_removeItemHandler);
+		_lines.addEventListener(FlatCollectionEvent.UPDATE_ITEM, textEditor_lines_updateItemHandler);
+		_lines.addEventListener(FlatCollectionEvent.UPDATE_ALL, textEditor_lines_updateAllHandler);
 		_lines.addEventListener(Event.CHANGE, textEditor_lines_changeHandler);
 
 		_colorManager.reset();
@@ -1884,6 +1888,22 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		for (breakpoint in addedBreakpoints) {
 			dispatchEvent(new TextEditorLineEvent(TextEditorLineEvent.TOGGLE_BREAKPOINT, breakpoint));
 		}
+	}
+
+	private function textEditor_lines_updateItemHandler(event:FlatCollectionEvent):Void {
+		#if (feathersui >= "1.2.0")
+		// ensure that validateNow() can be called to force internal ListView
+		// to validate too
+		setInvalid(DATA);
+		#end
+	}
+
+	private function textEditor_lines_updateAllHandler(event:FlatCollectionEvent):Void {
+		#if (feathersui >= "1.2.0")
+		// ensure that validateNow() can be called to force internal ListView
+		// to validate too
+		setInvalid(DATA);
+		#end
 	}
 }
 
