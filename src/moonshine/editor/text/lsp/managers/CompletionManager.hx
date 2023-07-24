@@ -329,6 +329,9 @@ class CompletionManager {
 		_completionListView.validateNow();
 		_ignoreCompletionListViewResize = oldIgnoreCompletionListViewResize;
 
+		// the result of getTextEditorPositionBoundaries() may not be accurate
+		// unless the text editor validates first
+		_textEditor.validateNow();
 		var bounds = _textEditor.getTextEditorPositionBoundaries(LspTextEditorUtil.lspPositionToTextEditorPosition(_currentRequestParams.position));
 		if (bounds == null) {
 			closeCompletionListView();
