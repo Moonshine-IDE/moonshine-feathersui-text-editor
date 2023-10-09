@@ -1916,8 +1916,8 @@ private class TextEditorListView extends ListView {
 		disabledBackgroundSkin = null;
 	}
 
-	@:getter(tabEnabled)
-	override private function get_tabEnabled() {
+	#if (flash && haxe_ver < 4.3) @:getter(tabEnabled) #end
+	override private function get_tabEnabled():Bool {
 		return _enabled && rawTabEnabled;
 	}
 }
