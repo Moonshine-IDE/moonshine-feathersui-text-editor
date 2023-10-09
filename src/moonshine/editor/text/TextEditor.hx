@@ -1728,7 +1728,17 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	}
 
 	private function saveLayoutProperties():Void {
+		#if (feathersui < "1.3.0")
+		// workaround for bug in certain versions of Feathers UI
+		var scrollX = _listView.scrollX;
+		var scrollY = _listView.scrollY;
+		#end
 		_listView.validateNow();
+
+		#if (feathersui < "1.3.0")
+		_scrollX = _listView.scrollX;
+		_scrollY = _listView.scrollY;
+		#end
 
 		_listView.getViewPortVisibleBounds(_viewPortVisibleBounds);
 		_viewPortVisibleBounds.x += _listView.x;
