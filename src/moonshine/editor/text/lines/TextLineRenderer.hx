@@ -362,6 +362,27 @@ class TextLineRenderer extends FeathersControl {
 
 	private var _caretSkin:RectangleSkin;
 
+	private var _wordWrap:Bool = false;
+
+	/**
+		Determines if the line wraps or scrolls horizontally.
+	**/
+	@:flash.property
+	public var wordWrap(get, set):Bool;
+
+	private function get_wordWrap():Bool {
+		return _wordWrap;
+	}
+
+	private function set_wordWrap(value:Bool):Bool {
+		if (_wordWrap == value) {
+			return _wordWrap;
+		}
+		_wordWrap = value;
+		setInvalid(DATA);
+		return _wordWrap;
+	}
+
 	/**
 		Determines if an embedded font is used for the text displayed by the
 		text line renderer.
@@ -773,8 +794,27 @@ class TextLineRenderer extends FeathersControl {
 			// after text
 			return _mainTextField.text.length;
 		}
-		// Get a line through the middle of the text field for y
-		var renderedCharIndexAtPoint = _mainTextField.getCharIndexAtPoint(localX - _mainTextField.x, actualHeight / 2.0);
+		var mainTextFieldX = localX - _mainTextField.x;
+		var mainTextFieldY = localY - _mainTextField.y;
+		// getCharIndexAtPoint() may return -1 if the point is within the
+		// gutters at the top/right/bottom/left edges of the text field
+		if (mainTextFieldX < 3.0) {
+			mainTextFieldX = 3.0;
+		} else {
+			var maxMainTextFieldX = _mainTextField.width - 3.0;
+			if (mainTextFieldX > maxMainTextFieldX) {
+				mainTextFieldX = maxMainTextFieldX;
+			}
+		}
+		if (mainTextFieldY < 2.0) {
+			mainTextFieldY = 2.0;
+		} else {
+			var maxMainTextFieldY = _mainTextField.height - 2.0;
+			if (mainTextFieldY > maxMainTextFieldY) {
+				mainTextFieldY = maxMainTextFieldY;
+			}
+		}
+		var renderedCharIndexAtPoint = _mainTextField.getCharIndexAtPoint(mainTextFieldX, mainTextFieldY);
 		if (renderedCharIndexAtPoint != -1 && returnNextAfterCenter) {
 			var bounds = _mainTextField.getCharBoundaries(renderedCharIndexAtPoint);
 			var center = _gutterWidth + bounds.x + (bounds.width / 2.0);
@@ -810,6 +850,7 @@ class TextLineRenderer extends FeathersControl {
 	override private function update():Void {
 		var dataInvalid = isInvalid(DATA);
 		var scrollInvalid = isInvalid(SCROLL);
+		var sizeInvalid = isInvalid(SIZE);
 		var stateInvalid = isInvalid(STATE);
 		var stylesInvalid = isInvalid(STYLES);
 
@@ -847,12 +888,8 @@ class TextLineRenderer extends FeathersControl {
 			refreshGutterWidth();
 		}
 
-		if (dataInvalid || stateInvalid || stylesInvalid) {
-			refreshCaretPosition();
-		}
-
-		if (stateInvalid || stylesInvalid) {
-			refreshSelectionPosition();
+		if (dataInvalid || stylesInvalid || sizeInvalid) {
+			refreshWordWrap();
 		}
 
 		measure();
@@ -1295,10 +1332,19 @@ class TextLineRenderer extends FeathersControl {
 			}
 		}
 		var renderedCaretIndex = textIndexToRenderedIndex(adjustedCaretIndex);
-		var bounds = _mainTextField.getCharBoundaries(renderedCaretIndex);
 		var caretX = _gutterWidth;
 		var caretY = _mainTextField.y;
-		var caretHeight = _mainTextField.height;
+		var caretHeight = 0.0;
+		var bounds = _mainTextField.getCharBoundaries(renderedCaretIndex);
+		if (bounds == null && renderedCaretIndex > 0) {
+			// probably unrendered whitespace at the end of the line
+			// try to get the previous character instead
+			bounds = _mainTextField.getCharBoundaries(renderedCaretIndex - 1);
+			if (bounds != null) {
+				bounds.x += bounds.width;
+				bounds.width = 0.0;
+			}
+		}
 		if (bounds != null) {
 			caretX += bounds.x;
 			caretY += bounds.y;
@@ -1310,6 +1356,8 @@ class TextLineRenderer extends FeathersControl {
 					caretX += bounds.width;
 				}
 			}
+		} else {
+			caretHeight = _mainTextField.getLineMetrics(0).height;
 		}
 		_caretSkin.x = caretX;
 		_caretSkin.y = caretY;
@@ -1365,8 +1413,17 @@ class TextLineRenderer extends FeathersControl {
 			selectionWidth = _mainTextField.width;
 		}
 		_currentSelectedTextBackgroundSkin.width = selectionWidth;
-		_currentSelectedTextBackgroundSkin.height = startBounds.height;
+		_currentSelectedTextBackgroundSkin.height = endBounds.y + endBounds.height - startBounds.y;
 		_currentSelectedTextBackgroundSkin.visible = true;
+	}
+
+	private function refreshWordWrap():Void {
+		if (explicitWidth != null && _wordWrap) {
+			_mainTextField.width = explicitWidth - _gutterWidth;
+			_mainTextField.wordWrap = _wordWrap;
+		} else {
+			_mainTextField.wordWrap = false;
+		}
 	}
 
 	private function layoutContent():Void {
@@ -1398,10 +1455,6 @@ class TextLineRenderer extends FeathersControl {
 			_currentBackgroundSkin.y = 0.0;
 		}
 
-		_lineNumberTextField.visible = _showLineNumbers;
-		_lineNumberTextField.x = gutterStartX + _gutterWidth - _lineNumberTextField.width - gutterPaddingRight;
-		_lineNumberTextField.y = (actualHeight - _lineNumberTextField.height) / 2.0;
-
 		if (_currentBreakpointSkin != null) {
 			_currentBreakpointSkin.visible = _allowToggleBreakpoints && _breakpoint;
 			if ((_currentBreakpointSkin is IValidating)) {
@@ -1411,9 +1464,30 @@ class TextLineRenderer extends FeathersControl {
 			_currentBreakpointSkin.y = (actualHeight - _currentBreakpointSkin.height) / 2.0;
 		}
 
+		_lineNumberTextField.visible = _showLineNumbers;
+		_lineNumberTextField.x = gutterStartX + _gutterWidth - _lineNumberTextField.width - gutterPaddingRight;
+
 		_mainTextField.x = _gutterWidth;
-		_mainTextField.y = (actualHeight - _mainTextField.height) / 2.0;
 		_mainTextField.width = actualWidth - _gutterWidth;
+
+		// baselines of the line number text field and the first line of the
+		// main text field should align
+		var mainTextFieldHeight = _mainTextField.height;
+		var lineNumberTextFieldHeight = _lineNumberTextField.height;
+		if (mainTextFieldHeight == lineNumberTextFieldHeight) {
+			_mainTextField.y = (actualHeight - mainTextFieldHeight) / 2.0;
+			_lineNumberTextField.y = _mainTextField.y;
+		} else if (mainTextFieldHeight > lineNumberTextFieldHeight) {
+			_mainTextField.y = (actualHeight - mainTextFieldHeight) / 2.0;
+			_lineNumberTextField.y = _mainTextField.y + _mainTextField.getLineMetrics(0).ascent - _lineNumberTextField.getLineMetrics(0).ascent;
+		} else {
+			_lineNumberTextField.y = (actualHeight - _lineNumberTextField.height) / 2.0;
+			_mainTextField.y = _lineNumberTextField.y + _lineNumberTextField.getLineMetrics(0).ascent - _mainTextField.getLineMetrics(0).ascent;
+		}
+
+		refreshCaretPosition();
+
+		refreshSelectionPosition();
 	}
 
 	private function refreshCaretTimer():Void {

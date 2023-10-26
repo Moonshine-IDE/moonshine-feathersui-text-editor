@@ -109,6 +109,8 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 
 	private var _listView:ListView;
 
+	private var _layout:VerticalListLayout;
+
 	@:dox(hide)
 	@:flash.property
 	public var stageFocusTarget(get, never):InteractiveObject;
@@ -144,6 +146,9 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		_lineDelimiter = value;
 		return _lineDelimiter;
 	}
+
+	private var _measurementTextLineRenderer:TextLineRenderer;
+	private var _measurementTextLineModel:TextLineModel = new TextLineModel("a", 5);
 
 	private var _lines:ArrayCollection<TextLineModel>;
 
@@ -345,6 +350,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			return lineScrollY;
 		}
 		_lineScrollY = value;
+		// TODO: multiply by lineHeight works only when wordWrap is disabled
 		_scrollY = _lineScrollY * _lineHeight;
 		setInvalid(SCROLL);
 		return _lineScrollY;
@@ -458,7 +464,8 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	private var _lineHeight:Float = 0.0;
 
 	/**
-		The height of each line, measured in pixels.
+		The height of each line, measured in pixels, if `wordWrap` is `false`.
+		When `wordWrap` is `true`, lines may have different heights.
 	**/
 	@:flash.property
 	public var lineHeight(get, never):Float;
@@ -817,6 +824,31 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		return _textLineModelFactory;
 	}
 
+	private var _wordWrap:Bool = false;
+
+	/**
+		Determines if the lines wrap or scroll horizontally.
+
+		**Warning:** The `wordWrap` property is currently supported only when
+		the `readOnly` property is `true`.
+	**/
+	@:flash.property
+	public var wordWrap(get, set):Bool;
+
+	private function get_wordWrap():Bool {
+		return _wordWrap;
+	}
+
+	private function set_wordWrap(value:Bool):Bool {
+		if (_wordWrap == value) {
+			return _wordWrap;
+		}
+		_wordWrap = value;
+		setInvalid(DATA);
+		_lines.updateAll();
+		return _wordWrap;
+	}
+
 	/**
 		Defines sets of brackets for the current language.
 
@@ -901,6 +933,10 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			return _textLineRendererFactory;
 		}
 		_textLineRendererFactory = value;
+		if (_measurementTextLineRenderer != null) {
+			destroyTextLineRenderer(_measurementTextLineRenderer);
+		}
+		_measurementTextLineRenderer = createTextLineRenderer();
 		setInvalid(STYLES);
 		return _textLineRendererFactory;
 	}
@@ -1301,7 +1337,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		`TextEditorPosition` object.
 	**/
 	public function localToTextEditorPosition(localXY:Point, forSelection:Bool = false):TextEditorPosition {
-		var lineIndex = Std.int((localXY.y + _listView.scrollY) / lineHeight);
+		var lineIndex = localToTextLineIndex(localXY, forSelection);
 		if (forSelection) {
 			lineIndex = Std.int(Math.max(0, Math.min(_lines.length - 1, lineIndex)));
 		} else if (lineIndex < 0 || lineIndex >= _lines.length) {
@@ -1314,7 +1350,15 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		if (textLineRenderer != null) {
 			var rendererXY = textLineRenderer.globalToLocal(localToGlobal(localXY));
 			if (forSelection) {
-				charIndex = textLineRenderer.getSelectionCharIndexAtPoint(rendererXY.x, rendererXY.y);
+				if (lineIndex == 0 && rendererXY.y < 0) {
+					// above the first line
+					charIndex = 0;
+				} else if (lineIndex == (_lines.length - 1) && rendererXY.y > textLineRenderer.height) {
+					// below the last line
+					charIndex = line.text.length;
+				} else {
+					charIndex = textLineRenderer.getSelectionCharIndexAtPoint(rendererXY.x, rendererXY.y);
+				}
 			} else {
 				charIndex = textLineRenderer.getCharIndexAtPoint(rendererXY.x, rendererXY.y);
 			}
@@ -1324,6 +1368,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			updateTextLineRenderer(textLineRenderer, state);
 			textLineRenderer.validateNow();
 			var rendererX = localXY.x - _viewPortVisibleBounds.x;
+			// TODO: multiply by lineHeight works only when wordWrap is disabled
 			var rendererY = localXY.y - _viewPortVisibleBounds.y - (lineIndex * _lineHeight);
 			if (forSelection) {
 				charIndex = textLineRenderer.getSelectionCharIndexAtPoint(rendererX, rendererY);
@@ -1334,7 +1379,9 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			destroyTextLineRenderer(textLineRenderer);
 		}
 		if (charIndex == -1) {
-			return null;
+			// not ideal that we don't have a character index, but at least the
+			// line index will be correct
+			return new TextEditorPosition(lineIndex, line.text.length);
 		}
 		return new TextEditorPosition(lineIndex, charIndex);
 	}
@@ -1419,12 +1466,15 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	}
 
 	override private function initialize():Void {
+		if (_layout == null) {
+			_layout = new VerticalListLayout();
+			_layout.contentJustify = !_wordWrap;
+		}
 		if (_listView == null) {
 			_listView = new TextEditorListView();
-			var layout = new VerticalListLayout();
-			layout.contentJustify = true;
-			_listView.layout = layout;
+			_listView.layout = _layout;
 			_listView.scrollX = _scrollX;
+			// TODO: multiply by lineHeight works only when wordWrap is disabled
 			_listView.scrollY = _lineScrollY * _lineHeight;
 			_listView.addEventListener(ScrollEvent.SCROLL, textEditor_listView_scrollHandler);
 			_listView.addEventListener(FocusEvent.FOCUS_IN, textEditor_listView_focusInHandler);
@@ -1435,6 +1485,9 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			_listView.itemRendererRecycler = DisplayObjectRecycler.withFunction(createTextLineRenderer, updateTextLineRenderer, resetTextLineRenderer,
 				destroyTextLineRenderer);
 			#end
+		}
+		if (_measurementTextLineRenderer == null) {
+			_measurementTextLineRenderer = createTextLineRenderer();
 		}
 	}
 
@@ -1454,8 +1507,46 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		return getTextLineRendererAtIndex(pos.line);
 	}
 
-	private function localToTextLineRenderer(localXY:Point):TextLineRenderer {
-		var lineIndex = Std.int((localXY.y + _listView.scrollY) / lineHeight);
+	private function localToTextLineIndex(localXY:Point, forSelection:Bool = false):Int {
+		var lineIndex = -1;
+		if (_wordWrap) {
+			var listViewPortY = localXY.y + _listView.scrollY;
+			for (i in 0..._lines.length) {
+				var textLineRenderer = _listView.indexToItemRenderer(i);
+				if (textLineRenderer == null) {
+					// if there's no line renderer, then it can't be this line
+					continue;
+				}
+				var minPosY = textLineRenderer.y;
+				if (listViewPortY < minPosY) {
+					// it can't be this line or any of the following lines
+					break;
+				}
+				var maxPosY = minPosY + textLineRenderer.height;
+				if (listViewPortY > maxPosY) {
+					// we're beyond this line, so it can't be this one,
+					// but we'll allow the final line for selection
+					if (forSelection && i == _lines.length - 1) {
+						lineIndex = i;
+					}
+					continue;
+				}
+				lineIndex = i;
+				break;
+			}
+			// if it's for selection, but we didn't find a line, default to 0
+			if (forSelection && lineIndex == -1) {
+				lineIndex = 0;
+			}
+		} else {
+			// if all lines are the same height, it's easier to calculate
+			lineIndex = Std.int((localXY.y + _listView.scrollY) / lineHeight);
+		}
+		return lineIndex;
+	}
+
+	private function localToTextLineRenderer(localXY:Point, forSelection:Bool = false):TextLineRenderer {
+		var lineIndex = localToTextLineIndex(localXY, forSelection);
 		return getTextLineRendererAtIndex(lineIndex);
 	}
 
@@ -1495,6 +1586,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		itemRenderer.showLineNumbers = _showLineNumbers;
 		itemRenderer.lineNumberWidth = lineNumberWidth;
 		itemRenderer.embedFonts = embedFonts;
+		itemRenderer.wordWrap = _wordWrap;
 		itemRenderer.searchResult = _searchResult;
 		itemRenderer.highlightAllFindResults = highlightAllFindResults;
 		if (_selectionStartLineIndex != _selectionEndLineIndex) {
@@ -1689,6 +1781,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 
 		if (dataInvalid) {
 			_listView.dataProvider = _lines;
+			_layout.contentJustify = !_wordWrap;
 		}
 
 		if (stylesInvalid) {
@@ -1704,6 +1797,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			_listView.itemRendererRecycler = DisplayObjectRecycler.withFunction(createTextLineRenderer, updateTextLineRenderer, resetTextLineRenderer,
 				destroyTextLineRenderer);
 			#end
+			updateTextLineRendererFromModel(_measurementTextLineRenderer, _measurementTextLineModel);
 		}
 
 		layoutContent();
@@ -1744,22 +1838,20 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		_viewPortVisibleBounds.x += _listView.x;
 		_viewPortVisibleBounds.y += _listView.y;
 
-		var firstLine:TextLineRenderer = null;
-		if (_lineScrollY >= 0 && _lineScrollY < _lines.length) {
-			firstLine = cast(_listView.itemToItemRenderer(_lines.get(_lineScrollY)), TextLineRenderer);
-		}
+		_measurementTextLineRenderer.validateNow();
 
-		if (_lines.length == 0 || firstLine == null || firstLine.height == 0.0) {
+		if (_lines.length == 0 || _measurementTextLineRenderer == null || _measurementTextLineRenderer.height == 0.0) {
 			// don't want to divide by zero
 			_lineHeight = 0.0;
 			_visibleLines = 1;
 			_maxLineScrollY = 0;
 			_gutterWidth = 0.0;
 		} else {
-			_lineHeight = firstLine.height;
+			_lineHeight = _measurementTextLineRenderer.height;
+			// TODO: divide by lineHeight works only when wordWrap is disabled
 			_visibleLines = Std.int(_viewPortVisibleBounds.height / _lineHeight);
 			_maxLineScrollY = Std.int(Math.max(_visibleLines, _lines.length)) - _visibleLines;
-			_gutterWidth = firstLine.gutterWidth;
+			_gutterWidth = _measurementTextLineRenderer.gutterWidth;
 		}
 	}
 
@@ -1802,6 +1894,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			// don't want to divide by zero
 			return 0;
 		}
+		// TODO: divide by lineHeight works only when wordWrap is disabled
 		var floatLineScrollY = _scrollY / _lineHeight;
 		var roundedLineScrollY = Math.round(floatLineScrollY);
 		// correcting for intermittent floating point error
