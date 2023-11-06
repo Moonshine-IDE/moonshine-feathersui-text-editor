@@ -423,8 +423,7 @@ class SelectionManager {
 				// Ensure the caret stays in view (unless there's active selection)
 				if (!_textEditor.hasSelection && _textEditor.caretLineIndex > (_textEditor.lineScrollY + _textEditor.visibleLines - 2)) {
 					var newLineIndex = _textEditor.lineScrollY + _textEditor.visibleLines - 2;
-					_textEditor.setSelectionAdvanced(newLineIndex, _textEditor.expandedCaretCharIndex, newLineIndex, _textEditor.expandedCaretCharIndex,
-						false);
+					_textEditor.setSelectionAdvanced(newLineIndex, _textEditor.expandedCaretCharIndex, newLineIndex, _textEditor.expandedCaretCharIndex, false);
 				}
 				_textEditor.lineScrollY = _textEditor.lineScrollY - 1;
 			}
@@ -468,8 +467,7 @@ class SelectionManager {
 				// Ensure the caret stays in view (unless there's active selection)
 				if (!_textEditor.hasSelection && _textEditor.caretLineIndex < _textEditor.lineScrollY + 1) {
 					var newLineIndex = _textEditor.lineScrollY + 1;
-					_textEditor.setSelectionAdvanced(newLineIndex, _textEditor.expandedCaretCharIndex, newLineIndex, _textEditor.expandedCaretCharIndex,
-						false);
+					_textEditor.setSelectionAdvanced(newLineIndex, _textEditor.expandedCaretCharIndex, newLineIndex, _textEditor.expandedCaretCharIndex, false);
 				}
 				_textEditor.lineScrollY = _textEditor.lineScrollY + 1;
 			}
@@ -581,6 +579,8 @@ class SelectionManager {
 	private var _lastClickPos:Point;
 
 	private function selectionManager_textEditor_mouseDownHandler(event:MouseEvent):Void {
+		_textEditor.validateNow();
+
 		var localPoint = new Point(_textEditor.mouseX, _textEditor.mouseY);
 
 		var viewPortVisibleBounds = _textEditor.getViewPortVisibleBounds();
