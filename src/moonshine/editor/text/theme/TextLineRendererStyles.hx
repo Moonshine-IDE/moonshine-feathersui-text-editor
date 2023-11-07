@@ -54,11 +54,15 @@ class TextLineRendererStyles {
 				if (view.debuggerStoppedBackgroundSkin == null) {
 					view.debuggerStoppedBackgroundSkin = new RectangleSkin(SolidColor(0xffffcc));
 				}
-				if (view.selectedTextBackgroundSkin == null) {
-					view.selectedTextBackgroundSkin = new RectangleSkin(SolidColor(0xcfe1f7, 0.85));
+				if (view.selectedTextBackgroundSkinFactory == null) {
+					view.selectedTextBackgroundSkinFactory = () -> {
+						return new RectangleSkin(SolidColor(0xcfe1f7, 0.85));
+					};
 				}
-				if (view.selectedTextUnfocusedBackgroundSkin == null) {
-					view.selectedTextUnfocusedBackgroundSkin = new RectangleSkin(SolidColor(0xcfe1f7, 0.75));
+				if (view.selectedTextUnfocusedBackgroundSkinFactory == null) {
+					view.selectedTextUnfocusedBackgroundSkinFactory = () -> {
+						return new RectangleSkin(SolidColor(0xcfe1f7, 0.75));
+					};
 				}
 				if (view.gutterBackgroundSkin == null) {
 					var gutterBackgroundSkin = new RectangleSkin(SolidColor(0xfdfdfd));

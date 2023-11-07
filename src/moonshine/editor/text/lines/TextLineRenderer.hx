@@ -434,20 +434,35 @@ class TextLineRenderer extends FeathersControl {
 	@:style
 	public var debuggerStoppedBackgroundSkin:DisplayObject = null;
 
-	private var _currentSelectedTextBackgroundSkin:DisplayObject;
+	private var _selectedTextSkinsAreFocused:Bool = false;
+	private var _selectedTextBackgroundSkins:Array<DisplayObject> = [];
 
 	/**
 		The background skin to display behind selected text.
 	**/
 	@:style
+	@:deprecated
 	public var selectedTextBackgroundSkin:DisplayObject = null;
+
+	/**
+		Creates background skins to display behind selected text.
+	**/
+	@:style
+	public var selectedTextBackgroundSkinFactory:() -> DisplayObject = null;
 
 	/**
 		The background skin to display behind selected text when the text line
 		renderer is not focused.
 	**/
 	@:style
+	@:deprecated
 	public var selectedTextUnfocusedBackgroundSkin:DisplayObject = null;
+
+	/**
+		Creates background skins to display behind selected text.
+	**/
+	@:style
+	public var selectedTextUnfocusedBackgroundSkinFactory:() -> DisplayObject = null;
 
 	/**
 		Creates background skins for search results.
@@ -867,10 +882,6 @@ class TextLineRenderer extends FeathersControl {
 			refreshBreakpointSkin();
 		}
 
-		if (stylesInvalid || stateInvalid) {
-			refreshSelectedTextBackgroundSkin();
-		}
-
 		if (stylesInvalid) {
 			refreshCaretSkin();
 		}
@@ -895,10 +906,6 @@ class TextLineRenderer extends FeathersControl {
 		measure();
 
 		layoutContent();
-
-		if (dataInvalid || stateInvalid || stylesInvalid) {
-			refreshSearchResultBackgroundSkins();
-		}
 	}
 
 	private function measure():Bool {
@@ -1250,6 +1257,9 @@ class TextLineRenderer extends FeathersControl {
 		if (difference < 0) {
 			for (i in 0... - difference) {
 				var skin = _searchResultBackgroundSkins.pop();
+				if ((skin is IProgrammaticSkin)) {
+					cast(skin, IProgrammaticSkin).uiContext = null;
+				}
 				removeChild(skin);
 			}
 		}
@@ -1258,7 +1268,10 @@ class TextLineRenderer extends FeathersControl {
 		}
 		// display below the selected text, but if that doesn't exist, below the
 		// text field instead
-		var index = (_currentSelectedTextBackgroundSkin != null) ? getChildIndex(_currentSelectedTextBackgroundSkin) : getChildIndex(_mainTextField);
+		var index = getChildIndex(_mainTextField);
+		if (_selectedTextBackgroundSkins.length > 0) {
+			index++;
+		}
 		for (i in 0...skinsCount) {
 			var result = _currentSearchResults[i];
 
@@ -1274,6 +1287,9 @@ class TextLineRenderer extends FeathersControl {
 				skin = searchResultBackgroundSkinFactory();
 				_searchResultBackgroundSkins[i] = skin;
 				addChildAt(skin, index);
+				if ((skin is IProgrammaticSkin)) {
+					cast(skin, IProgrammaticSkin).uiContext = this;
+				}
 			}
 			skin.x = _mainTextField.x + startBounds.x;
 			skin.y = _mainTextField.y + startBounds.y;
@@ -1282,34 +1298,173 @@ class TextLineRenderer extends FeathersControl {
 		}
 	}
 
-	private function refreshSelectedTextBackgroundSkin():Void {
-		var oldSkin = _currentSelectedTextBackgroundSkin;
-		_currentSelectedTextBackgroundSkin = getCurrentSelectedTextBackgroundSkin();
-		if (oldSkin == _currentSelectedTextBackgroundSkin) {
-			return;
-		}
-		if (oldSkin != null) {
-			if ((oldSkin is IProgrammaticSkin)) {
-				cast(oldSkin, IProgrammaticSkin).uiContext = null;
+	private function refreshSelectedTextBackgroundSkins():Void {
+		if (_selectedTextSkinsAreFocused != _textEditorHasFocus) {
+			// switch between focused and unfocused skins
+			for (i in 0..._selectedTextBackgroundSkins.length) {
+				var skin = _selectedTextBackgroundSkins.shift();
+				if ((skin is IProgrammaticSkin)) {
+					cast(skin, IProgrammaticSkin).uiContext = null;
+				}
+				removeChild(skin);
 			}
-			removeChild(oldSkin);
 		}
-		if (_currentSelectedTextBackgroundSkin == null) {
+		_selectedTextSkinsAreFocused = _textEditorHasFocus;
+		var selectedTextBackgroundSkinForCurrentFocusState = selectedTextBackgroundSkin;
+		if (!_textEditorHasFocus && selectedTextUnfocusedBackgroundSkin != null) {
+			selectedTextBackgroundSkinForCurrentFocusState = selectedTextUnfocusedBackgroundSkin;
+		}
+		var selectedTextBackgroundSkinFactoryForCurrentFocusState = selectedTextBackgroundSkinFactory;
+		if (!_textEditorHasFocus && selectedTextUnfocusedBackgroundSkinFactory != null) {
+			selectedTextBackgroundSkinFactoryForCurrentFocusState = selectedTextUnfocusedBackgroundSkinFactory;
+		}
+
+		var renderedStartIndex = -1;
+		var renderedEndIndex = -1;
+		var startSubLineIndex = 0;
+		var endSubLineIndex = 0;
+		var skinsCount = 0;
+		var renderedTextLength = _mainTextField.text.length;
+		var textLength = _text != null ? _text.length : 0;
+		if (_selectionStartIndex != -1
+			&& _selectionEndIndex != -1
+			&& (selectedTextBackgroundSkinFactoryForCurrentFocusState != null || selectedTextBackgroundSkinForCurrentFocusState != null)) {
+			var adjustedStartIndex = (_selectionStartIndex < _selectionEndIndex) ? _selectionStartIndex : _selectionEndIndex;
+			if (adjustedStartIndex > textLength) {
+				adjustedStartIndex = textLength;
+			}
+			var adjustedEndIndex = (_selectionStartIndex < _selectionEndIndex) ? _selectionEndIndex : _selectionStartIndex;
+			if (adjustedEndIndex > textLength) {
+				adjustedEndIndex = textLength;
+			}
+
+			renderedStartIndex = textIndexToRenderedIndex(adjustedStartIndex);
+			renderedEndIndex = textIndexToRenderedIndex(adjustedEndIndex);
+			if (_wordWrap) {
+				if (renderedStartIndex == renderedTextLength) {
+					startSubLineIndex = _mainTextField.getLineIndexOfChar(renderedStartIndex - 1);
+				} else {
+					startSubLineIndex = _mainTextField.getLineIndexOfChar(renderedStartIndex);
+				}
+				if (renderedEndIndex == renderedTextLength) {
+					endSubLineIndex = _mainTextField.getLineIndexOfChar(renderedEndIndex - 1);
+				} else {
+					endSubLineIndex = _mainTextField.getLineIndexOfChar(renderedEndIndex);
+				}
+				skinsCount = endSubLineIndex - startSubLineIndex + 1;
+			} else {
+				skinsCount = 1;
+			}
+		}
+		var difference = skinsCount - _selectedTextBackgroundSkins.length;
+		if (difference < 0) {
+			for (i in 0... - difference) {
+				var skin = _selectedTextBackgroundSkins.pop();
+				if ((skin is IProgrammaticSkin)) {
+					cast(skin, IProgrammaticSkin).uiContext = null;
+				}
+				removeChild(skin);
+			}
+		}
+		if (skinsCount == 0) {
 			return;
 		}
-		// display directly below the text field
-		var index = getChildIndex(_mainTextField);
-		addChildAt(_currentSelectedTextBackgroundSkin, index);
-		if ((_currentSelectedTextBackgroundSkin is IProgrammaticSkin)) {
-			cast(_currentSelectedTextBackgroundSkin, IProgrammaticSkin).uiContext = this;
-		}
-	}
 
-	private function getCurrentSelectedTextBackgroundSkin():DisplayObject {
-		if (!_textEditorHasFocus && selectedTextUnfocusedBackgroundSkin != null) {
-			return selectedTextUnfocusedBackgroundSkin;
+		// display below the text field
+		var index = getChildIndex(_mainTextField);
+		var currentSubLineStartIndex = startSubLineIndex > 0 ? _mainTextField.getLineOffset(startSubLineIndex) : startSubLineIndex;
+		for (i in 0...skinsCount) {
+			var skin:DisplayObject = null;
+			if (i < _selectedTextBackgroundSkins.length) {
+				skin = _selectedTextBackgroundSkins[i];
+			} else if (selectedTextBackgroundSkinFactoryForCurrentFocusState != null) {
+				skin = selectedTextBackgroundSkinFactoryForCurrentFocusState();
+				_selectedTextBackgroundSkins[i] = skin;
+				addChildAt(skin, index);
+				if ((skin is IProgrammaticSkin)) {
+					cast(skin, IProgrammaticSkin).uiContext = this;
+				}
+			} else {
+				if (selectedTextBackgroundSkinForCurrentFocusState.parent == null) {
+					skin = selectedTextBackgroundSkinForCurrentFocusState;
+					_selectedTextBackgroundSkins[i] = skin;
+					addChildAt(skin, index);
+					if ((skin is IProgrammaticSkin)) {
+						cast(skin, IProgrammaticSkin).uiContext = this;
+					}
+				} else {
+					// already used the only available skin
+					// should have set selectedTextBackgroundSkinFactory instead
+					continue;
+				}
+			}
+
+			var currentSubLineLength = (textLength > 0) ? renderedTextLength : 0;
+			if (_wordWrap && textLength > 0) {
+				currentSubLineLength = _mainTextField.getLineLength(startSubLineIndex + i);
+			}
+
+			var currentSubLineRenderedStartIndex = renderedStartIndex;
+			if (currentSubLineRenderedStartIndex < currentSubLineStartIndex) {
+				currentSubLineRenderedStartIndex = currentSubLineStartIndex;
+			}
+			var currentSubLineMaxRenderedIndex = currentSubLineStartIndex + currentSubLineLength;
+			var currentSubLineRenderedEndIndex = renderedEndIndex;
+			if (currentSubLineRenderedEndIndex > currentSubLineMaxRenderedIndex) {
+				currentSubLineRenderedEndIndex = currentSubLineMaxRenderedIndex;
+			}
+			var needsEndOffset = false;
+			if (currentSubLineRenderedEndIndex >= currentSubLineMaxRenderedIndex) {
+				needsEndOffset = true;
+				if (currentSubLineLength > 0) {
+					currentSubLineRenderedEndIndex = currentSubLineMaxRenderedIndex - 1;
+				} else {
+					currentSubLineRenderedEndIndex = 0;
+				}
+			}
+
+			var startBounds = _mainTextField.getCharBoundaries(currentSubLineRenderedStartIndex);
+			if (startBounds == null && currentSubLineRenderedStartIndex > 0) {
+				// probably unrendered whitespace at the end of the line
+				// try to get the previous character instead
+				startBounds = _mainTextField.getCharBoundaries(currentSubLineRenderedStartIndex - 1);
+				if (startBounds != null) {
+					startBounds.x += startBounds.width;
+					startBounds.width = 0.0;
+				}
+			}
+			var endBounds = _mainTextField.getCharBoundaries(currentSubLineRenderedEndIndex);
+			if (endBounds == null && currentSubLineRenderedEndIndex > 0) {
+				// probably unrendered whitespace at the end of the line
+				// try to get the previous character instead
+				endBounds = _mainTextField.getCharBoundaries(currentSubLineRenderedEndIndex - 1);
+				if (endBounds != null) {
+					endBounds.x += endBounds.width;
+					endBounds.width = 0.0;
+				}
+			}
+			if (startBounds == null || endBounds == null) {
+				// not ideal, but better to avoid a crash
+				skin.visible = false;
+				currentSubLineStartIndex += currentSubLineLength;
+				continue;
+			}
+
+			var endOffsetX = needsEndOffset ? endBounds.width : 0.0;
+
+			skin.x = _gutterWidth + startBounds.x;
+			skin.y = _mainTextField.y + startBounds.y;
+			var selectionWidth = (endBounds.x + endOffsetX) - startBounds.x;
+			if (currentSubLineLength == 0 && currentSubLineRenderedStartIndex == currentSubLineRenderedEndIndex) {
+				// ensure that the width isn't 0 so that something is visible
+				selectionWidth = _mainTextField.width;
+			}
+			skin.width = selectionWidth;
+			skin.height = endBounds.y + endBounds.height - startBounds.y;
+			skin.visible = true;
+
+			currentSubLineStartIndex += currentSubLineLength;
 		}
-		return selectedTextBackgroundSkin;
 	}
 
 	private function refreshCaretPosition():Void {
@@ -1322,7 +1477,7 @@ class TextLineRenderer extends FeathersControl {
 			_caretX = 0.0;
 			return;
 		}
-		var textLength = _text.length;
+		var textLength = _text != null ? _text.length : 0;
 		var adjustedCaretIndex = _caretIndex;
 		if (_caretIndex >= textLength) {
 			if (textLength > 0) {
@@ -1366,59 +1521,8 @@ class TextLineRenderer extends FeathersControl {
 		_caretX = _caretSkin.x;
 	}
 
-	private function refreshSelectionPosition():Void {
-		if (_currentSelectedTextBackgroundSkin == null) {
-			return;
-		}
-		if (_selectionStartIndex == -1 || _selectionEndIndex == -1) {
-			_currentSelectedTextBackgroundSkin.visible = false;
-			return;
-		}
-		var textLength = _text.length;
-
-		var startIndex = (_selectionStartIndex < _selectionEndIndex) ? _selectionStartIndex : _selectionEndIndex;
-		var adjustedStartIndex = startIndex;
-		if (startIndex >= textLength) {
-			if (textLength > 0) {
-				adjustedStartIndex = textLength - 1;
-			} else {
-				adjustedStartIndex = 0;
-			}
-		}
-		var endIndex = (_selectionStartIndex < _selectionEndIndex) ? _selectionEndIndex : _selectionStartIndex;
-		var adjustedEndIndex = endIndex;
-		if (endIndex >= textLength) {
-			if (textLength > 0) {
-				adjustedEndIndex = textLength - 1;
-			} else {
-				adjustedEndIndex = 0;
-			}
-		}
-
-		var renderedStartIndex = textIndexToRenderedIndex(adjustedStartIndex);
-		var renderedEndIndex = textIndexToRenderedIndex(adjustedEndIndex);
-		var startBounds = _mainTextField.getCharBoundaries(renderedStartIndex);
-		var endBounds = _mainTextField.getCharBoundaries(renderedEndIndex);
-		if (startBounds == null || endBounds == null) {
-			_currentSelectedTextBackgroundSkin.visible = false;
-			return;
-		}
-		var startOffsetX = (textLength > 0 && startIndex > adjustedStartIndex) ? startBounds.width : 0.0;
-		var endOffsetX = (textLength > 0 && endIndex > adjustedEndIndex) ? endBounds.width : 0.0;
-		_currentSelectedTextBackgroundSkin.x = _gutterWidth + startBounds.x + startOffsetX;
-		_currentSelectedTextBackgroundSkin.y = _mainTextField.y + startBounds.y;
-		var selectionWidth = (endBounds.x + endOffsetX) - (startBounds.x + startOffsetX);
-		if (textLength == 0 && renderedStartIndex == renderedEndIndex) {
-			// ensure that the width isn't 0 so that something is visible
-			selectionWidth = _mainTextField.width;
-		}
-		_currentSelectedTextBackgroundSkin.width = selectionWidth;
-		_currentSelectedTextBackgroundSkin.height = endBounds.y + endBounds.height - startBounds.y;
-		_currentSelectedTextBackgroundSkin.visible = true;
-	}
-
 	private function refreshWordWrap():Void {
-		if (explicitWidth != null && _wordWrap) {
+		if (explicitWidth != null && _wordWrap && _text.length > 0) {
 			_mainTextField.width = explicitWidth - _gutterWidth;
 			_mainTextField.wordWrap = _wordWrap;
 		} else {
@@ -1486,8 +1590,8 @@ class TextLineRenderer extends FeathersControl {
 		}
 
 		refreshCaretPosition();
-
-		refreshSelectionPosition();
+		refreshSelectedTextBackgroundSkins();
+		refreshSearchResultBackgroundSkins();
 	}
 
 	private function refreshCaretTimer():Void {
