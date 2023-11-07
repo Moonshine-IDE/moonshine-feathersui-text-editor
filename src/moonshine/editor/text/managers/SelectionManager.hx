@@ -66,6 +66,10 @@ class SelectionManager {
 	private var _dragLocalPoint:Point;
 	private var _dragScrollTimer:Timer;
 
+	private var _clickCount:Int = 0;
+	private var _lastClickTime:Int = 0;
+	private var _lastClickPos:Point;
+
 	public var macHomeAndEndEnabled:Bool = false;
 
 	private function applyChanges(changes:Array<TextEditorChange>):Void {
@@ -573,10 +577,6 @@ class SelectionManager {
 		_textEditor.setSelection(0, 0, lastLineIndex, _textEditor.lines.get(lastLineIndex).text.length);
 		_textEditor.scrollToCaret();
 	}
-
-	private var _clickCount:Int = 0;
-	private var _lastClickTime:Int = 0;
-	private var _lastClickPos:Point;
 
 	private function selectionManager_textEditor_mouseDownHandler(event:MouseEvent):Void {
 		_textEditor.validateNow();
