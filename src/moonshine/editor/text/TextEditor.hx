@@ -752,7 +752,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 				if (breakpoint < 0 || breakpoint >= _lines.length) {
 					continue;
 				}
-				_lines.updateAt(breakpoint);
+				updateLineAtIndex(breakpoint);
 			}
 		}
 		_breakpoints = value;
@@ -761,12 +761,12 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 				if (breakpoint < 0 || breakpoint >= _lines.length) {
 					continue;
 				}
-				_lines.updateAt(breakpoint);
+				updateLineAtIndex(breakpoint);
 			}
 		}
 		setInvalid(DATA);
 		// no need to call _lines.updateAll() here because we call
-		// _lines.updateAt() above
+		// updateLineAtIndex() above
 		return _breakpoints;
 	}
 
@@ -788,15 +788,15 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			return _debuggerLineIndex;
 		}
 		if (_debuggerLineIndex >= 0 && _debuggerLineIndex < _lines.length) {
-			_lines.updateAt(_debuggerLineIndex);
+			updateLineAtIndex(_debuggerLineIndex);
 		}
 		_debuggerLineIndex = value;
 		if (_debuggerLineIndex >= 0 && _debuggerLineIndex < _lines.length) {
-			_lines.updateAt(_debuggerLineIndex);
+			updateLineAtIndex(_debuggerLineIndex);
 		}
 		setInvalid(DATA);
 		// no need to call _lines.updateAll() here because we call
-		// _lines.updateAt() above
+		// updateLineAtIndex() above
 		return _debuggerLineIndex;
 	}
 
@@ -1132,7 +1132,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		var endLine2 = _selectionEndLineIndex != -1 ? _selectionEndLineIndex : _caretLineIndex;
 		var endChar2 = _selectionEndCharIndex != -1 ? _selectionEndCharIndex : _expandedCaretCharIndex;
 		// updating only the lines that are different is fastest
-		forceUpdateRangeDiff(startLine1, startChar1, endLine1, endChar1, startLine2, startChar2, endLine2, endChar2);
+		forceUpdateRangeDiff(startLine1, startChar1, endLine1, endChar1, startLine2, startChar2, endLine2, endChar2, false);
 		#else
 		invalidateVisibleLines();
 		#end
@@ -1664,7 +1664,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	}
 
 	private function forceUpdateRangeDiff(startLine1:Int, startChar1:Int, endLine1:Int, endChar1:Int, startLine2:Int, startChar2:Int, endLine2:Int,
-			endChar2:Int) {
+			endChar2:Int, needsLayoutUpdate:Bool = false) {
 		var maxMaxLine = _lines.length - 1;
 		var minLine1 = startLine1;
 		var minChar1 = startChar1;
@@ -1707,21 +1707,33 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			}
 			if (i < minLine1 || i < minLine2 || i > maxLine1 || i > maxLine2) {
 				// line was included in one range, but not the other
-				_lines.updateAt(i);
+				if (needsLayoutUpdate) {
+					_lines.updateAt(i);
+				} else {
+					updateLineAtIndex(i);
+				}
 				continue;
 			}
 			if (i == minLine) {
 				// the minimum line from either range
 				if ((i == minLine1 && minChar != minChar1) || (i == minLine2 && minChar != minChar2)) {
 					// character on mimimum line doesn't match
-					_lines.updateAt(i);
+					if (needsLayoutUpdate) {
+						_lines.updateAt(i);
+					} else {
+						updateLineAtIndex(i);
+					}
 					continue;
 				}
 			} else {
 				if (i == minLine1 || i == minLine2) {
 					// the entire line (probably) was not selected before, but
 					// now it is because it is not the minimum anymore
-					_lines.updateAt(i);
+					if (needsLayoutUpdate) {
+						_lines.updateAt(i);
+					} else {
+						updateLineAtIndex(i);
+					}
 					continue;
 				}
 			}
@@ -1729,21 +1741,44 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 				// the maximum line from either range
 				if ((i == maxLine1 && maxChar != maxChar1) || (i == maxLine2 && maxChar != maxChar2)) {
 					// character on maximum line doesn't match
-					_lines.updateAt(i);
+					if (needsLayoutUpdate) {
+						_lines.updateAt(i);
+					} else {
+						updateLineAtIndex(i);
+					}
 					continue;
 				}
 			} else {
 				if (i == maxLine1 || i == maxLine2) {
 					// the entire line (probably) was not selected before, but
 					// now it is because it is not the maximum anymore
-					_lines.updateAt(i);
+					if (needsLayoutUpdate) {
+						_lines.updateAt(i);
+					} else {
+						updateLineAtIndex(i);
+					}
 					continue;
 				}
 			}
 		}
 	}
 
-	private function forceUpdateSelectedLines():Void {
+	private function updateLineAtIndex(index:Int):Void {
+		if (index < 0 || index >= _lines.length) {
+			return;
+		}
+		var line = _lines.get(index);
+		if (line == null) {
+			return;
+		}
+		var itemRenderer = Std.downcast(_listView.indexToItemRenderer(index), TextLineRenderer);
+		if (itemRenderer == null) {
+			return;
+		}
+		updateTextLineRendererFromModel(itemRenderer, line);
+	}
+
+	private function forceUpdateSelectedLines(needsLayoutUpdate:Bool = false):Void {
 		var maxLine = _lines.length - 1;
 		if (_selectionStartLineIndex != -1 && _selectionEndLineIndex != -1) {
 			var min = _selectionStartLineIndex;
@@ -1757,10 +1792,18 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 			}
 			max++;
 			for (i in min...max) {
-				_lines.updateAt(i);
+				if (needsLayoutUpdate) {
+					_lines.updateAt(i);
+				} else {
+					updateLineAtIndex(i);
+				}
 			}
 		} else if (_caretLineIndex != -1 && _caretLineIndex <= maxLine) {
-			_lines.updateAt(_caretLineIndex);
+			if (needsLayoutUpdate) {
+				_lines.updateAt(_caretLineIndex);
+			} else {
+				updateLineAtIndex(_caretLineIndex);
+			}
 		}
 	}
 
