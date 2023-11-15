@@ -58,7 +58,7 @@ class ContextSwitchLineParser extends EventDispatcher implements ILineParser {
 	/**
 		@see `ILineParser.parse()`
 	**/
-	public function parse(sourceCode:String):Array<Int> {
+	public function parse(sourceCode:String, startLine:Int, startChar:Int, endLine:Int, endChar:Int):Array<Int> {
 		var result:Array<Int> = [];
 		var tail = sourceCode;
 		var pos = 0;
@@ -171,7 +171,7 @@ class ContextSwitchLineParser extends EventDispatcher implements ILineParser {
 					tail = sourceCode.substring(inlinePos, inlineCutoff) + "\n";
 
 					curParser.parser.setContext(curContext & ~inlineMask);
-					var inlineResult = curParser.parser.parse(tail);
+					var inlineResult = curParser.parser.parse(tail, startLine, startChar, endLine, endChar);
 
 					// Remove old results
 					result.splice(i - 1, 2);

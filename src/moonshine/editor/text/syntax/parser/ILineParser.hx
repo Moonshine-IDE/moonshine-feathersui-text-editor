@@ -36,5 +36,5 @@ interface ILineParser {
 	/**
 		Parses the source code and returns an array of positions and contexts.
 	**/
-	function parse(sourceCode:String):Array<Int>;
+	function parse(sourceCode:String, startLine:Int, startChar:Int, endLine:Int, endChar:Int):Array<Int>;
 }

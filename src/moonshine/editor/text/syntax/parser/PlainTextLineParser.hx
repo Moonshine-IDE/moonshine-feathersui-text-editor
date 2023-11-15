@@ -46,7 +46,7 @@ class PlainTextLineParser implements ILineParser {
 	/**
 		@see `ILineParser.parse()`
 	**/
-	public function parse(sourceCode:String):Array<Int> {
+	public function parse(sourceCode:String, startLine:Int, startChar:Int, endLine:Int, endChar:Int):Array<Int> {
 		return [0, 0, sourceCode.length];
 	}
 }
