@@ -926,7 +926,10 @@ class TextLineRenderer extends FeathersControl {
 
 		var newHeight = explicitHeight;
 		if (needsHeight) {
-			newHeight = Math.max(_lineNumberTextField.height, _mainTextField.height);
+			newHeight = _mainTextField.height;
+			if (_showLineNumbers) {
+				newHeight = Math.max(newHeight, _lineNumberTextField.height);
+			}
 		}
 
 		return saveMeasurements(newWidth, newHeight);
