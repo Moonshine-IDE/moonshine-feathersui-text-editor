@@ -226,44 +226,48 @@ class CodeActionsManager {
 				}
 			}
 		}
-		var point = charBounds.topLeft;
-		if (point.x < _textEditor.gutterWidth) {
-			point.x = _textEditor.gutterWidth;
-		}
-		if (_currentOpenOnResponse) {
-			point.y += charBounds.height;
+		var visible = true;
+		if (charBounds == null) {
+			visible = false;
 		} else {
-			var indexToProtectBounds:Rectangle = null;
-			if (indexToProtect < text.length) {
-				indexToProtectBounds = _textEditor.getTextEditorPositionBoundaries(new TextEditorPosition(pos.line, indexToProtect));
-			} else if (indexToProtect == 0) {
-				indexToProtectBounds = new Rectangle(0.0, 0.0, 0.0, charBounds.height);
+			var point = charBounds.topLeft;
+			if (point.x < _textEditor.gutterWidth) {
+				point.x = _textEditor.gutterWidth;
 			}
-			if (indexToProtectBounds != null && (indexToProtectBounds.x - charBounds.x) < _codeActionsView.width) {
-				// don't cover any text that appears at the beginning of
-				// the line. if it overlaps, move to previous line.
-				point.y -= charBounds.height;
-				if (point.y < 0.0) {
-					point.y += charBounds.height * 2.0;
+			if (_currentOpenOnResponse) {
+				point.y += charBounds.height;
+			} else {
+				var indexToProtectBounds:Rectangle = null;
+				if (indexToProtect < text.length) {
+					indexToProtectBounds = _textEditor.getTextEditorPositionBoundaries(new TextEditorPosition(pos.line, indexToProtect));
+				} else if (indexToProtect == 0) {
+					indexToProtectBounds = new Rectangle(0.0, 0.0, 0.0, charBounds.height);
+				}
+				if (indexToProtectBounds != null && (indexToProtectBounds.x - charBounds.x) < _codeActionsView.width) {
+					// don't cover any text that appears at the beginning of
+					// the line. if it overlaps, move to previous line.
+					point.y -= charBounds.height;
+					if (point.y < 0.0) {
+						point.y += charBounds.height * 2.0;
+					}
 				}
 			}
-		}
 
-		var visible = true;
-		if (point.y < 0.0) {
-			visible = point.y > -(charBounds.height / 2.0);
-			point.y = 0.0;
-		} else if ((point.y + _codeActionsView.height) > _textEditor.height) {
-			visible = point.y < (_textEditor.height - charBounds.height / 2.0);
-			point.y = _textEditor.height - _codeActionsView.height;
+			if (point.y < 0.0) {
+				visible = point.y > -(charBounds.height / 2.0);
+				point.y = 0.0;
+			} else if ((point.y + _codeActionsView.height) > _textEditor.height) {
+				visible = point.y < (_textEditor.height - charBounds.height / 2.0);
+				point.y = _textEditor.height - _codeActionsView.height;
+			}
+			point = _textEditor.localToGlobal(point);
+			var popUpRoot = (_textEditor.stage != null) ? PopUpManager.forStage(_textEditor.stage).root : null;
+			if (popUpRoot != null) {
+				point = popUpRoot.globalToLocal(point);
+			}
+			_codeActionsView.x = point.x;
+			_codeActionsView.y = point.y;
 		}
-		point = _textEditor.localToGlobal(point);
-		var popUpRoot = (_textEditor.stage != null) ? PopUpManager.forStage(_textEditor.stage).root : null;
-		if (popUpRoot != null) {
-			point = popUpRoot.globalToLocal(point);
-		}
-		_codeActionsView.x = point.x;
-		_codeActionsView.y = point.y;
 		_codeActionsView.visible = visible;
 	}
 
