@@ -18,4 +18,5 @@
 	<template path="templates" if="flash"/>
 
 	<haxeflag name="--macro" value="include('moonshine.editor')"/>
+	<haxeflag name="-dce" value="no" if="flash"/>
 </project>
