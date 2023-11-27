@@ -31,7 +31,7 @@ class LineParser extends EventDispatcher implements ILineParser {
 	private var caseSensitiveKeywords:Bool = true;
 
 	// Generated based on keywords array
-	private var keywordSet:Map<String, Int>;
+	private var keywordSet:Map<String, Int> = [];
 
 	// Will start assuming this context
 	private var context:Int = 0x1;
@@ -72,12 +72,14 @@ class LineParser extends EventDispatcher implements ILineParser {
 		initializeKeywordSet();
 		result = [];
 
-		for (endPattern in endPatterns) {
-			if (endPattern.type == context) {
-				result.push(0);
-				result.push(context);
-				findContextEnd(sourceCode, endPattern.expression);
-				break;
+		if (endPatterns != null) {
+			for (endPattern in endPatterns) {
+				if (endPattern.type == context) {
+					result.push(0);
+					result.push(context);
+					findContextEnd(sourceCode, endPattern.expression);
+					break;
+				}
 			}
 		}
 
@@ -100,7 +102,10 @@ class LineParser extends EventDispatcher implements ILineParser {
 	}
 
 	private function initializeKeywordSet():Void {
-		keywordSet = [];
+		keywordSet.clear();
+		if (keywords == null) {
+			return;
+		}
 		for (keywordType in keywords.keys()) {
 			var keywordsOfType = keywords.get(keywordType);
 			for (keyword in keywordsOfType) {
@@ -127,13 +132,15 @@ class LineParser extends EventDispatcher implements ILineParser {
 		while (tail.length > 0) {
 			var token:Int = 0;
 
-			for (pattern in patterns) {
-				var expression = pattern.expression;
-				if (expression.match(tail)) {
-					token = expression.matched(0).length;
-					lastStyle = style;
-					style = pattern.type;
-					break;
+			if (patterns != null) {
+				for (pattern in patterns) {
+					var expression = pattern.expression;
+					if (expression.match(tail)) {
+						token = expression.matched(0).length;
+						lastStyle = style;
+						style = pattern.type;
+						break;
+					}
 				}
 			}
 			if (token == 0) {
@@ -171,7 +178,10 @@ class LineParser extends EventDispatcher implements ILineParser {
 		while (true) {
 			var startPos = pos;
 			var endPos = sourceLen;
-			var matched = wordBoundaries.matchSub(source, pos);
+			var matched = false;
+			if (wordBoundaries != null) {
+				matched = wordBoundaries.matchSub(source, pos);
+			}
 			if (matched) {
 				var currentPos = wordBoundaries.matchedPos();
 				endPos = currentPos.pos;
