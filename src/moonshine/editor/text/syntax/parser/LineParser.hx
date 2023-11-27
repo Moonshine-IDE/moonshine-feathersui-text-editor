@@ -119,7 +119,7 @@ class LineParser extends EventDispatcher implements ILineParser {
 	 */
 	private function splitOnContext(tail:String, pos:Int = 0):Void {
 		var style = 0;
-		var lastStyle = 0;
+		var lastStyle = -1;
 		var head:String = "";
 
 		// NOTE: for longer strings this could be a for loop & could break & be returned to,
@@ -166,7 +166,7 @@ class LineParser extends EventDispatcher implements ILineParser {
 	private function splitOnKeywords(source:String, posOffset:Int):Void {
 		var pos = 0;
 		var style = 0;
-		var lastStyle = 0;
+		var lastStyle = -1;
 		var sourceLen = source.length;
 		while (true) {
 			var startPos = pos;
