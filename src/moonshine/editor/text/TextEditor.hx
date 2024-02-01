@@ -1958,6 +1958,9 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 
 	private function textEditor_listView_focusInHandler(event:FocusEvent):Void {
 		_hasFocus = true;
+		if (stage != null && stage.window != null) {
+			stage.window.textInputEnabled = true;
+		}
 		#if (feathersui >= "1.2.0")
 		forceUpdateSelectedLines();
 		#else
@@ -1967,6 +1970,9 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 
 	private function textEditor_listView_focusOutHandler(event:FocusEvent):Void {
 		_hasFocus = false;
+		if (stage != null && stage.window != null) {
+			stage.window.textInputEnabled = false;
+		}
 		#if (feathersui >= "1.2.0")
 		forceUpdateSelectedLines();
 		#else
