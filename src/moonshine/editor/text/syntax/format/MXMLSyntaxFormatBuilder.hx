@@ -62,6 +62,12 @@ class MXMLSyntaxFormatBuilder {
 		Creates a mapping of language text styles to `TextFormat` objects.
 	**/
 	public function build():Map<Int, TextFormat> {
+		if (_colorSettings == null) {
+			_colorSettings = new SyntaxColorSettings();
+		}
+		if (_fontSettings == null) {
+			_fontSettings = new SyntaxFontSettings();
+		}
 		var formats:Map<Int, TextFormat> = [];
 		formats.set(XMLLineParser.XML_TEXT, getTextFormat(_colorSettings.foregroundColor));
 		formats.set(XMLLineParser.XML_TAG, getTextFormat(_colorSettings.tagNameColor));

@@ -54,6 +54,12 @@ class PythonSyntaxFormatBuilder {
 		Creates a mapping of language text styles to `TextFormat` objects.
 	**/
 	public function build():Map<Int, TextFormat> {
+		if (_colorSettings == null) {
+			_colorSettings = new SyntaxColorSettings();
+		}
+		if (_fontSettings == null) {
+			_fontSettings = new SyntaxFontSettings();
+		}
 		var formats:Map<Int, TextFormat> = [];
 		formats.set(0 /* default, parser fault */, getTextFormat(_colorSettings.invalidColor));
 		formats.set(PythonLineParser.PY_CODE, getTextFormat(_colorSettings.foregroundColor));
