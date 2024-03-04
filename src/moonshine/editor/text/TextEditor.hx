@@ -17,7 +17,6 @@
 
 package moonshine.editor.text;
 
-import feathers.utils.AbstractDisplayObjectFactory;
 import feathers.controls.ListView;
 import feathers.core.FeathersControl;
 import feathers.core.IFocusObject;
@@ -27,6 +26,8 @@ import feathers.data.ListViewItemState;
 import feathers.events.FlatCollectionEvent;
 import feathers.events.ScrollEvent;
 import feathers.layout.VerticalListLayout;
+import feathers.utils.AbstractDisplayObjectFactory;
+import feathers.utils.DisplayObjectFactory;
 import feathers.utils.DisplayObjectRecycler;
 import feathers.utils.MathUtil;
 import moonshine.editor.text.events.TextEditorChangeEvent;
@@ -919,16 +920,16 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 	@:style
 	public var highlightAllFindResults:Bool = false;
 
-	private var _textLineRendererFactory:AbstractDisplayObjectFactory<TextLineRenderer, TextLineRenderer>;
+	private var _textLineRendererFactory:DisplayObjectFactory<Dynamic, TextLineRenderer>;
 
-	public var textLineRendererFactory(get, set):AbstractDisplayObjectFactory<TextLineRenderer, TextLineRenderer>;
+	public var textLineRendererFactory(get, set):AbstractDisplayObjectFactory<Dynamic, TextLineRenderer>;
 
-	private function get_textLineRendererFactory():AbstractDisplayObjectFactory<TextLineRenderer, TextLineRenderer> {
+	private function get_textLineRendererFactory():AbstractDisplayObjectFactory<Dynamic, TextLineRenderer> {
 		return _textLineRendererFactory;
 	}
 
-	private function set_textLineRendererFactory(value:AbstractDisplayObjectFactory<TextLineRenderer,
-		TextLineRenderer>):AbstractDisplayObjectFactory<TextLineRenderer, TextLineRenderer> {
+	private function set_textLineRendererFactory(value:AbstractDisplayObjectFactory<Dynamic, TextLineRenderer>):AbstractDisplayObjectFactory<Dynamic,
+		TextLineRenderer> {
 		if (_textLineRendererFactory == value) {
 			return _textLineRendererFactory;
 		}
