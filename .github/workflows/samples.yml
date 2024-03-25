@@ -12,8 +12,11 @@ jobs:
   build-air:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: joshtynjala/setup-adobe-air-action@v1
+      - uses: actions/checkout@v4
+      - uses: joshtynjala/setup-adobe-air-action@v2
+        with:
+          air-version: "33.1"
+          accept-license: true
       - uses: krdlab/setup-haxe@v1
         with:
           haxe-version: 4.1.5
