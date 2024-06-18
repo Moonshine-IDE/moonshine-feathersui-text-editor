@@ -39,8 +39,9 @@ class TextEditorStyles {
 		var styleProvider = theme.styleProvider;
 		if (styleProvider.getStyleFunction(TextEditor, null) == null) {
 			styleProvider.setStyleFunction(TextEditor, null, function(textEditor:TextEditor):Void {
+				var darkMode = theme.darkMode;
 				if (textEditor.backgroundSkin == null) {
-					var backgroundSkin = new RectangleSkin(SolidColor(0xfdfdfd));
+					var backgroundSkin = new RectangleSkin(SolidColor(darkMode ? 0x1E1E1E : 0xfffffe));
 					backgroundSkin.width = 10.0;
 					backgroundSkin.height = 10.0;
 					textEditor.backgroundSkin = backgroundSkin;
