@@ -35,7 +35,11 @@ class ClipboardManager {
 		_textEditor = textEditor;
 		_textEditor.addEventListener(Event.COPY, clipboardManager_textEditor_copyHandler, false, 0, true);
 		_textEditor.addEventListener(Event.CUT, clipboardManager_textEditor_cutHandler, false, 0, true);
+		#if !html5
+		// the html5 target dispatches TextEvent.TEXT_INPUT on paste
+		// when stage.window.textInputEnabled == true
 		_textEditor.addEventListener(Event.PASTE, clipboardManager_textEditor_pasteHandler, false, 0, true);
+		#end
 	}
 
 	private var _textEditor:TextEditor;

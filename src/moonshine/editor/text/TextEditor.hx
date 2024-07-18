@@ -1959,8 +1959,11 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 
 	private function textEditor_listView_focusInHandler(event:FocusEvent):Void {
 		_hasFocus = true;
-		#if !flash
+		#if html5
 		if (stage != null && stage.window != null) {
+			// this appears to be required for html5, but not native
+			// when enabled, paste events should be ignored because text input
+			// events will already handle pastes (see ClipboardManager)
 			stage.window.textInputEnabled = true;
 		}
 		#end
@@ -1973,7 +1976,7 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 
 	private function textEditor_listView_focusOutHandler(event:FocusEvent):Void {
 		_hasFocus = false;
-		#if !flash
+		#if html5
 		if (stage != null && stage.window != null) {
 			stage.window.textInputEnabled = false;
 		}
