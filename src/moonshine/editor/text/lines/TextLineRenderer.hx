@@ -753,14 +753,14 @@ class TextLineRenderer extends FeathersControl {
 		if (_mainTextField == null) {
 			return null;
 		}
-		var end = charIndex == _mainTextField.text.length;
+		var renderedCharIndex = textIndexToRenderedIndex(charIndex);
+		var end = renderedCharIndex == _mainTextField.text.length;
 		if (end) {
-			if (charIndex == 0) {
+			if (renderedCharIndex == 0) {
 				return new Rectangle(_mainTextField.x, _mainTextField.y, 0.0, _mainTextField.textHeight);
 			}
-			charIndex--;
+			renderedCharIndex--;
 		}
-		var renderedCharIndex = textIndexToRenderedIndex(charIndex);
 		var bounds = _mainTextField.getCharBoundaries(renderedCharIndex);
 		if (bounds == null) {
 			return null;
