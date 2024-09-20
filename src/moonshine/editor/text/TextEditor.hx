@@ -1426,6 +1426,13 @@ class TextEditor extends FeathersControl implements IFocusObject implements ISta
 		// but it's safer to check just in case
 		if (textLineRenderer != null) {
 			var adjustedIndex = caretCharIndex;
+			// if there's a selection, prefer the lower value
+			if (_selectionStartCharIndex != -1 && adjustedIndex > _selectionStartCharIndex) {
+				adjustedIndex = _selectionStartCharIndex;
+			}
+			if (_selectionEndCharIndex != -1 && adjustedIndex > _selectionEndCharIndex) {
+				adjustedIndex = _selectionEndCharIndex;
+			}
 			var end = false;
 			var line = lines.get(_caretLineIndex);
 			// get the bounds of the final real character so that the horizontal
