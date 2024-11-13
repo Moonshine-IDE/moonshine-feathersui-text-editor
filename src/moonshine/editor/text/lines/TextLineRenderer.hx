@@ -832,10 +832,12 @@ class TextLineRenderer extends FeathersControl {
 		var renderedCharIndexAtPoint = _mainTextField.getCharIndexAtPoint(mainTextFieldX, mainTextFieldY);
 		if (renderedCharIndexAtPoint != -1 && returnNextAfterCenter) {
 			var bounds = _mainTextField.getCharBoundaries(renderedCharIndexAtPoint);
-			var center = _gutterWidth + bounds.x + (bounds.width / 2.0);
-			// If point falls after the center of the character, move to next one
-			if (localX >= center) {
-				renderedCharIndexAtPoint++;
+			if (bounds != null) {
+				var center = _gutterWidth + bounds.x + (bounds.width / 2.0);
+				// If point falls after the center of the character, move to next one
+				if (localX >= center) {
+					renderedCharIndexAtPoint++;
+				}
 			}
 		}
 
