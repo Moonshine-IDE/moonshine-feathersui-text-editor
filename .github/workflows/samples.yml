@@ -1,18 +1,11 @@
 name: Samples
-
-on:
-  push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
+on: [push, pull_request]
 
 jobs:
   build-air:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: joshtynjala/setup-adobe-air-action@v2
         with:
           air-version: "33.1"
