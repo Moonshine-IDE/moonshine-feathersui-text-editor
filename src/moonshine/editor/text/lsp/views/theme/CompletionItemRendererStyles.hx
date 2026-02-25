@@ -103,12 +103,6 @@ class CompletionItemRendererStyles {
 	}
 
 	private static function setCompletionItemRendererDetailLabelStyles(label:Label, theme:BaseSteelTheme):Void {
-		// var backgroundSkin = new RectangleSkin();
-		// backgroundSkin.fill = SolidColor(0xffffff, 0.0);
-		// backgroundSkin.border = None;
-		// backgroundSkin.maxWidth = 250.0;
-		// label.backgroundSkin = backgroundSkin;
-
 		var textFormat = theme.getDetailTextFormat();
 		textFormat.font = "_typewriter";
 		label.textFormat = textFormat;
