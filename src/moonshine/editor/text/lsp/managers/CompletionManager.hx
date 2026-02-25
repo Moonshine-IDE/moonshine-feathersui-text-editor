@@ -50,6 +50,7 @@ import openfl.events.TextEvent;
 import openfl.geom.Point;
 import openfl.net.SharedObject;
 import openfl.ui.Keyboard;
+import openfl.utils.ObjectPool;
 
 /**
 	Used internally by `LspTextEditor` to manage completion requests.
@@ -65,12 +66,21 @@ class CompletionManager {
 
 		_textEditor = textEditor;
 
+		// the virtual cache get cleared every time that the filter or sort
+		// changes, which results in the list view forgetting the dimensions of
+		// item renderers. this makes the number of item renderers fluctuate
+		// between one and how many are actually needed because it needs to
+		// re-do the measurement.
+		// as an optimization, have the recycler delegate to an object pool
+		// because this will help it keep using those lost item renderers.
+		var itemRendererPool = new ObjectPool(createCompletionItemRenderer);
+
 		_completionListView = new ListView();
 		_completionListView.tabEnabled = false;
 		_completionListView.variant = VARIANT_COMPLETION_LIST_VIEW;
 		_completionListView.itemToText = (item:CompletionItem) -> item.label;
-		_completionListView.itemRendererRecycler = DisplayObjectRecycler.withFunction(createCompletionItemRenderer, updateCompletionItemRenderer, null,
-			destroyCompletionItemRenderer);
+		_completionListView.itemRendererRecycler = DisplayObjectRecycler.withFunction(itemRendererPool.get, updateCompletionItemRenderer, null,
+			itemRendererPool.release);
 		_completionListView.addEventListener(Event.CHANGE, completionManager_completionListView_changeHandler);
 		_completionListView.addEventListener(ListViewEvent.ITEM_TRIGGER, completionManager_completionListView_itemTriggerHandler);
 		_completionListView.addEventListener(Event.RESIZE, completionManager_completionListView_resizeHandler);
