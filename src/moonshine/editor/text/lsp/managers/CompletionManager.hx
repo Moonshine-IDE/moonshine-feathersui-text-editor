@@ -50,7 +50,11 @@ import openfl.events.TextEvent;
 import openfl.geom.Point;
 import openfl.net.SharedObject;
 import openfl.ui.Keyboard;
+#if (openfl >= "9.1.0")
 import openfl.utils.ObjectPool;
+#else
+import openfl._internal.utils.ObjectPool;
+#end
 
 /**
 	Used internally by `LspTextEditor` to manage completion requests.
